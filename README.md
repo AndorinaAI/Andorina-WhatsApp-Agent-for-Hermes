@@ -4,8 +4,8 @@
 # <p align="center"><em>La Skill Definitiva de WhatsApp para el Agente Hermes (Lanzamiento Inicial)</em></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.0-blueviolet?style=flat-square" alt="Version">
-  <img src="https://img.shields.io/badge/status-DEBUG--TESTING--PREVIEW-red?style=flat-square" alt="Status">
+  <img src="https://img.shields.io/badge/version-1.0.1--Bugfix--1-blueviolet?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/status-STABLE-green?style=flat-square" alt="Status">
   <img src="https://img.shields.io/badge/platform-Linux-lightgrey?style=flat-square&logo=linux" alt="Linux">
   <img src="https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square&logo=python" alt="Python">
 </p>
@@ -15,11 +15,11 @@
 </p>
 
 > [!IMPORTANT]
-> **🚀 v1.0.0 INITIAL RELEASE: DEBUG TESTING PREVIEW**
-> This is the first public version of Andoriña. It features agent-proof refactoring and hardening. Please report any bugs via GitHub Issues.
+> **🚀 v1.0.0 INITIAL RELEASE**
+> This is the first stable version of Andoriña. It features security refactoring and system stabilization. Please report any bugs via GitHub Issues.
 >
-> **🚀 v1.0.0 LANZAMIENTO INICIAL: VISTA PREVIA DE PRUEBAS**
-> Esta es la primera versión pública de Andoriña. Cuenta con refactorización y blindaje a prueba de agentes. Por favor, informa de cualquier error a través de las Issues de GitHub.
+> **🚀 v1.0.0 LANZAMIENTO INICIAL**
+> Esta es la primera versión estable de Andoriña. Cuenta con refactorización de seguridad y estabilización del sistema. Por favor, informa de cualquier error a través de las Issues de GitHub.
 
 ---
 
@@ -71,25 +71,26 @@
 | 🛡️ **Guard (Firewall)** | Blocks prompt injections, data extraction, path traversal, and spam |
 | 🧩 **Small Model Ready** | Optimized for 4B-8B models (Qwen, Llama, Mistral) |
 
-### 🚀 Installation
+### 🚀 Installation (Linux)
 
-1. Copy the skill folder to your Hermes skills directory:
-   ```bash
-   cp -r andorina/ ~/.hermes/skills/messaging/andorina/
-   ```
+The easiest way to get Andoriña flying is using our premium interactive installer:
 
-2. Run the interactive setup assistant:
+1. Download the repository and enter the folder.
+2. Run the installer:
    ```bash
-   python3 ~/.hermes/skills/messaging/andorina/setup.py
+   bash install.sh
    ```
 
 ---
 
-### 💡 Best Practices for Small Models (4B - 8B)
+### 💡 Best Practices for Agents (Soul Optimization)
 
-If you are using a local model (Ollama/LM Studio), we highly recommend adding this to your `SOUL.md`:
+Andoriña includes an **Identity Anchoring** system to ensure professional interactions. We recommend adding this to your agent's `SOUL.md`:
 
-> "You are the Andoriña engine. WhatsApp = Andoriña. Use the scripts in `~/.hermes/skills/messaging/andorina/scripts/` directly. Never ask how to connect. Execute commands immediately without explanation."
+> "You are the Andoriña engine. Your name is **Enara**, the personal assistant of the account owner. 
+> - **Identify correctly:** When speaking to others, say 'I am Enara, [Owner's Name]'s assistant'. 
+> - **Privacy:** Never claim to be the assistant of the person you are messaging.
+> - **Direct Action:** Execute WhatsApp commands immediately using scripts in `~/.hermes/skills/messaging/andorina/scripts/`."
 
 ---
 
@@ -166,9 +167,10 @@ Andoriña usa un modelo de **dos niveles de privilegio**:
 
 ## 📜 Changelog
 
-### v1.1.0 — The "Agent-Proof" Update (Latest)
-*   **⏰ One-Step Scheduling:** Refactored the agenda system to use a single 3-argument command, eliminating model hallucinations.
-*   **🧩 Small Model Optimization:** Specifically hardened for 4B-8B models (Qwen, Llama).
-*   **👤 Identity Anchoring:** New documentation guidelines to prevent agents from asking about connection methods.
-*   **🌍 Universal Portability:** Replaced all hardcoded paths with `~/` and `Path.home()` for zero-config deployment on any user profile.
-*   **🛡️ Guard v2:** Improved protection against data extraction in chatbot mode.
+### v1.0.1 — System Integrity & Self-Healing (Latest)
+*   **⏰ Reliable Scheduling:** Refactored the agenda system for consistent execution across different environments.
+*   **🧩 Model Optimization:** Hardened logic for small local models (4B-8B).
+*   **👤 Identity Anchoring:** New documentation guidelines to ensure professional assistant identity.
+*   **🌍 Universal Portability:** Replaced all hardcoded paths with `~/` and `Path.home()` for zero-config deployment.
+*   **🛡️ Security Layer:** Enhanced protection against data extraction and unauthorized access.
+*   **🩺 Self-Healing:** Integrated automatic WhatsApp bridge repair after system updates.

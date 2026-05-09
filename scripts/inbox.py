@@ -38,12 +38,15 @@ def cmd_listar():
 def cmd_leer(chat_id):
     inbox = load_inbox()
     
+    chat_id = chat_id.strip()
     # Normalize ID if it's missing suffix
     if not "@" in chat_id:
         if "-" in chat_id: chat_id += "@g.us"
         else: chat_id += "@s.whatsapp.net"
         
     messages = [m for m in inbox if m.get('chatId') == chat_id]
+    # Limit to the last 50 messages to prevent LLM context overflow
+    messages = messages[-50:]
     out({"ok": True, "chat_id": chat_id, "total_messages": len(messages), "messages": messages})
 
 if __name__ == "__main__":

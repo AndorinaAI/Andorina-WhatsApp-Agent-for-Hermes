@@ -101,11 +101,16 @@ def parse_cron_schedule(time_str):
     if m:
         h, minute = m.groups()
         return f"{int(minute)} {int(h)} * * *"
-    return "* * * * *"
+    return "INVALID_FORMAT"
 
 def cmd_auto_schedule(chat_id, time_str, message):
     if not (chat_id.endswith("@s.whatsapp.net") or chat_id.endswith("@g.us")):
         out({"ok": False, "error": "INVALID_CHAT_ID", "message": "❌ ERROR: Use a numeric ID."})
+        sys.exit(1)
+    
+    cron_expr = parse_cron_schedule(time_str)
+    if cron_expr == "INVALID_FORMAT":
+        out({"ok": False, "error": "INVALID_TIME_FORMAT", "message": "❌ ERROR: Time must be HH:MM or DD/MM HH:MM."})
         sys.exit(1)
     
     # Millisecond precision to avoid collisions in high-frequency scheduling
@@ -122,11 +127,10 @@ def cmd_auto_schedule(chat_id, time_str, message):
         out({"ok": False, "error": "STORAGE_FAILED"})
         sys.exit(1)
     
-    cron_expr = parse_cron_schedule(time_str)
     scripts_path = Path(__file__).parent.absolute()
 
-    # Wrap command in quotes to handle paths with spaces
-    full_cmd = f'python3 "{scripts_path}/agenda.py" send {msg_id}'
+    # Wrap command in quotes to handle paths with spaces, using the exact Python executable
+    full_cmd = f'{sys.executable} "{scripts_path}/agenda.py" send {msg_id}'
     cmd = [
         "hermes", "cron", "create",
         "--name", f"WhatsApp_{msg_id}",

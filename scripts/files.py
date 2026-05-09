@@ -11,6 +11,12 @@ import os
 import requests
 from pathlib import Path
 
+# Self-healing: Ensure bridge is patched
+try:
+    import bridge_health
+    bridge_health.ensure_patched()
+except: pass
+
 ENV_PATH = Path.home() / ".hermes" / ".env"
 BRIDGE_URL = "http://localhost:3000"
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🚀 Andoriña Setup Assistant v1.0.0 (DEBUG TESTING PREVIEW)
+🚀 Andoriña Setup Assistant v1.0.1 (Bugfix-1)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
@@ -90,21 +90,31 @@ def main():
     if cid and sec:
         print("\n🔑 4. Google Auth"); subprocess.run([sys.executable, str(SOURCE_DIR / "scripts" / "auth.py")])
 
-    print("\n🔧 5. Patch Bridge"); subprocess.run([sys.executable, str(PATCH_SCRIPT)])
+    print("\n🔧 5. Patch Bridge"); subprocess.run([sys.executable, str(SOURCE_DIR / "scripts" / "bridge_health.py")])
 
-    print("\n🔗 6. Register Hooks & Permissions")
-    scripts_dir = Path.home() / ".hermes" / "skills" / "messaging" / "andorina" / "scripts"
+    print("\n🔗 6. Deploying Skills & Permissions")
+    hermes_base = Path.home() / ".hermes" / "skills" / "messaging" / "andorina"
+    scripts_dir = hermes_base / "scripts"
+    
     try:
-        # Ensure scripts are executable
-        if scripts_dir.exists():
-            for script in scripts_dir.glob("*.py"):
-                script.chmod(script.stat().st_mode | 0o111)
+        # Create directory structure
+        scripts_dir.mkdir(parents=True, exist_ok=True)
         
+        # Copy SKILL.md
+        import shutil
+        shutil.copy2(SOURCE_DIR / "SKILL.md", hermes_base / "SKILL.md")
+        
+        # Copy all scripts
+        for script in (SOURCE_DIR / "scripts").glob("*.py"):
+            shutil.copy2(script, scripts_dir / script.name)
+            (scripts_dir / script.name).chmod(0o755) # Ensure executable
+            
+        # Register Hook
         hook = scripts_dir / "hook_inbox.py"
         subprocess.run(["hermes", "hooks", "add", "wa_inbox", "--command", f"python3 {hook}", "--event", "message_received"], capture_output=True)
-        print("✅ Inbox hook registered and permissions set.")
+        print("✅ Skills deployed and inbox hook registered.")
     except Exception as e:
-        print(f"⚠️ Warning: Hooks/Permissions setup failed: {e}")
+        print(f"⚠️ Warning: Deployment failed: {e}")
 
     optimize_soul()
     print("\n🎉 Setup complete! 🕊️\n")
