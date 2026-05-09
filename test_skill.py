@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🧪 test_skill.py — Automated Test Suite for Andoriña v1.0.0
+🧪 test_skill.py — Automated Test Suite for Andoriña v1.0.1
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
@@ -33,8 +33,8 @@ def run(cmd):
 
 @t("Syntax Check: All Scripts")
 def _():
-    scripts = ["agenda.py", "send.py", "files.py", "contacts.py", "guard.py", "inbox.py", "auth.py", "hook_inbox.py"]
-    root_scripts = ["setup.py", "patch_bridge.py", "test_skill.py"]
+    scripts = ["agenda.py", "send.py", "files.py", "contacts.py", "guard.py", "inbox.py", "auth.py", "hook_inbox.py", "bridge_health.py"]
+    root_scripts = ["setup.py", "test_skill.py"]
     
     for s in scripts:
         r = subprocess.run([sys.executable, "-m", "py_compile", str(SCRIPTS/s)], capture_output=True)
@@ -94,7 +94,7 @@ def _():
 # ── Runner ─────────────────────────────────────────────────────────────────────
 
 def main():
-    print(f"\n🧪 Andoriña v1.0.0 — Test Suite")
+    print(f"\n🧪 Andoriña v1.0.1 — Test Suite")
     print(f"{'━'*40}\n")
 
     passed = 0
@@ -114,7 +114,7 @@ def main():
     print(f"\n{'━'*40}")
     print(f"  Result: {passed}/{passed+failed} passed")
     if failed == 0:
-        print("  🎉 VERSION 1.0.0 READY FOR TESTING!\n")
+        print("  🎉 VERSION 1.0.1 READY FOR TESTING!\n")
     else:
         print("  ⚠️  Fix the issues above before shipping.\n")
 
