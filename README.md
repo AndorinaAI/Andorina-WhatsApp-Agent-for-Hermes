@@ -15,11 +15,11 @@
 </p>
 
 > [!IMPORTANT]
-> **🚀 v1.0.0 INITIAL RELEASE**
-> This is the first stable version of Andoriña. It features security refactoring and system stabilization. Please report any bugs via GitHub Issues.
+> **🚀 v1.0.1 SYSTEM INTEGRITY UPDATE**
+> This is the latest stable version of Andoriña. It features security refactoring and system stabilization. Please report any bugs via GitHub Issues.
 >
-> **🚀 v1.0.0 LANZAMIENTO INICIAL**
-> Esta es la primera versión estable de Andoriña. Cuenta con refactorización de seguridad y estabilización del sistema. Por favor, informa de cualquier error a través de las Issues de GitHub.
+> **🚀 v1.0.1 ACTUALIZACIÓN DE INTEGRIDAD**
+> Esta es la versión estable más reciente de Andoriña. Cuenta con refactorización de seguridad y estabilización del sistema.
 
 ---
 
