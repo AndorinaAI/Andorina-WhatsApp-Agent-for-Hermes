@@ -1,24 +1,27 @@
-# 📑 Engineering Memory & Nuclear Audit — Andoriña
-
-This document details the exhaustive hardening, sanitation, and optimization effort performed since the conception of the project.
-
----
-
-## [1.0.0] - 2026-05-09 (TODAY)
-### 🚀 INITIAL RELEASE: "The Agent-Proof Milestone"
-Final Nuclear Audit and global hardening.
+## [1.0.1] - 2026-05-09 (Bugfix-1)
+### 🛠️ SYSTEM INTEGRITY & SELF-HEALING
+Comprehensive audit and autonomous bridge repair.
 
 #### 🇬🇧 English
-- **🛡️ Nuclear Hardening:** UTF-8 Shield implementation for binary-safe `stdin` (emojis/special chars support) and Guard v2 Logical Firewall with 37+ detection patterns.
-- **🧠 Agent-Proofing:** Refactored `agenda.py` for one-step scheduling to eliminate LLM hallucinations. Identity Anchoring in `SOUL.md`.
-- **🩹 Integrity:** Purged corrupted assets, synced legal dual-licensing (AGPL-3.0/Commercial), and finalized the "Zero-Config" installer.
+- **🩺 Self-Healing Logic:** Integrated `bridge_health.py` to automatically detect and repair WhatsApp bridge inconsistencies after updates.
+- **🔬 Full Integrity Audit:** Detailed review of 12 core files to ensure logic consistency and stability.
+- **📦 Deployment Optimization:** Refactored `setup.py` for professional script deployment and automated hooks.
 
 #### 🇪🇸 Español
-- **🛡️ Blindaje Nuclear:** Implementación de UTF-8 Shield para `stdin` y Guard v2 con 37+ patrones de detección de inyecciones.
-- **🧠 Agent-Proofing:** Refactorización de `agenda.py` para programación en un paso (cero alucinaciones). Anclaje de identidad en `SOUL.md`.
-- **🩹 Integridad:** Purga de assets corruptos, sincronización de licencia dual y finalización del instalador "Zero-Config".
+- **🩺 Lógica de Auto-Sanación:** Integración de `bridge_health.py` para detectar y reparar automáticamente inconsistencias tras actualizaciones.
+- **🔬 Auditoría de Integridad:** Revisión detallada de 12 archivos core para asegurar consistencia lógica y estabilidad.
+- **📦 Optimización de Despliegue:** Refactorización de `setup.py` para despliegue profesional y automatización de ganchos.
 
 ---
+
+## [1.0.0] - 2026-05-09
+### 🚀 INITIAL RELEASE
+Full system audit and global stabilization.
+
+#### 🇬🇧 English
+- **🛡️ Security Layer:** UTF-8 implementation for binary-safe `stdin` and Guard v2 firewall with enhanced detection patterns.
+- **🧠 Identity Anchoring:** Refactored scheduling system and identity rules in `SOUL.md`.
+- **🩹 Integrity:** Asset cleanup and finalized dual-licensing (AGPL-3.0/Commercial).
 
 ## [0.9.0] - 2026-05-08
 ### 🎨 Documentation & Visual Identity

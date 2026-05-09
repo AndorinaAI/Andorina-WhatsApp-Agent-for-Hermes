@@ -57,9 +57,9 @@ def patch_logic(content):
         new_type = old_type + "\n    const resolvedMime = (fallback) => reqMimetype || MIME_MAP[ext] || fallback;"
         content = content.replace(old_type, new_type)
 
-    content = content.replace("mimetype: MIME_MAP[ext] || 'image/jpeg'", "mimetype: resolvedMime('image/jpeg')")
-    content = content.replace("mimetype: MIME_MAP[ext] || 'video/mp4'", "mimetype: resolvedMime('video/mp4')")
-    content = content.replace("mimetype: MIME_MAP[ext] || 'application/octet-stream'", "mimetype: resolvedMime('application/octet-stream')")
+    content = re.sub(r"mimetype:\s*MIME_MAP\[ext\]\s*\|\|\s*['\"]image/jpeg['\"]", "mimetype: resolvedMime('image/jpeg')", content)
+    content = re.sub(r"mimetype:\s*MIME_MAP\[ext\]\s*\|\|\s*['\"]video/mp4['\"]", "mimetype: resolvedMime('video/mp4')", content)
+    content = re.sub(r"mimetype:\s*MIME_MAP\[ext\]\s*\|\|\s*['\"]application/octet-stream['\"]", "mimetype: resolvedMime('application/octet-stream')", content)
     
     # PTT Support
     audio_pattern = r"audio:\s*buffer,\s*mimetype:[^,]+,\s*ptt:[^}]+"
