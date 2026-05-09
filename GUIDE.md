@@ -1,5 +1,5 @@
 # 📖 Andoriña v1.0.2 — Complete User Guide
-## 🕊️ Freedom of Messaging, Local & Secure
+## 🕊️ Autonomous WhatsApp Manager for Hermes
 
 ---
 

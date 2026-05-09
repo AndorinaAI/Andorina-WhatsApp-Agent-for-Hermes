@@ -5,8 +5,8 @@
 </p>
 
 <p align="center">
-  <em>The Secure WhatsApp Skill for Hermes Agent (v1.0.2)</em><br>
-  <em>La Skill Definitiva de WhatsApp para el Agente Hermes (v1.0.2)</em>
+  <em>Autonomous WhatsApp Manager for Hermes (v1.0.2)</em><br>
+  <em>Gestor Autónomo de WhatsApp para Hermes (v1.0.2)</em>
 </p>
 
 <p align="center">
@@ -34,13 +34,13 @@
 ---
 
 <p align="center">
-  <strong>Turn your Hermes agent into a total WhatsApp manager.</strong><br>
-  Send messages and files, search contacts, schedule messages, and function as a secure chatbot for third parties.
+  <strong>Turn Hermes into an autonomous WhatsApp manager.</strong><br>
+  Take full control of your messaging. Forget typing: schedule messages, send voice notes, share PC files, and search your contacts instantly. Your WhatsApp, on total autopilot.
 </p>
 
 <p align="center">
-  <strong>Convierte a tu agente Hermes en un gestor total de WhatsApp.</strong><br>
-  Envía mensajes y archivos, busca contactos, programa envíos y funciona como un chatbot seguro para terceros.
+  <strong>Convierte a Hermes en un gestor autónomo de WhatsApp.</strong><br>
+  Toma el control absoluto de tus comunicaciones. Olvídate de teclear: programa envíos, lanza notas de voz, adjunta archivos de tu PC y busca en tu agenda al instante. Tu mensajería, en piloto automático.
 </p>
 
 > ⚠️ **Currently optimized exclusively for Linux.** Windows and macOS support in development.
@@ -131,8 +131,6 @@ If you are using a local model (Ollama/LM Studio), we highly recommend adding th
 - *The agent will automatically use the simplified `auto-schedule` command.*
 
 ---
-
-### 🛠️ Technical Command Reference
 
 ## 🌟 KEY CAPABILITIES & CHARACTERISTICS
 
@@ -282,82 +280,82 @@ Si usas un modelo local (Ollama/LM Studio), te recomendamos encarecidamente aña
 
 ## 🌟 CAPACIDADES Y CARACTERÍSTICAS CLAVE
  
- ### 🛡️ Arquitectura Anti-Baneo y Resiliente
- 
- - **Pacing de Peticiones:** Cada mensaje enviado incluye un retraso de 1.0s para simular una interacción natural y evitar la saturación del puente de WhatsApp.
- - **Evasión de Colisiones:** `agenda.py` desplaza automáticamente las tareas programadas concurrentes por 2 minutos para evitar sobrecargas del agente.
- - **Puente de Auto-Reparación:** Escudo de infraestructura que resucita Qdrant y el puente de WhatsApp si se bloquean o fallan.
- - **Extensor MIME:** Soporte nativo para formatos modernos como `.heic`, `.opus`, `.md`, `.csv`, `.rtf` y `.webp`.
- 
- ### 🤖 Multi-Agente y Aislamiento
- 
- - **Aislamiento de Crontab:** Inyección automática de `HERMES_HOME` y `HERMES_CMD` en las tareas cron nativas para mantener la independencia de las instancias.
- - **Enrutamiento Específico por Entorno:** Extracción dinámica de puertos y rutas para evitar la contaminación de datos entre agentes.
- 
- ### 📒 Contactos Inteligentes e Identidad
- 
- - **Protocolo de Búsqueda Obligatoria:** Verificación de contacto mandatoria antes de cualquier comando de envío para asegurar un 100% de precisión.
- - **Anclaje de Identidad:** Instrucciones especializadas que vinculan la identidad del agente directamente con el ecosistema "Andoriña".
- - **Sincro Google Cloud:** Integración total con Google People API con refresco automático de tokens OAuth2.
- - **Búsqueda Difusa:** Lógica de búsqueda que ignora acentos, mayúsculas y caracteres especiales para encontrar contactos incluso con erratas.
- 
- ### 📥 Inbox y Motor de Privacidad
- 
- - **Procesamiento Local:** El 100% de los datos (mensajes, contactos, archivos) se procesan en la máquina del usuario. Cero telemetría.
- - **Protección de Contexto:** `inbox.py read` limita automáticamente el historial a los últimos 50 mensajes para evitar el desbordamiento del contexto del LLM.
- - **Almacenamiento de Contenido:** Almacenamiento local persistente de texto entrante en `state/inbox.json` para memoria a largo plazo.
- - **Agenda Persistente:** Las tareas programadas se mantienen en `state/agenda.json` hasta que se entregan con éxito.
- 
- ### 🎙️ Multimedia Avanzada
- 
- - **Notas de Voz Nativas:** Envía archivos de audio como "PTT", mostrando el estado "Grabando audio..." al receptor.
- - **Resolución de Rutas Absolutas:** Manejo automático de rutas de archivos locales para asegurar una transmisión multimedia precisa.
- - **Aislamiento de Recepción Multimedia:** Cada perfil de agente mantiene sus propias carpetas de caché (`image_cache`, `video_cache`, `audio_cache`), asegurando la privacidad total en entornos multi-agente.
- 
- ## 🛠️ LA CAJA DE HERRAMIENTAS
- 
- ### 📒 Contactos y Grupos
- 
- | Script | Comando | Uso |
- | :--- | :--- | :--- |
- | `contacts.py` | `search "Query"` | Búsqueda universal (nombres, números, grupos). |
- | `contacts.py` | `groups` | Lista todos los grupos de WhatsApp. |
- | `contacts.py` | `all` | Lista todos los contactos conocidos en un array JSON. |
- | `contacts.py` | `refresh` | Limpia la caché local y fuerza una sincronización con la nube. |
- 
- ### ✉️ Mensajería y Archivos
- 
- | Script | Comando | Uso |
- | :--- | :--- | :--- |
- | `send.py` | `message "ID" "Texto"` | Envía un mensaje de texto inmediatamente. |
- | `files.py` | `"Ruta" "ID"` | Envía imágenes, vídeos o documentos inmediatamente. |
- | `files.py` | `"Ruta" "ID" --voice` | Envía un audio como Nota de Voz (PTT). |
- | `inbox.py` | `list` | Lista chats recientes con el último mensaje. |
- | `inbox.py` | `read "ID"` | Lee el historial de mensajes de un chat (máx. 50). |
- 
- ### 📅 Programación (Agenda)
- 
- | Script | Comando | Uso |
- | :--- | :--- | :--- |
- | `agenda.py` | `auto-schedule "ID" "HORA" "Msg"` | Programación automática de texto (gestiona colisiones). |
- | `agenda.py` | `auto-schedule "ID" "HORA" "Ruta"` | Programación automática de archivos. |
- | `agenda.py` | `auto-schedule "ID" "HORA" "Ruta" --voice` | Nota de Voz programada (PTT). |
- | `agenda.py` | `list` | Lista todos los mensajes pendientes en la agenda. |
- | `agenda.py` | `remove "msg_ID"` | Cancela un mensaje programado pendiente. |
- 
- ### 🛡️ Seguridad y Sistema
- 
- | Script | Comando | Uso |
- | :--- | :--- | :--- |
- | `guard.py` | `status` | Comprueba límites de tasa y números bloqueados. |
- | `guard.py` | `reset "Número"` | Reinicia el contador de seguridad para un número. |
- | `diag.py` | (ninguno) | Realiza un diagnóstico completo de salud del sistema. |
- | `bridge_health.py` | (ninguno) | Auto-repara y reinicia el puente si está caído. |
- 
- ---
- *Nota: Todos los scripts están en la carpeta `scripts/`.*
- 
- ---
+### 🛡️ Arquitectura Anti-Baneo y Resiliente
+
+- **Pacing de Peticiones:** Cada mensaje enviado incluye un retraso de 1.0s para simular una interacción natural y evitar la saturación del puente de WhatsApp.
+- **Evasión de Colisiones:** `agenda.py` desplaza automáticamente las tareas programadas concurrentes por 2 minutos para evitar sobrecargas del agente.
+- **Puente de Auto-Reparación:** Escudo de infraestructura que resucita Qdrant y el puente de WhatsApp si se bloquean o fallan.
+- **Extensor MIME:** Soporte nativo para formatos modernos como `.heic`, `.opus`, `.md`, `.csv`, `.rtf` y `.webp`.
+
+### 🤖 Multi-Agente y Aislamiento
+
+- **Aislamiento de Crontab:** Inyección automática de `HERMES_HOME` y `HERMES_CMD` en las tareas cron nativas para mantener la independencia de las instancias.
+- **Enrutamiento Específico por Entorno:** Extracción dinámica de puertos y rutas para evitar la contaminación de datos entre agentes.
+
+### 📒 Contactos Inteligentes e Identidad
+
+- **Protocolo de Búsqueda Obligatoria:** Verificación de contacto mandatoria antes de cualquier comando de envío para asegurar un 100% de precisión.
+- **Anclaje de Identidad:** Instrucciones especializadas que vinculan la identidad del agente directamente con el ecosistema "Andoriña".
+- **Sincro Google Cloud:** Integración total con Google People API con refresco automático de tokens OAuth2.
+- **Búsqueda Difusa:** Lógica de búsqueda que ignora acentos, mayúsculas y caracteres especiales para encontrar contactos incluso con erratas.
+
+### 📥 Inbox y Motor de Privacidad
+
+- **Procesamiento Local:** El 100% de los datos (mensajes, contactos, archivos) se procesan en la máquina del usuario. Cero telemetría.
+- **Protección de Contexto:** `inbox.py read` limita automáticamente el historial a los últimos 50 mensajes para evitar el desbordamiento del contexto del LLM.
+- **Almacenamiento de Contenido:** Almacenamiento local persistente de texto entrante en `state/inbox.json` para memoria a largo plazo.
+- **Agenda Persistente:** Las tareas programadas se mantienen en `state/agenda.json` hasta que se entregan con éxito.
+
+### 🎙️ Multimedia Avanzada
+
+- **Notas de Voz Nativas:** Envía archivos de audio como "PTT", mostrando el estado "Grabando audio..." al receptor.
+- **Resolución de Rutas Absolutas:** Manejo automático de rutas de archivos locales para asegurar una transmisión multimedia precisa.
+- **Aislamiento de Recepción Multimedia:** Cada perfil de agente mantiene sus propias carpetas de caché (`image_cache`, `video_cache`, `audio_cache`), asegurando la privacidad total en entornos multi-agente.
+
+## 🛠️ LA CAJA DE HERRAMIENTAS
+
+### 📒 Contactos y Grupos
+
+| Script | Comando | Uso |
+| :--- | :--- | :--- |
+| `contacts.py` | `search "Query"` | Búsqueda universal (nombres, números, grupos). |
+| `contacts.py` | `groups` | Lista todos los grupos de WhatsApp. |
+| `contacts.py` | `all` | Lista todos los contactos conocidos en un array JSON. |
+| `contacts.py` | `refresh` | Limpia la caché local y fuerza una sincronización con la nube. |
+
+### ✉️ Mensajería y Archivos
+
+| Script | Comando | Uso |
+| :--- | :--- | :--- |
+| `send.py` | `message "ID" "Texto"` | Envía un mensaje de texto inmediatamente. |
+| `files.py` | `"Ruta" "ID"` | Envía imágenes, vídeos o documentos inmediatamente. |
+| `files.py` | `"Ruta" "ID" --voice` | Envía un audio como Nota de Voz (PTT). |
+| `inbox.py` | `list` | Lista chats recientes con el último mensaje. |
+| `inbox.py` | `read "ID"` | Lee el historial de mensajes de un chat (máx. 50). |
+
+### 📅 Programación (Agenda)
+
+| Script | Comando | Uso |
+| :--- | :--- | :--- |
+| `agenda.py` | `auto-schedule "ID" "HORA" "Msg"` | Programación automática de texto (gestiona colisiones). |
+| `agenda.py` | `auto-schedule "ID" "HORA" "Ruta"` | Programación automática de archivos. |
+| `agenda.py` | `auto-schedule "ID" "HORA" "Ruta" --voice` | Nota de Voz programada (PTT). |
+| `agenda.py` | `list` | Lista todos los mensajes pendientes en la agenda. |
+| `agenda.py` | `remove "msg_ID"` | Cancela un mensaje programado pendiente. |
+
+### 🛡️ Seguridad y Sistema
+
+| Script | Comando | Uso |
+| :--- | :--- | :--- |
+| `guard.py` | `status` | Comprueba límites de tasa y números bloqueados. |
+| `guard.py` | `reset "Número"` | Reinicia el contador de seguridad para un número. |
+| `diag.py` | (ninguno) | Realiza un diagnóstico completo de salud del sistema. |
+| `bridge_health.py` | (ninguno) | Auto-repara y reinicia el puente si está caído. |
+
+---
+*Nota: Todos los scripts están en la carpeta `scripts/`.*
+
+---
 
 
 ### 🏗️ Arquitectura & Seguridad
