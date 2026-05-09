@@ -42,4 +42,4 @@
 - **Sincronización de Versiones:** Asegurada la paridad absoluta entre la web principal y los archivos contenidos en el paquete de versión.
 
 ---
-*Developed with &#10084; by Jorge & Antigravity.*
+*Developed with &#10084; by Jorge.*
