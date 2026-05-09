@@ -1,7 +1,7 @@
 # 📝 Changelog - Andoriña v1.0.2
 
 ## [v1.0.2] - 2026-05-09
-**"The Pure Code Update" / "La Actualización de Código Puro"**
+**"The Autonomous Manager Update" / "La Actualización del Gestor Autónomo"**
 
 ---
 
