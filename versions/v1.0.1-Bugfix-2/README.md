@@ -155,13 +155,6 @@ Si usas un modelo local (Ollama/LM Studio), te recomendamos encarecidamente aña
 
 ---
 
-### 📦 Requirements / Requisitos
-
-| Service | Requirement |
-| :--- | :--- |
-| **Python** | 3.8+ |
-| **System** | Linux |
-
 ### 🏗️ Arquitectura & Seguridad
 
 Andoriña usa un modelo de **dos niveles de privilegio**:
@@ -171,13 +164,12 @@ Andoriña usa un modelo de **dos niveles de privilegio**:
 
 ---
 
-### 📜 Licensing / Licencia
+### 📜 License
 
-| License Type | Usage |
-| :--- | :--- |
-| **AGPL-3.0** | Personal Use: Free and open. Forks must remain open-source. |
-| **Commercial** | Requires a paid license for companies or profit-making entities. |
+**AGPL-3.0 / Commercial License**
 
+- ✅ **Personal Use:** Free and open under AGPL-3.0. Forks must remain open-source.
+- ❌ **Commercial Use:** Requires a paid license for companies or profit-making entities.
 - 👤 **Trademark:** Name and logo are protected. Renaming is mandatory for forks.
 
 ---
