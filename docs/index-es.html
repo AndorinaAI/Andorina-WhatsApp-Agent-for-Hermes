@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andoriña | La Skill Definitiva de WhatsApp para Hermes</title>
+    <meta name="description"
+        content="Automatiza WhatsApp con Hermes Agent. Integración con Google Contacts, cronjobs y mucho más. Gratis y Open Source.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="linux-banner">
+        ⚠️ Notice: Currently, Andoriña v1.0.0 (DEBUG TESTING PREVIEW) is optimized exclusively for Linux.
+    </div>
+
+    <div class="background-elements">
+        <div class="glow-orb top-left"></div>
+        <div class="glow-orb bottom-right"></div>
+    </div>
+
+    <nav class="navbar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="assets/logo.png" alt="Andoriña Logo" style="height: 48px;">
+            <div class="logo">Andoriña</div>
+        </div>
+        <div class="nav-links">
+            <a href="#features">Funciones</a>
+            <a href="#progress">Progreso</a>
+            <a href="#roadmap">Roadmap</a>
+            <a href="#join">Únete</a>
+            <a href="#support" class="nav-btn nav-donate">Apoyar Proyecto</a>
+        </div>
+        <a href="index.html" class="language-switch">EN</a>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-platform">
+                    <img src="assets/linux-svg.svg" alt="Linux">
+                    <div class="platform-info">
+                        <span class="platform-label">Initial Launch</span>
+                        <span class="platform-ver">v1.0.0 (DEBUG TESTING PREVIEW)</span>
+                    </div>
+                </div>
+                <h1>Deja que tu WhatsApp <span class="text-gradient">Vuele</span></h1>
+                <p>Andoriña le da alas a tu agente Hermes. Olvídate de teclear: programa envíos, lanza notas de voz, adjunta archivos de tu PC y busca en toda tu agenda al instante. Tu mensajería, en piloto automático.</p>
+
+                <div class="cta-group">
+                    <a href="https://github.com/AndorinaAI/" target="_blank" class="btn btn-primary">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                            </path>
+                        </svg>
+                        Ver en GitHub
+                    </a>
+                    <a href="#features" class="btn btn-secondary">
+                        Ver todas las funciones
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-image">
+                <div class="glass-card mockup-card">
+                    <img src="assets/hero.png" alt="Andoriña Terminal Interface" />
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <h2>Tecnología de Vanguardia</h2>
+            <div class="grid">
+                <div class="glass-card feature-card">
+                    <div class="icon">🔍</div>
+                    <h3>Google Contacts</h3>
+                    <p>Sincronización total con tu cuenta. Su búsqueda inteligente encuentra a quien buscas aunque escribas mal el nombre o te olvides de las tildes.</p>
+                </div>
+                <div class="glass-card feature-card">
+                    <div class="icon">📁</div>
+                    <h3>Archivos del PC</h3>
+                    <p>Envío seguro de documentos y multimedia. Navegación inteligente por tus carpetas locales con protección total contra accesos externos.</p>
+                </div>
+                <div class="glass-card feature-card">
+                    <div class="icon">📥</div>
+                    <h3>Bandeja de Entrada</h3>
+                    <p>Registro persistente de tus mensajes recibidos. Permite que Hermes lea el contexto y responda con inteligencia propia cuando tú no estás.</p>
+                </div>
+            </div>
+
+            <div id="extra-features" class="grid" style="display: none; margin-top: 2rem;">
+                <div class="glass-card feature-card">
+                    <div class="icon">🎙️</div>
+                    <h3>Audios como Notas de Voz</h3>
+                    <p>Convierte cualquier archivo de audio (MP3, WAV, etc.) en una <strong>Nota de Voz real</strong> que se recibe con el reproductor nativo de WhatsApp.</p>
+                </div>
+                <div class="glass-card feature-card">
+                    <div class="icon">⏰</div>
+                    <h3>Agenda y Cron</h3>
+                    <p>Programación inteligente de mensajes con soporte para calendario integrado con el sistema de cron de Hermes.</p>
+                </div>
+                <div class="glass-card feature-card">
+                    <div class="icon">🎯</div>
+                    <h3>Score de Fiabilidad</h3>
+                    <p>Motor de decisión inteligente. Si la certeza sobre el contacto supera el 80% (o tu umbral personalizado), envía el mensaje automáticamente.</p>
+                </div>
+                <div class="glass-card feature-card">
+                    <div class="icon">🛡️</div>
+                    <h3>Blindaje y Auto-parcheo</h3>
+                    <p>Cortafuegos contra ataques y sistema "Self-Healing" que re-aplica tus funciones automáticamente tras cada actualización de Hermes.</p>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: center; margin-top: 3rem;">
+                <button id="toggle-features" class="btn btn-secondary">Ver todas las funciones</button>
+            </div>
+        </section>
+
+        <section id="progress" class="features">
+            <h2>Progreso del Desarrollo</h2>
+            <div class="glass-card">
+                <div class="progress-container">
+                    <div class="progress-label"><span>Integración Core (Bridge y API)</span> <span>100%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label"><span>Módulo de Seguridad (Guard)</span> <span>100%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label"><span>Integración Google Contacts</span> <span>100%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label"><span>Compatibilidad Windows</span> <span>En proceso</span></div>
+                    <div class="progress-bar"><div class="progress-fill in-progress"></div></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label"><span>Compatibilidad Mac</span> <span>??</span></div>
+                    <div class="progress-bar"><div class="progress-fill loading"></div></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label"><span>Autodetección Token Google Caducado</span> <span>??</span></div>
+                    <div class="progress-bar"><div class="progress-fill loading"></div></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label"><span>Autodetección Sesión WhatsApp Caducada</span> <span>??</span></div>
+                    <div class="progress-bar"><div class="progress-fill loading"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="features">
+            <h2>Funciones Futuras (Roadmap)</h2>
+            <div class="timeline">
+                <div class="timeline-item in-progress">
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h4>🪟 Compatibilidad Windows</h4>
+                            <span class="status-badge in-progress">En proceso</span>
+                        </div>
+                        <p>Sustitución de cron por un motor interno de eventos en Python para funcionar en Windows.</p>
+                    </div>
+                </div>
+                <div class="timeline-item planned">
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h4>🍎 Compatibilidad Mac</h4>
+                            <span class="status-badge planned">Planificado</span>
+                        </div>
+                        <p>Soporte para crons nativos y resolución de file system en macOS.</p>
+                    </div>
+                </div>
+                <div class="timeline-item planned">
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h4>🔄 Detección de Tokens</h4>
+                            <span class="status-badge planned">Planificado</span>
+                        </div>
+                        <p>Auto-detectar token de Google caducado y enviar prompt de re-solicitud.</p>
+                    </div>
+                </div>
+                <div class="timeline-item planned">
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h4>📱 Detección de Sesión</h4>
+                            <span class="status-badge planned">Planificado</span>
+                        </div>
+                        <p>Avisar activamente si la sesión de WhatsApp en Baileys ha caducado.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="join" class="features" style="padding-bottom: 0;">
+            <div class="glass-card donate-card" style="width: 100%; max-width: 1100px; text-align: center; margin: 0 auto;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <span style="font-size: 2rem;">🤝</span>
+                    <h2 style="margin: 0;">Únete al Proyecto</h2>
+                </div>
+                <p style="max-width: 800px; margin: 0 auto 2.5rem; font-size: 1.1rem; line-height: 1.7;">
+                    Andoriña es un proyecto de código abierto. Si tienes ideas, quieres reportar un bug o contribuir al código, el repositorio oficial es tu lugar. Recuerda que los forks deben ser para uso personal.
+                </p>
+                <div class="donation-options" style="justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+                    <a href="https://github.com/AndorinaAI/" target="_blank" class="btn btn-primary" style="min-width: 280px; justify-content: center;">
+                        🚀 Repositorio Oficial en GitHub
+                    </a>
+                    <a href="mailto:jorgegformoso@gmail.com" class="btn btn-secondary" style="min-width: 220px; justify-content: center;">
+                        📧 Contactar Equipo
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="support" class="donate">
+            <div class="glass-card donate-card" style="width: 100%; max-width: 1100px; text-align: center; margin: 0 auto; padding: 3rem;">
+                <!-- Header Row: Aligned Titles and Icons -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; margin-bottom: 2rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 45px; height: 45px; background: var(--primary-glow); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--primary); flex-shrink: 0;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        </div>
+                        <h3 style="font-size: 1.5rem; margin: 0;">Detrás de las Alas</h3>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 45px; height: 45px; background: rgba(244, 63, 94, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #f43f5e; flex-shrink: 0;">
+                            <span style="font-size: 1.2rem;">❤️</span>
+                        </div>
+                        <h3 style="font-size: 1.5rem; margin: 0;">Por qué apoyar el proyecto</h3>
+                    </div>
+                </div>
+
+                <!-- Content Row -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; align-items: start;">
+                    <!-- Left: About & AI Context -->
+                    <div>
+                        <p style="margin-bottom: 1.2rem; line-height: 1.7; font-size: 1.05rem;">
+                            Andoriña es un proyecto independiente que mantengo en mi tiempo libre. <strong>No soy desarrollador profesional</strong>: me apoyo en herramientas de IA avanzada para construir, depurar y mejorar la skill.
+                        </p>
+                        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+                            Esas herramientas tienen costes y límites reales. Tu apoyo no solo mantiene el proyecto libre de anuncios, sino que me permite acceder a modelos de IA más potentes para que Andoriña evolucione mucho más rápido y sea cada vez más inteligente.
+                        </p>
+                    </div>
+
+                    <!-- Right: Direct Reasons -->
+                    <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.8rem;">
+                            <li style="display: flex; gap: 10px; font-size: 0.9rem; align-items: flex-start;">
+                                <span style="color: var(--primary);">✓</span> <span>Mantenimiento ante los cambios constantes de WhatsApp.</span>
+                            </li>
+                            <li style="display: flex; gap: 10px; font-size: 0.9rem; align-items: flex-start;">
+                                <span style="color: var(--primary);">✓</span> <span>Financiación de IA avanzada para un mejor código.</span>
+                            </li>
+                            <li style="display: flex; gap: 10px; font-size: 0.9rem; align-items: flex-start;">
+                                <span style="color: var(--primary);">✓</span> <span>Actualizaciones más rápidas y nuevas funciones.</span>
+                            </li>
+                            <li style="display: flex; gap: 10px; font-size: 0.9rem; align-items: flex-start;">
+                                <span style="color: var(--primary);">✓</span> <span>Proyecto 100% independiente, sin anuncios ni paywalls.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Footer Action -->
+                <div style="margin-top: 3rem; text-align: center;">
+                    <div class="donation-options" style="justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem;">
+                        <a href="https://buymeacoffee.com/andorinaai" target="_blank" class="btn btn-bmc" style="min-width: 200px; justify-content: center;">
+                            ☕ Invítame a un Café
+                        </a>
+                        <a href="https://www.paypal.com/paypalme/jorge93gf" target="_blank" class="btn btn-paypal" style="min-width: 180px; justify-content: center;">
+                            💳 PayPal
+                        </a>
+                        <!-- GitHub Sponsors pending activation
+                        <a href="https://github.com/sponsors/" target="_blank" class="btn btn-github" style="min-width: 200px; justify-content: center;">
+                            💖 GitHub Sponsors
+                        </a>
+                        -->
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 600px; margin: 0 auto;">
+                        Las donaciones son opcionales, pero marcan una diferencia real en la salud y el futuro a largo plazo de Andoriña. ¡Gracias por apoyar el desarrollo independiente!
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Andoriña by Jorge. Creado con ❤️ para Hermes Agent.</p>
+        <p style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--text-muted); max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.4;">
+            <strong>Aviso de responsabilidad y Normas Éticas:</strong> Este software se proporciona "tal cual". Al ser una versión 1.0.0 (DEBUG TESTING PREVIEW) que interactúa con APIs no oficiales, puede contener bugs o comportamientos inesperados. No nos hacemos responsables de pérdida de datos, baneos de cuentas o mensajes enviados por error. Además, <strong>está terminantemente prohibido el uso de esta herramienta para el envío masivo de mensajes (spam), acoso, fraude, o cualquier actividad ilegal.</strong> Úsalo bajo tu propia responsabilidad y respetando siempre a terceros.
+        </p>
+        <p style="font-size: 0.8rem; margin-top: 0.8rem; color: var(--text-muted);">
+            © 2026 Todos los derechos reservados. No se permite la venta ni réplica comercial.
+        </p>
+        <div class="legal-footer">
+            <a href="legal.html#normas">Normas Éticas y de Uso</a>
+            <a href="legal.html#privacidad">Política de Privacidad</a>
+            <a href="legal.html#cookies">Política de Cookies</a>
+        </div>
+    </footer>
+
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Toggle features
+        const toggleBtn = document.getElementById('toggle-features');
+        const extraFeatures = document.getElementById('extra-features');
+        
+        toggleBtn?.addEventListener('click', () => {
+            const isHidden = extraFeatures.style.display === 'none';
+            extraFeatures.style.display = isHidden ? 'grid' : 'none';
+            toggleBtn.textContent = isHidden ? 'Mostrar menos' : 'Descubrir más funciones';
+            if (isHidden) {
+                extraFeatures.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    </script>
+</body>
+
+</html>
