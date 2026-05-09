@@ -11,7 +11,6 @@ ENV_FILE = Path.home() / ".hermes" / ".env"
 SOUL_FILE = Path.home() / ".hermes" / "SOUL.md"
 SOURCE_DIR = Path(__file__).parent
 AUTH_SCRIPT = SOURCE_DIR / "scripts" / "auth.py"
-PATCH_SCRIPT = SOURCE_DIR / "patch_bridge.py"
 
 def check_deps():
     print("\n📦 Checking dependencies...")
@@ -67,7 +66,7 @@ def optimize_soul():
         except: print("⚠️ Warning: Could not update SOUL.md")
 
 def main():
-    print("🚀 Andoriña Setup v1.0.0 (DEBUG TESTING PREVIEW)\n")
+    print("🚀 Andoriña Setup v1.0.1 (Bugfix-1)\n")
     check_deps()
     env = read_env()
     updates = {}
