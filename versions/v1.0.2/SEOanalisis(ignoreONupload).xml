@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<indexing>
+ <object alt="Himmelimherzen" name="Imagen1" object_type="graphic"/>
+ <object alt="light bulb icon" name="Imagen2" object_type="graphic"/>
+ <object alt="light bulb icon" name="Imagen3" object_type="graphic"/>
+ <paragraph index="18" node_type="writer">On-page score</paragraph>
+ <object index="19" name="card-header" object_type="section"/>
+ <paragraph index="20" node_type="writer" parent_index="19">Issues:</paragraph>
+ <paragraph index="21" node_type="writer" parent_index="19">1Critical</paragraph>
+ <paragraph index="23" node_type="writer">72 %</paragraph>
+ <paragraph index="24" node_type="writer">On-page score</paragraph>
+ <paragraph index="25" node_type="writer">Meta data</paragraph>
+ <paragraph index="26" node_type="writer">90 %</paragraph>
+ <paragraph index="27" node_type="writer">Page quality</paragraph>
+ <paragraph index="28" node_type="writer">79 %</paragraph>
+ <paragraph index="29" node_type="writer">Page structure</paragraph>
+ <paragraph index="30" node_type="writer">100 %</paragraph>
+ <paragraph index="31" node_type="writer">Links</paragraph>
+ <paragraph index="32" node_type="writer">100 %</paragraph>
+ <paragraph index="33" node_type="writer">Server</paragraph>
+ <paragraph index="34" node_type="writer">0 %</paragraph>
+ <paragraph index="35" node_type="writer">External factors</paragraph>
+ <paragraph index="36" node_type="writer">3 %</paragraph>
+ <object index="37" name="Sección1" object_type="section"/>
+ <paragraph index="38" node_type="writer" parent_index="37">HTML page</paragraph>
+ <paragraph index="41" node_type="writer">Meta title</paragraph>
+ <paragraph index="42" node_type="writer">Andoriña | Autonomous WhatsApp Manager for Hermes</paragraph>
+ <paragraph index="43" node_type="writer">Meta description</paragraph>
+ <paragraph index="44" node_type="writer">Turn Hermes into an autonomous WhatsApp manager. Full control, automation, and smart scheduling from anywhere. Free and Open Source.</paragraph>
+ <paragraph index="45" node_type="writer">URL</paragraph>
+ <paragraph index="46" node_type="writer">https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes/index.html</paragraph>
+ <object index="47" name="Tabla1" object_type="table"/>
+ <paragraph index="49" node_type="writer" parent_index="47">Status code</paragraph>
+ <paragraph index="52" node_type="writer" parent_index="47">200</paragraph>
+ <paragraph index="55" node_type="writer" parent_index="47">Page status</paragraph>
+ <paragraph index="58" node_type="writer" parent_index="47">FollowIndex</paragraph>
+ <paragraph index="61" node_type="writer" parent_index="47">Language</paragraph>
+ <paragraph index="64" node_type="writer" parent_index="47">EN</paragraph>
+ <object index="67" name="Tabla2" object_type="table"/>
+ <paragraph index="69" node_type="writer" parent_index="67">Response time</paragraph>
+ <paragraph index="72" node_type="writer" parent_index="67">0.06 sec</paragraph>
+ <paragraph index="75" node_type="writer" parent_index="67">File size</paragraph>
+ <paragraph index="78" node_type="writer" parent_index="67">24.10 kB</paragraph>
+ <paragraph index="81" node_type="writer" parent_index="67">Word count</paragraph>
+ <paragraph index="84" node_type="writer" parent_index="67">583</paragraph>
+ <paragraph index="87" node_type="writer">To-Do List</paragraph>
+ <object index="88" name="Sección2" object_type="section"/>
+ <paragraph index="89" node_type="writer" parent_index="88">Tasks sorted by priority</paragraph>
+ <object index="91" name="scrollable-list-1778380718214-124619-16" object_type="section"/>
+ <object index="92" name="Tabla3" object_type="table"/>
+ <paragraph index="94" node_type="writer" parent_index="92">To-Do</paragraph>
+ <paragraph index="97" node_type="writer" parent_index="92">Importance</paragraph>
+ <paragraph index="100" node_type="writer" parent_index="92">Action</paragraph>
+ <paragraph index="103" node_type="writer" parent_index="92">Use 301 redirects to drive traffic to URLS with the same domain and sub domain (www and non-www subdomain).</paragraph>
+ <paragraph index="106" node_type="writer" parent_index="92">Error</paragraph>
+ <paragraph index="109" node_type="writer" parent_index="92">More details</paragraph>
+ <paragraph index="112" node_type="writer" parent_index="92">Words from H1 heading not found in text. Make sure that H1 content matches page content and vice versa.</paragraph>
+ <paragraph index="115" node_type="writer" parent_index="92">Warning</paragraph>
+ <paragraph index="118" node_type="writer" parent_index="92">More details</paragraph>
+ <paragraph index="121" node_type="writer" parent_index="92">Add a favicon markup to the HTML code.</paragraph>
+ <paragraph index="124" node_type="writer" parent_index="92">Tip</paragraph>
+ <paragraph index="127" node_type="writer" parent_index="92">Go to tip</paragraph>
+ <paragraph index="133" node_type="writer">Not sure how to complete these tasks?</paragraph>
+ <paragraph index="134" node_type="writer">Our SEO software Seobility helps you fix these issues with clear, easy-to-understand reports for your entire website. Each report explains what an issue means, why it matters for SEO, and how to fix it.</paragraph>
+ <paragraph index="135" node_type="writer">Learn more</paragraph>
+ <paragraph index="136" node_type="writer">Checks</paragraph>
+ <object index="137" name="meta" object_type="section"/>
+ <paragraph index="138" node_type="writer" parent_index="137">Meta data</paragraph>
+ <paragraph index="139" node_type="writer" parent_index="137">90%</paragraph>
+ <object index="142" name="factor_title_content" object_type="section"/>
+ <paragraph index="143" node_type="writer" parent_index="142">Title</paragraph>
+ <paragraph index="144" node_type="writer" parent_index="142">Learn more</paragraph>
+ <paragraph index="145" node_type="writer" parent_index="142">3/3</paragraph>
+ <paragraph index="146" node_type="writer" parent_index="142">Very important</paragraph>
+ <paragraph index="147" node_type="writer" parent_index="142">Andoriña | Autonomous WhatsApp Manager for Hermes</paragraph>
+ <paragraph index="148" node_type="writer" parent_index="142">The length of the page title is perfect. (497 pixels out of 580 max pixel length)</paragraph>
+ <paragraph index="149" node_type="writer" parent_index="142">There are no duplicate words in the title.</paragraph>
+ <paragraph index="152" node_type="writer">Tip: Each page on your website should have a unique meta title</paragraph>
+ <paragraph index="153" node_type="writer">This check only looks at the title of the checked URL, but if multiple pages on your website have the same title, it can still hurt your rankings. To find duplicate page titles on your website, you can use Seobility's Website Audit.</paragraph>
+ <paragraph index="154" node_type="writer">Learn more</paragraph>
+ <object index="155" name="factor_description" object_type="section"/>
+ <paragraph index="156" node_type="writer" parent_index="155">Meta description</paragraph>
+ <paragraph index="157" node_type="writer" parent_index="155">Learn more</paragraph>
+ <paragraph index="158" node_type="writer" parent_index="155">2/2</paragraph>
+ <paragraph index="159" node_type="writer" parent_index="155">Very important</paragraph>
+ <paragraph index="160" node_type="writer" parent_index="155">Turn Hermes into an autonomous WhatsApp manager. Full control, automation, and smart scheduling from anywhere. Free and Open Source.</paragraph>
+ <paragraph index="161" node_type="writer" parent_index="155">The length of the meta description is perfect. (873 pixels out of 1000 max pixel length)</paragraph>
+ <object index="163" name="factor_crawlable" object_type="section"/>
+ <paragraph index="164" node_type="writer" parent_index="163">Crawlability</paragraph>
+ <paragraph index="165" node_type="writer" parent_index="163">Learn more</paragraph>
+ <paragraph index="166" node_type="writer" parent_index="163">1/1</paragraph>
+ <paragraph index="167" node_type="writer" parent_index="163">Very important</paragraph>
+ <paragraph index="168" node_type="writer" parent_index="163">There are no problems in accessing the page.</paragraph>
+ <object index="170" name="factor_canonical" object_type="section"/>
+ <paragraph index="171" node_type="writer" parent_index="170">Canonical link</paragraph>
+ <paragraph index="172" node_type="writer" parent_index="170">Learn more</paragraph>
+ <paragraph index="173" node_type="writer" parent_index="170">Errors</paragraph>
+ <paragraph index="174" node_type="writer" parent_index="170">1/2</paragraph>
+ <paragraph index="175" node_type="writer" parent_index="170">Important</paragraph>
+ <paragraph index="176" node_type="writer" parent_index="170">https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes/</paragraph>
+ <paragraph index="177" node_type="writer" parent_index="170">The specified canonical link points to a different page.</paragraph>
+ <object index="179" name="factor_lang" object_type="section"/>
+ <paragraph index="180" node_type="writer" parent_index="179">Language</paragraph>
+ <paragraph index="181" node_type="writer" parent_index="179">Learn more</paragraph>
+ <paragraph index="182" node_type="writer" parent_index="179">4/4</paragraph>
+ <paragraph index="183" node_type="writer" parent_index="179">Low importance</paragraph>
+ <paragraph index="184" node_type="writer" parent_index="179">Language detected in text: en</paragraph>
+ <paragraph index="185" node_type="writer" parent_index="179">Language defined in HTML: en</paragraph>
+ <paragraph index="186" node_type="writer" parent_index="179">Server location: Germany</paragraph>
+ <paragraph index="187" node_type="writer" parent_index="179">The following language is defined in the HTML code: en</paragraph>
+ <object index="189" name="factor_alternatelinkhrefs" object_type="section"/>
+ <paragraph index="190" node_type="writer" parent_index="189">Alternate/</paragraph>
+ <paragraph index="191" node_type="writer" parent_index="189">Learn more</paragraph>
+ <paragraph index="192" node_type="writer" parent_index="189">1/1</paragraph>
+ <paragraph index="193" node_type="writer" parent_index="189">Low importance</paragraph>
+ <paragraph index="194" node_type="writer" parent_index="189">There are no alternate links specified on this page.</paragraph>
+ <object index="196" name="factor_metatags" object_type="section"/>
+ <paragraph index="197" node_type="writer" parent_index="196">Other meta tags</paragraph>
+ <paragraph index="198" node_type="writer" parent_index="196">Learn more</paragraph>
+ <paragraph index="199" node_type="writer" parent_index="196">2/2</paragraph>
+ <paragraph index="200" node_type="writer" parent_index="196">Low importance</paragraph>
+ <paragraph index="201" node_type="writer" parent_index="196">There is no rel=next meta tag on this page.</paragraph>
+ <paragraph index="202" node_type="writer" parent_index="196">There is no rel=prev meta tag on this page.</paragraph>
+ <object index="204" name="factor_domain" object_type="section"/>
+ <paragraph index="205" node_type="writer" parent_index="204">Domain</paragraph>
+ <paragraph index="206" node_type="writer" parent_index="204">Learn more</paragraph>
+ <paragraph index="207" node_type="writer" parent_index="204">Warning</paragraph>
+ <paragraph index="208" node_type="writer" parent_index="204">1/2</paragraph>
+ <paragraph index="209" node_type="writer" parent_index="204">Low importance</paragraph>
+ <paragraph index="210" node_type="writer" parent_index="204">This page is hosted on a subdomain. Use a top level domain for better SEO results.</paragraph>
+ <paragraph index="211" node_type="writer" parent_index="204">The domain name does not contain any non-Latin characters.</paragraph>
+ <object index="213" name="factor_url_dynamic" object_type="section"/>
+ <paragraph index="214" node_type="writer" parent_index="213">Page URL</paragraph>
+ <paragraph index="215" node_type="writer" parent_index="213">Learn more</paragraph>
+ <paragraph index="216" node_type="writer" parent_index="213">3/3</paragraph>
+ <paragraph index="217" node_type="writer" parent_index="213">Low importance</paragraph>
+ <paragraph index="218" node_type="writer" parent_index="213">No parameters were found in the URL.</paragraph>
+ <paragraph index="219" node_type="writer" parent_index="213">No session ID was found in the URL.</paragraph>
+ <paragraph index="220" node_type="writer" parent_index="213">The URL does not have too many subdirectories.</paragraph>
+ <object index="222" name="factor_encodingmeta" object_type="section"/>
+ <paragraph index="223" node_type="writer" parent_index="222">Charset encoding</paragraph>
+ <paragraph index="224" node_type="writer" parent_index="222">Learn more</paragraph>
+ <paragraph index="225" node_type="writer" parent_index="222">1/1</paragraph>
+ <paragraph index="226" node_type="writer" parent_index="222">Low importance</paragraph>
+ <paragraph index="227" node_type="writer" parent_index="222">The charset encoding (UTF-8) is set correctly.</paragraph>
+ <object index="229" name="factor_doctype" object_type="section"/>
+ <paragraph index="230" node_type="writer" parent_index="229">Doctype</paragraph>
+ <paragraph index="231" node_type="writer" parent_index="229">Learn more</paragraph>
+ <paragraph index="232" node_type="writer" parent_index="229">2/2</paragraph>
+ <paragraph index="233" node_type="writer" parent_index="229">Nice to have</paragraph>
+ <paragraph index="234" node_type="writer" parent_index="229">The doctype HTML 5 is set correctly.</paragraph>
+ <paragraph index="235" node_type="writer" parent_index="229">The doctype is placed first in the HTML code.</paragraph>
+ <object index="237" name="factor_favicon" object_type="section"/>
+ <paragraph index="238" node_type="writer" parent_index="237">Favicon</paragraph>
+ <paragraph index="239" node_type="writer" parent_index="237">Learn more</paragraph>
+ <paragraph index="240" node_type="writer" parent_index="237">Warning</paragraph>
+ <paragraph index="241" node_type="writer" parent_index="237">0/1</paragraph>
+ <paragraph index="242" node_type="writer" parent_index="237">Nice to have</paragraph>
+ <paragraph index="243" node_type="writer" parent_index="237">No favicon is linked in the HTML code.</paragraph>
+ <object index="245" name="pagequality" object_type="section"/>
+ <paragraph index="246" node_type="writer" parent_index="245">Page quality</paragraph>
+ <paragraph index="247" node_type="writer" parent_index="245">79%</paragraph>
+ <object index="250" name="factor_text" object_type="section"/>
+ <paragraph index="251" node_type="writer" parent_index="250">Content</paragraph>
+ <paragraph index="252" node_type="writer" parent_index="250">Learn more</paragraph>
+ <paragraph index="253" node_type="writer" parent_index="250">Warning</paragraph>
+ <paragraph index="254" node_type="writer" parent_index="250">8/9</paragraph>
+ <paragraph index="255" node_type="writer" parent_index="250">Very important</paragraph>
+ <paragraph index="256" node_type="writer" parent_index="250">Words from the H1 heading are not used in the page content.</paragraph>
+ <paragraph index="257" node_type="writer" parent_index="250">The word count of 583 words is fine.</paragraph>
+ <paragraph index="258" node_type="writer" parent_index="250">29.3% of the text are stop words.</paragraph>
+ <paragraph index="259" node_type="writer" parent_index="250">Keywords used in the page title are also used in the page content. That's good!</paragraph>
+ <paragraph index="260" node_type="writer" parent_index="250">The page contains a list, which indicates a good text structure.</paragraph>
+ <paragraph index="261" node_type="writer" parent_index="250">13 paragraphs (text blocks) were found on this page.</paragraph>
+ <paragraph index="262" node_type="writer" parent_index="250">No placeholder texts or images were found.</paragraph>
+ <paragraph index="263" node_type="writer" parent_index="250">There are no duplicates on the site</paragraph>
+ <paragraph index="264" node_type="writer" parent_index="250">The average sentence length of 12.38 words is good.</paragraph>
+ <object index="266" name="factor_frames" object_type="section"/>
+ <paragraph index="267" node_type="writer" parent_index="266">Frames</paragraph>
+ <paragraph index="268" node_type="writer" parent_index="266">Learn more</paragraph>
+ <paragraph index="269" node_type="writer" parent_index="266">1/1</paragraph>
+ <paragraph index="270" node_type="writer" parent_index="266">Very important</paragraph>
+ <paragraph index="271" node_type="writer" parent_index="266">This page does not use a frameset.</paragraph>
+ <object index="273" name="factor_mobile" object_type="section"/>
+ <paragraph index="274" node_type="writer" parent_index="273">Mobile optimization</paragraph>
+ <paragraph index="275" node_type="writer" parent_index="273">Learn more</paragraph>
+ <paragraph index="276" node_type="writer" parent_index="273">Warning</paragraph>
+ <paragraph index="277" node_type="writer" parent_index="273">1/2</paragraph>
+ <paragraph index="278" node_type="writer" parent_index="273">Low importance</paragraph>
+ <paragraph index="279" node_type="writer" parent_index="273">No Apple touch icon is specified</paragraph>
+ <paragraph index="280" node_type="writer" parent_index="273">A viewport (width=device-width, initial-scale=1.0) is provided.</paragraph>
+ <object index="282" name="factor_bold_tags" object_type="section"/>
+ <paragraph index="283" node_type="writer" parent_index="282">Strong and bold tags</paragraph>
+ <paragraph index="284" node_type="writer" parent_index="282">Learn more</paragraph>
+ <paragraph index="285" node_type="writer" parent_index="282">1/1</paragraph>
+ <paragraph index="286" node_type="writer" parent_index="282">Low importance</paragraph>
+ <paragraph index="287" node_type="writer" parent_index="282">The usage of strong and bold tags is perfect. We recommend the use of up to 12 tags for this page.</paragraph>
+ <object index="289" name="factor_img_alt" object_type="section"/>
+ <paragraph index="290" node_type="writer" parent_index="289">Image SEO</paragraph>
+ <paragraph index="291" node_type="writer" parent_index="289">Learn more</paragraph>
+ <paragraph index="292" node_type="writer" parent_index="289">1/1</paragraph>
+ <paragraph index="293" node_type="writer" parent_index="289">Low importance</paragraph>
+ <paragraph index="294" node_type="writer" parent_index="289">ALT text (alternative text) is correctly used on all found images.</paragraph>
+ <object index="296" name="factor_socialshare" object_type="section"/>
+ <paragraph index="297" node_type="writer" parent_index="296">Social media</paragraph>
+ <paragraph index="298" node_type="writer" parent_index="296">Learn more</paragraph>
+ <paragraph index="299" node_type="writer" parent_index="296">Warning</paragraph>
+ <paragraph index="300" node_type="writer" parent_index="296">0/1</paragraph>
+ <paragraph index="301" node_type="writer" parent_index="296">Nice to have</paragraph>
+ <paragraph index="302" node_type="writer" parent_index="296">There are few social sharing options on the page. Sharing plugins can increase the page's reach on social media.</paragraph>
+ <object index="304" name="factor_textstructure" object_type="section"/>
+ <paragraph index="305" node_type="writer" parent_index="304">Additional markup</paragraph>
+ <paragraph index="306" node_type="writer" parent_index="304">Learn more</paragraph>
+ <paragraph index="307" node_type="writer" parent_index="304">1/1</paragraph>
+ <paragraph index="308" node_type="writer" parent_index="304">Nice to have</paragraph>
+ <paragraph index="309" node_type="writer" parent_index="304">No additional page markup was found.</paragraph>
+ <object index="311" name="factor_https" object_type="section"/>
+ <paragraph index="312" node_type="writer" parent_index="311">HTTPS</paragraph>
+ <paragraph index="313" node_type="writer" parent_index="311">Learn more</paragraph>
+ <paragraph index="314" node_type="writer" parent_index="311">2/2</paragraph>
+ <paragraph index="315" node_type="writer" parent_index="311">Low importance</paragraph>
+ <paragraph index="316" node_type="writer" parent_index="311">This page uses HTTPS to protect the privacy and integrity of information exchanged.</paragraph>
+ <paragraph index="317" node_type="writer" parent_index="311">All included files are also transferred via HTTPS.</paragraph>
+ <object index="319" name="structure" object_type="section"/>
+ <paragraph index="320" node_type="writer" parent_index="319">Others</paragraph>
+ <paragraph index="321" node_type="writer" parent_index="319">100%</paragraph>
+ <object index="324" name="factor_h1" object_type="section"/>
+ <paragraph index="325" node_type="writer" parent_index="324">H1 heading</paragraph>
+ <paragraph index="326" node_type="writer" parent_index="324">Learn more</paragraph>
+ <paragraph index="327" node_type="writer" parent_index="324">2/2</paragraph>
+ <paragraph index="328" node_type="writer" parent_index="324">Very important</paragraph>
+ <paragraph index="329" node_type="writer" parent_index="324">Turn Hermes into an autonomous WhatsApp manager</paragraph>
+ <paragraph index="330" node_type="writer" parent_index="324">The H1 heading is perfect</paragraph>
+ <object index="332" name="factor_headlinestructure" object_type="section"/>
+ <paragraph index="333" node_type="writer" parent_index="332">Headings</paragraph>
+ <paragraph index="334" node_type="writer" parent_index="332">Learn more</paragraph>
+ <paragraph index="335" node_type="writer" parent_index="332">1/1</paragraph>
+ <paragraph index="336" node_type="writer" parent_index="332">Important</paragraph>
+ <paragraph index="337" node_type="writer" parent_index="332">The heading structure is perfect.</paragraph>
+ <object index="339" name="links" object_type="section"/>
+ <paragraph index="340" node_type="writer" parent_index="339">Link structure</paragraph>
+ <paragraph index="341" node_type="writer" parent_index="339">100%</paragraph>
+ <object index="344" name="factor_link_internal" object_type="section"/>
+ <paragraph index="345" node_type="writer" parent_index="344">Internal links</paragraph>
+ <paragraph index="346" node_type="writer" parent_index="344">Learn more</paragraph>
+ <paragraph index="347" node_type="writer" parent_index="344">4/4</paragraph>
+ <paragraph index="348" node_type="writer" parent_index="344">Important</paragraph>
+ <paragraph index="349" node_type="writer" parent_index="344">The number of internal links is ok.</paragraph>
+ <paragraph index="350" node_type="writer" parent_index="344">Every link text is unique.</paragraph>
+ <paragraph index="351" node_type="writer" parent_index="344">None of the link texts are too long.</paragraph>
+ <paragraph index="352" node_type="writer" parent_index="344">There are no dynamic parameters used in internal links.</paragraph>
+ <object index="354" name="factor_link_external" object_type="section"/>
+ <paragraph index="355" node_type="writer" parent_index="354">External links</paragraph>
+ <paragraph index="356" node_type="writer" parent_index="354">Learn more</paragraph>
+ <paragraph index="357" node_type="writer" parent_index="354">1/1</paragraph>
+ <paragraph index="358" node_type="writer" parent_index="354">Nice to have</paragraph>
+ <paragraph index="359" node_type="writer" parent_index="354">There are 5 external links on this page.</paragraph>
+ <object index="361" name="server" object_type="section"/>
+ <paragraph index="362" node_type="writer" parent_index="361">Server configuration</paragraph>
+ <paragraph index="363" node_type="writer" parent_index="361">0%</paragraph>
+ <object index="366" name="factor_redirects" object_type="section"/>
+ <paragraph index="367" node_type="writer" parent_index="366">HTTP redirects</paragraph>
+ <paragraph index="368" node_type="writer" parent_index="366">Learn more</paragraph>
+ <paragraph index="369" node_type="writer" parent_index="366">Errors</paragraph>
+ <paragraph index="370" node_type="writer" parent_index="366">1/2</paragraph>
+ <paragraph index="371" node_type="writer" parent_index="366">Very important</paragraph>
+ <paragraph index="372" node_type="writer" parent_index="366">The checked page does not redirect to another URL.</paragraph>
+ <paragraph index="373" node_type="writer" parent_index="366">This website uses both www and non-www URLs. This can result in duplicate content and impact your rankings. Redirect Checker</paragraph>
+ <object index="375" name="factor_header" object_type="section"/>
+ <paragraph index="376" node_type="writer" parent_index="375">HTTP header</paragraph>
+ <paragraph index="377" node_type="writer" parent_index="375">Learn more</paragraph>
+ <paragraph index="378" node_type="writer" parent_index="375">2/2</paragraph>
+ <paragraph index="379" node_type="writer" parent_index="375">Important</paragraph>
+ <paragraph index="380" node_type="writer" parent_index="375">No X-Powered HTTP header is sent.</paragraph>
+ <paragraph index="381" node_type="writer" parent_index="375">This page uses compression for data transfer.</paragraph>
+ <object index="383" name="factor_performance" object_type="section"/>
+ <paragraph index="384" node_type="writer" parent_index="383">Performance</paragraph>
+ <paragraph index="385" node_type="writer" parent_index="383">Learn more</paragraph>
+ <paragraph index="386" node_type="writer" parent_index="383">2/2</paragraph>
+ <paragraph index="387" node_type="writer" parent_index="383">Low importance</paragraph>
+ <paragraph index="388" node_type="writer" parent_index="383">The HTML page response time of 0,06 seconds is below the target of 0.40 seconds.</paragraph>
+ <paragraph index="389" node_type="writer" parent_index="383">The file size of the HTML document is fine. (24 kB)</paragraph>
+ <object index="391" name="extern" object_type="section"/>
+ <paragraph index="392" node_type="writer" parent_index="391">External factors</paragraph>
+ <paragraph index="393" node_type="writer" parent_index="391">3%</paragraph>
+ <object index="396" name="factor_urlbacklinks" object_type="section"/>
+ <paragraph index="397" node_type="writer" parent_index="396">Backlinks</paragraph>
+ <paragraph index="398" node_type="writer" parent_index="396">Learn more</paragraph>
+ <paragraph index="399" node_type="writer" parent_index="396">Warning</paragraph>
+ <paragraph index="400" node_type="writer" parent_index="396">0/4</paragraph>
+ <paragraph index="401" node_type="writer" parent_index="396">Very important</paragraph>
+ <paragraph index="402" node_type="writer" parent_index="396">This page has only a few links from other websites</paragraph>
+ <paragraph index="403" node_type="writer" parent_index="396">This page only has backlinks from 1 referring domains.</paragraph>
+ <paragraph index="404" node_type="writer" parent_index="396">This page only has 1 backlinks.</paragraph>
+ <paragraph index="405" node_type="writer" parent_index="396">This page only has backlinks from 1 different IP addresses</paragraph>
+</indexing>
