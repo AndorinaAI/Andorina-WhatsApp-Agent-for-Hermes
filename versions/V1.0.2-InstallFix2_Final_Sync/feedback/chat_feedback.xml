@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<indexing>
+ <object alt="🫶🏻" name="Imagen7" object_type="graphic"/>
+ <object alt="🫶🏻" name="Imagen8" object_type="graphic"/>
+ <object alt="🫶🏻" name="Imagen9" object_type="graphic"/>
+ <object alt="🫶🏻" name="Imagen10" object_type="graphic"/>
+ <object alt="👍🏻" name="Imagen13" object_type="graphic"/>
+ <object alt="🙂" name="Imagen14" object_type="graphic"/>
+ <paragraph index="36" node_type="writer">Samuel Cardillo [ZIZI],  — 8:34</paragraph>
+ <object index="37" name="message-content-1503284088206000278" object_type="section"/>
+ <paragraph index="38" node_type="writer" parent_index="37">Hi good morning! Still running into quite few issues</paragraph>
+ <object index="40" name="message-content-1503284200483061760" object_type="section"/>
+ <paragraph index="41" node_type="writer" parent_index="40">So this time, the install.sh detected stephanie, so I went with that. Unsure if I should have selected hermes instead?</paragraph>
+ <object index="43" name="message-content-1503284327092453478" object_type="section"/>
+ <paragraph index="44" node_type="writer" parent_index="43">And it seems that destroyed the entire configuration of stephanie. This is what's going on when I try to use the stephanie gateway</paragraph>
+ <object index="46" name="message-accessories-1503284327092453478" object_type="section"/>
+ <paragraph index="47" node_type="writer" parent_index="46">[image1.png]</paragraph>
+ <object index="49" name="message-content-1503285388972654664" object_type="section"/>
+ <paragraph index="50" node_type="writer" parent_index="49">I ran a &quot;stephanie setup&quot; to recreate the configuration and it is somehow working now?</paragraph>
+ <object index="52" name="message-accessories-1503285551456063518" object_type="section"/>
+ <paragraph index="53" node_type="writer" parent_index="52">[image2.png]</paragraph>
+ <object index="55" name="message-content-1503285756020392016" object_type="section"/>
+ <paragraph index="56" node_type="writer" parent_index="55">So its not fully working</paragraph>
+ <object index="58" name="message-content-1503285818087833691" object_type="section"/>
+ <paragraph index="59" node_type="writer" parent_index="58">I am also getting quite the errors in the gateway</paragraph>
+ <object index="61" name="message-accessories-1503285818087833691" object_type="section"/>
+ <paragraph index="62" node_type="writer" parent_index="61">[image3.png]</paragraph>
+ <paragraph index="64" node_type="writer">🐙Vayaperson🐙 [NOUS],  — 9:01</paragraph>
+ <object index="65" name="message-content-1503290987563323523" object_type="section"/>
+ <paragraph index="66" node_type="writer" parent_index="65">Nice. At least the installer worked now right? </paragraph>
+ <paragraph index="68" node_type="writer">Samuel Cardillo [ZIZI],  — 9:02</paragraph>
+ <object index="69" name="message-content-1503291080001454082" object_type="section"/>
+ <paragraph index="70" node_type="writer" parent_index="69">THe installer always worked I guess, but at least this time it did not destroy the gateway yes ahahah</paragraph>
+ <paragraph index="72" node_type="writer">🐙Vayaperson🐙 [NOUS],  — 9:02</paragraph>
+ <object index="73" name="message-content-1503291140861071441" object_type="section"/>
+ <paragraph index="74" node_type="writer" parent_index="73">Let me correct the errors </paragraph>
+ <object index="76" name="message-content-1503291206564843541" object_type="section"/>
+ <paragraph index="77" node_type="writer" parent_index="76">U are helping me a looot thank you </paragraph>
+ <paragraph index="79" node_type="writer">Samuel Cardillo [ZIZI],  — 9:04</paragraph>
+ <object index="80" name="message-content-1503291608794398903" object_type="section"/>
+ <paragraph index="81" node_type="writer" parent_index="80">Oh it seems it destroyed the ability to create new skill btw</paragraph>
+ <object index="83" name="message-reply-context-1503291647947964496" object_type="section"/>
+ <paragraph index="84" node_type="writer" parent_index="83"> [ZIZI], </paragraph>
+ <paragraph index="86" node_type="writer">🐙Vayaperson🐙 [NOUS],  — 9:04</paragraph>
+ <object index="87" name="message-content-1503291647947964496" object_type="section"/>
+ <paragraph index="88" node_type="writer" parent_index="87">Haha I worked carefully on that this time, It was a very very critical bug </paragraph>
+ <paragraph index="90" node_type="writer">Samuel Cardillo [ZIZI],  — 9:04</paragraph>
+ <object index="91" name="message-content-1503291711596662785" object_type="section"/>
+ <paragraph index="92" node_type="writer" parent_index="91">I asked stephanie to create a new skill for specific text formatting</paragraph>
+ <object index="94" name="message-content-1503291731129405460" object_type="section"/>
+ <paragraph index="95" node_type="writer" parent_index="94">and the gateway spilled out</paragraph>
+ <object index="97" name="message-accessories-1503291741124690031" object_type="section"/>
+ <paragraph index="98" node_type="writer" parent_index="97">[image4.png]</paragraph>
+ <paragraph index="100" node_type="writer">🐙Vayaperson🐙 [NOUS],  — 9:06</paragraph>
+ <object index="101" name="message-content-1503292118225911878" object_type="section"/>
+ <paragraph index="102" node_type="writer" parent_index="101"> Will investigate that now. Let me make a coffee I just woke up and I try to do it fast  Want you to enjoy andoriña ASAP</paragraph>
+ <paragraph index="104" node_type="writer">Samuel Cardillo [ZIZI],  — 9:06</paragraph>
+ <object index="105" name="message-content-1503292122789314623" object_type="section"/>
+ <paragraph index="106" node_type="writer" parent_index="105">this is the exact thing the gateway gave before refusing to create the new skill</paragraph>
+ <object index="108" name="message-accessories-1503292122789314623" object_type="section"/>
+ <paragraph index="109" node_type="writer" parent_index="108">[image5.png]</paragraph>
+</indexing>

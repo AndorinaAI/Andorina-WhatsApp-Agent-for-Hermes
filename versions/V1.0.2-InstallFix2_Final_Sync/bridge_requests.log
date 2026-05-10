@@ -1,0 +1,12 @@
+{"path": "/send", "payload": {"chatId": "34666000111@s.whatsapp.net", "message": "Test text for Individual"}}
+{"path": "/send-media", "payload": {"chatId": "34666000111@s.whatsapp.net", "filePath": "/home/popos-parafuso/.gemini/antigravity/brain/dd1ed1e6-ead0-4ab7-835f-b78990d330cb/scratch/sandbox_extreme/test.jpg", "caption": ""}}
+{"path": "/send-media", "payload": {"chatId": "34666000111@s.whatsapp.net", "filePath": "/home/popos-parafuso/.gemini/antigravity/brain/dd1ed1e6-ead0-4ab7-835f-b78990d330cb/scratch/sandbox_extreme/test.mp4", "caption": ""}}
+{"path": "/send-media", "payload": {"chatId": "34666000111@s.whatsapp.net", "filePath": "/home/popos-parafuso/.gemini/antigravity/brain/dd1ed1e6-ead0-4ab7-835f-b78990d330cb/scratch/sandbox_extreme/report.pdf", "caption": ""}}
+{"path": "/send-media", "payload": {"chatId": "34666000111@s.whatsapp.net", "filePath": "/home/popos-parafuso/.gemini/antigravity/brain/dd1ed1e6-ead0-4ab7-835f-b78990d330cb/scratch/sandbox_extreme/voice.ogg", "caption": "", "mediaType": "audio", "ptt": true}}
+{"path": "/send-media", "payload": {"chatId": "34666000111@s.whatsapp.net", "filePath": "/home/popos-parafuso/.gemini/antigravity/brain/dd1ed1e6-ead0-4ab7-835f-b78990d330cb/scratch/sandbox_extreme/backup.zip", "caption": ""}}
+{"path": "/send", "payload": {"chatId": "120363406843322983@g.us", "message": "Test text for Group"}}
+{"path": "/send-media", "payload": {"chatId": "120363406843322983@g.us", "filePath": "/home/popos-parafuso/.gemini/antigravity/brain/dd1ed1e6-ead0-4ab7-835f-b78990d330cb/scratch/sandbox_extreme/test.jpg", "caption": ""}}
+{"path": "/send-media", "payload": {"chatId": "120363406843322983@g.us", "filePath": "/home/popos-parafuso/.gemini/antigravity/brain/dd1ed1e6-ead0-4ab7-835f-b78990d330cb/scratch/sandbox_extreme/test.mp4", "caption": ""}}
+{"path": "/send-media", "payload": {"chatId": "120363406843322983@g.us", "filePath": "/home/popos-parafuso/.gemini/antigravity/brain/dd1ed1e6-ead0-4ab7-835f-b78990d330cb/scratch/sandbox_extreme/report.pdf", "caption": ""}}
+{"path": "/send-media", "payload": {"chatId": "120363406843322983@g.us", "filePath": "/home/popos-parafuso/.gemini/antigravity/brain/dd1ed1e6-ead0-4ab7-835f-b78990d330cb/scratch/sandbox_extreme/voice.ogg", "caption": "", "mediaType": "audio", "ptt": true}}
+{"path": "/send-media", "payload": {"chatId": "120363406843322983@g.us", "filePath": "/home/popos-parafuso/.gemini/antigravity/brain/dd1ed1e6-ead0-4ab7-835f-b78990d330cb/scratch/sandbox_extreme/backup.zip", "caption": ""}}
