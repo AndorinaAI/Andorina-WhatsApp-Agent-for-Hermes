@@ -2,10 +2,15 @@ import os, glob
 from pathlib import Path
 
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
+SCRIPTS_DIR = Path(__file__).parent.absolute()
+STATE_DIR = SCRIPTS_DIR.parent / "state"
+
 targets = [
     HERMES_HOME / "memories" / "USER.md",
     HERMES_HOME / "memories" / "MEMORY.md",
-    HERMES_HOME / ".hermes_history"
+    HERMES_HOME / ".hermes_history",
+    STATE_DIR / "inbox.json",
+    STATE_DIR / "agenda.json"
 ]
 
 print("🧠 Starting surgical memory wipe...")

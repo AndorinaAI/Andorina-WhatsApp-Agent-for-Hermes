@@ -6,6 +6,8 @@ import re
 from pathlib import Path
 
 # Use binary stdin for absolute robustness with high-unicode characters
+import os
+
 def get_input():
     try:
         raw = sys.stdin.buffer.read()
@@ -14,6 +16,16 @@ def get_input():
         return ""
 
 SCRIPTS_DIR = Path(__file__).parent.absolute()
+# Load .env to get the bot phone for filtering
+BOT_PHONE = ""
+try:
+    env_file = SCRIPTS_DIR.parent / ".env"
+    if env_file.exists():
+        for line in env_file.read_text(encoding="utf-8").splitlines():
+            if line.startswith("ANDORINA_BOT_PHONE="):
+                BOT_PHONE = line.split("=", 1)[1].strip().replace("+", "")
+except: pass
+
 INBOX_FILE = SCRIPTS_DIR.parent / "state" / "inbox.json"
 MAX_HISTORY = 500
 
@@ -31,12 +43,17 @@ def main():
         if not payload:
             return
 
+        # Handle both standard Hermes fields and legacy patched fields
+        sender = (payload.get("from") or payload.get("senderId") or "").replace("+", "")
+        if BOT_PHONE and sender == BOT_PHONE:
+            return
+
         entry = {
             "chatId": payload.get("chatId"),
-            "from":   payload.get("from"),
-            "text":   payload.get("text", ""),
-            "date":   payload.get("date", time.strftime("%Y-%m-%dT%H:%M:%S")),
-            "type":   payload.get("type", "text")
+            "from":   sender,
+            "text":   payload.get("text") or payload.get("body") or "",
+            "date":   payload.get("date") or payload.get("timestamp") or time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "type":   payload.get("type") or payload.get("mediaType") or "text"
         }
 
         inbox = []

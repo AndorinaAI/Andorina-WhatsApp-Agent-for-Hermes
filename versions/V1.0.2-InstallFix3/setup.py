@@ -1,5 +1,29 @@
 #!/usr/bin/env python3
 """
+🚀 Andoriña — Setup Assistant (v1.0.2-hotfix3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
+
+import sys, os, re, subprocess, json, time
+from pathlib import Path
+
+# ── Colors ───────────────────────────────────────────────────
+CYAN    = "\033[38;5;51m"
+WHITE   = "\033[1;37m"
+GRAY    = "\033[38;5;244m"
+GREEN   = "\033[38;5;76m"
+YELLOW  = "\033[38;5;226m"
+RED     = "\033[38;5;196m"
+MAGENTA = "\033[38;5;201m"
+DIM     = "\033[2m"
+BOLD    = "\033[1m"
+RESET   = "\033[0m"
+
+# ── Paths ────────────────────────────────────────────────────
+HERMES_HOME = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
+SOURCE_DIR  = Path(__file__).parent
+
+LOGO = f"""{CYAN}
       @@@@@@@@@@@@@@@@@@@@@@@ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       @@@@@@@@@@@@@@@@@@@@@@ @%@@@@@@@@@@@@@@@@@@@@@@@@@@@@%+#@@@@@
       @@@@@@@@@@@@@@@@@@@@ #@=%@@@@@@@@@@@@@@@@@@@@@@@%+ +-@@@@@@@
@@ -25,25 +49,201 @@
       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%: *@@@@@@@@@@@@@@@@
       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@+:@@@@@@@@@@@@@@@
       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*@@@@@@@@@@@@@@
+{RESET}"""
 
-🚀 Andoriña — Setup Assistant (v1.0.2-hotfix3)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-"""
+# ── i18n ─────────────────────────────────────────────────────
+LANG = "en"  # default
 
-import sys, os, re, subprocess, json
-from pathlib import Path
+STRINGS = {
+    "es": {
+        "lang_prompt":     "Selecciona idioma / Select language (es/en)",
+        "subtitle":        "Asistente de Instalación v1.0.2-hotfix3",
+        "tagline":         "Gestor Autónomo de WhatsApp para Hermes Agent",
+        "profile":         "Perfil",
+        "target":          "Destino",
+        # Step 1
+        "s1_title":        "Región e Identidad",
+        "s1_cc":           "Prefijo de país (ej. 34 para España)",
+        "s1_admin":        "Tu número de WhatsApp (admin)",
+        "s1_bot":          "Número de WhatsApp del bot",
+        "s1_ok":           "Identidad configurada.",
+        # Step 2
+        "s2_title":        "Google Contacts",
+        "s2_linked":       "Google Contacts ya está vinculado.",
+        "s2_relink":       "¿Re-vincular la cuenta de Google?",
+        "s2_info1":        "Vincula tu cuenta de Google para buscar contactos por nombre.",
+        "s2_info2":        "Se abrirá una ventana del navegador — solo inicia sesión y autoriza.",
+        "s2_ask":          "¿Vincular Google Contacts ahora?",
+        "s2_ok":           "¡Google Contacts vinculado correctamente!",
+        "s2_fail":         "No se pudo verificar la vinculación. Puedes reintentar con: python3 scripts/auth.py",
+        "s2_skip":         "Omitido. El agente no podrá buscar contactos por nombre.",
+        "s2_later":        "Puedes vincular en cualquier momento con: python3 scripts/auth.py",
+        "s2_browser":      "Abriendo navegador para inicio de sesión seguro...",
+        # Step 3
+        "s3_title":        "Rendimiento",
+        "s3_info":         "Estos límites controlan cuánto contexto usa el agente IA.",
+        "s3_ctx":          "Ventana de contexto (tokens)",
+        "s3_umem":         "Límite de memoria de usuario (chars)",
+        "s3_smem":         "Límite de memoria de sistema (chars)",
+        "s3_ok":           "Configuración guardada.",
+        # Step 4
+        "s4_title":        "Desplegando Archivos",
+        "s4_ok":           "SKILL.md + {n} scripts desplegados.",
+        "s4_fail":         "Error en el despliegue: {e}",
+        # Step 5
+        "s5_title":        "Registrando Hooks de Bandeja",
+        "s5_ok":           "Hooks de bandeja registrados en config.yaml.",
+        "s5_exists":       "Los hooks ya están presentes.",
+        "s5_noconf":       "config.yaml no encontrado — hooks no registrados.",
+        "s5_fail":         "Error al registrar hooks: {e}",
+        # Step 6
+        "s6_title":        "Motor de Memoria (Qdrant)",
+        "s6_info":         "Qdrant da al agente memoria a largo plazo entre conversaciones.",
+        "s6_ask":          "¿Configurar Qdrant portable?",
+        "s6_skip":         "Omitido. El agente funcionará sin memoria persistente.",
+        "s6_notfound":     "setup_portable.py no encontrado en los scripts desplegados.",
+        # Step 7
+        "s7_title":        "Inicio Automático",
+        "s7_info":         "Arranca Hermes gateway + Qdrant automáticamente al iniciar sesión.",
+        "s7_ask":          "¿Activar inicio automático?",
+        "s7_skip":         "Omitido. Tendrás que arrancar los servicios a mano.",
+        "s7_notfound":     "setup_autostart.py no encontrado en los scripts desplegados.",
+        # Step 8
+        "s8_title":        "Parcheo del Puente WhatsApp",
+        "s8_info":         "Añade soporte multimedia, listado de grupos y obtención de QR al puente.",
+        "s8_ask":          "¿Parchear y reiniciar el puente de WhatsApp?",
+        "s8_skip":         "Omitido. Algunas funciones (audio, grupos) podrían no funcionar.",
+        "s8_notfound":     "patch_bridge.py no encontrado.",
+        # Step 9
+        "s9_title":        "Optimización de SOUL",
+        "s9_ok":           "SOUL.md optimizado para Andoriña.",
+        "s9_skip":         "Optimización de SOUL omitida: {e}",
+        # Final
+        "done":            "¡INSTALACIÓN DE ANDORIÑA COMPLETADA! 🕊️",
+        "ready":           "Tu asistente está listo para volar.",
+        "quick":           "Comandos rápidos:",
+        "cmd_agent":       "Iniciar el agente",
+        "cmd_gw":          "Iniciar el puente de WhatsApp",
+        "cmd_auth":        "Vincular Google Contacts",
+        "cmd_diag":        "Diagnóstico completo del sistema",
+    },
+    "en": {
+        "lang_prompt":     "Selecciona idioma / Select language (es/en)",
+        "subtitle":        "Setup Assistant v1.0.2-hotfix3",
+        "tagline":         "Autonomous WhatsApp Manager for Hermes Agent",
+        "profile":         "Profile",
+        "target":          "Target",
+        # Step 1
+        "s1_title":        "Region & Identity",
+        "s1_cc":           "Country prefix (e.g. 34 for Spain)",
+        "s1_admin":        "Your WhatsApp number (admin)",
+        "s1_bot":          "Bot's WhatsApp number",
+        "s1_ok":           "Identity configured.",
+        # Step 2
+        "s2_title":        "Google Contacts",
+        "s2_linked":       "Google Contacts already linked.",
+        "s2_relink":       "Re-link Google account?",
+        "s2_info1":        "Link your Google account to search contacts by name.",
+        "s2_info2":        "This opens a browser window — just log in and authorize.",
+        "s2_ask":          "Link Google Contacts now?",
+        "s2_ok":           "Google Contacts linked successfully!",
+        "s2_fail":         "Could not verify linking. Retry later with: python3 scripts/auth.py",
+        "s2_skip":         "Skipped. The agent won't be able to search contacts by name.",
+        "s2_later":        "You can link anytime with: python3 scripts/auth.py",
+        "s2_browser":      "Opening browser for secure login...",
+        # Step 3
+        "s3_title":        "Performance Tuning",
+        "s3_info":         "These limits control how much context the AI agent uses.",
+        "s3_ctx":          "Context window (tokens)",
+        "s3_umem":         "User memory limit (chars)",
+        "s3_smem":         "System memory limit (chars)",
+        "s3_ok":           "Configuration saved.",
+        # Step 4
+        "s4_title":        "Deploying Skill Files",
+        "s4_ok":           "SKILL.md + {n} scripts deployed.",
+        "s4_fail":         "Deployment failed: {e}",
+        # Step 5
+        "s5_title":        "Registering Inbox Hooks",
+        "s5_ok":           "Inbox hooks registered in config.yaml.",
+        "s5_exists":       "Hooks already present.",
+        "s5_noconf":       "config.yaml not found — hooks not registered.",
+        "s5_fail":         "Hook registration failed: {e}",
+        # Step 6
+        "s6_title":        "Memory Engine (Qdrant)",
+        "s6_info":         "Qdrant gives the agent long-term memory across conversations.",
+        "s6_ask":          "Setup Qdrant portable?",
+        "s6_skip":         "Skipped. Agent will work without persistent memory.",
+        "s6_notfound":     "setup_portable.py not found in deployed scripts.",
+        # Step 7
+        "s7_title":        "Autostart on Boot",
+        "s7_info":         "Starts Hermes gateway + Qdrant automatically on login.",
+        "s7_ask":          "Enable autostart?",
+        "s7_skip":         "Skipped. You'll need to start services manually.",
+        "s7_notfound":     "setup_autostart.py not found in deployed scripts.",
+        # Step 8
+        "s8_title":        "WhatsApp Bridge Patching",
+        "s8_info":         "Adds multimedia support, group listing, and QR retrieval to the bridge.",
+        "s8_ask":          "Patch and restart the WhatsApp bridge?",
+        "s8_skip":         "Skipped. Some features (audio, groups) may not work.",
+        "s8_notfound":     "patch_bridge.py not found.",
+        # Step 9
+        "s9_title":        "SOUL Optimization",
+        "s9_ok":           "SOUL.md optimized for Andoriña.",
+        "s9_skip":         "SOUL optimization skipped: {e}",
+        # Final
+        "done":            "ANDORIÑA SETUP COMPLETE! 🕊️",
+        "ready":           "Your assistant is ready to fly.",
+        "quick":           "Quick commands:",
+        "cmd_agent":       "Start the agent",
+        "cmd_gw":          "Start WhatsApp bridge",
+        "cmd_auth":        "Link Google Contacts",
+        "cmd_diag":        "Full system diagnosis",
+    }
+}
 
-HERMES_HOME = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
-ENV_FILE = HERMES_HOME / ".env"
-SOUL_FILE = HERMES_HOME / "SOUL.md"
-SOURCE_DIR = Path(__file__).parent
+def t(key, **kwargs):
+    """Translate a key using the current language."""
+    s = STRINGS.get(LANG, STRINGS["en"]).get(key, key)
+    if kwargs:
+        return s.format(**kwargs)
+    return s
 
-def read_env():
-    if not ENV_FILE.exists(): return {}
+# ── Helpers ──────────────────────────────────────────────────
+def hr():
+    print(f"   {GRAY}{'━' * 58}{RESET}")
+
+def step(num, title):
+    s = "PASO" if LANG == "es" else "STEP"
+    print(f"\n   {MAGENTA}{'━' * 58}{RESET}")
+    print(f"   {BOLD}{WHITE}{s} {num}{RESET}  {CYAN}{title}{RESET}")
+    print(f"   {MAGENTA}{'━' * 58}{RESET}")
+
+def ok(msg):
+    print(f"   {GREEN}✅ {msg}{RESET}")
+
+def warn(msg):
+    print(f"   {YELLOW}⚠️  {msg}{RESET}")
+
+def fail(msg):
+    print(f"   {RED}❌ {msg}{RESET}")
+
+def info(msg):
+    print(f"   {GRAY}ℹ️  {msg}{RESET}")
+
+def ask(prompt, default=""):
+    label = f" [{default}]" if default else ""
+    return input(f"   {WHITE}👉 {prompt}{DIM}{label}{RESET}: ").strip() or default
+
+def confirm(prompt, default="y"):
+    label = "S/n" if LANG == "es" and default == "y" else "s/N" if LANG == "es" else "Y/n" if default == "y" else "y/N"
+    ans = input(f"   {WHITE}👉 {prompt} ({label}){RESET}: ").strip().lower() or default
+    return ans in ("y", "s", "yes", "si", "sí")
+
+def read_env(env_path):
+    if not env_path.exists(): return {}
     env = {}
     try:
-        # Explicit UTF-8
-        for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
+        for line in env_path.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if line and not line.startswith("#") and "=" in line:
                 k, _, v = line.partition("=")
@@ -51,8 +251,8 @@ def read_env():
     except: pass
     return env
 
-def write_env(updates):
-    text = ENV_FILE.read_text(encoding="utf-8") if ENV_FILE.exists() else ""
+def write_env(env_path, updates):
+    text = env_path.read_text(encoding="utf-8") if env_path.exists() else ""
     for k, v in updates.items():
         pat = rf"^{k}=.*"
         repl = f"{k}={v}"
@@ -61,166 +261,237 @@ def write_env(updates):
         else:
             if text and not text.endswith("\n"): text += "\n"
             text += f"{repl}\n"
-    ENV_FILE.parent.mkdir(parents=True, exist_ok=True)
-    # Explicit UTF-8
-    ENV_FILE.write_text(text, encoding="utf-8")
+    env_path.parent.mkdir(parents=True, exist_ok=True)
+    env_path.write_text(text, encoding="utf-8")
 
-def optimize_soul():
-    print("\n🧠 7. Soul Optimization")
-    anchoring = """
-## 🕊️ Andoriña Identity Anchoring (MANDATORY)
-- **WhatsApp = Andoriña:** You ONLY interact with WhatsApp through the `andorina` skill.
-- **Search-First:** Always run `contacts.py search` before any send or schedule command.
-- **No Native Tools:** Never use the native `cronjob` tools. Use the python scripts.
-- **Smart Dates:** When scheduling, use `HH:MM`, `DD/MM HH:MM` or `DD HH:MM` (24h format).
-"""
-    try:
-        content = SOUL_FILE.read_text(encoding="utf-8") if SOUL_FILE.exists() else "# HERMES SOUL\n"
-        if "Andoriña Identity Anchoring" not in content:
-            SOUL_FILE.write_text(content + anchoring, encoding="utf-8")
-            print("✅ SOUL.md updated.")
-    except: print("⚠️ Warning: Could not update SOUL.md")
-
-def setup_memory_limits(env):
-    print("\n⚙️  4. Performance & Stability")
-    ctx = input(f"👉 Context limit [{env.get('ANDORINA_TARGET_CONTEXT', '75000')}]: ").strip() or env.get('ANDORINA_TARGET_CONTEXT', '75000')
-    umem = input(f"👉 User memory limit [{env.get('ANDORINA_TARGET_USER_MEM', '5000')}]: ").strip() or env.get('ANDORINA_TARGET_USER_MEM', '5000')
-    smem = input(f"👉 System memory limit [{env.get('ANDORINA_TARGET_SYS_MEM', '5000')}]: ").strip() or env.get('ANDORINA_TARGET_SYS_MEM', '5000')
-    
-    updates = {
-        "ANDORINA_TARGET_CONTEXT": ctx,
-        "ANDORINA_TARGET_USER_MEM": umem,
-        "ANDORINA_TARGET_SYS_MEM": smem
-    }
-    write_env(updates)
-    print("✅ Limits applied.")
-
+# ── Main ─────────────────────────────────────────────────────
 def main():
-    print("🚀 Andoriña Setup v1.0.2-hotfix3\n")
-    env = read_env()
-    updates = {}
+    global LANG
+    import shutil
 
-    print("\n🌍 1. Country Code")
-    cc = input(f"👉 Country prefix (e.g. 34) [{env.get('DEFAULT_COUNTRY_CODE', '34')}]: ").strip() or env.get('DEFAULT_COUNTRY_CODE', '34')
-    updates["DEFAULT_COUNTRY_CODE"] = cc.replace("+", "").lstrip("0")
-
-    print("\n🛡️  2. Security")
-    admin = input(f"👉 Admin phone (e.g. 34600112233) [{env.get('WHATSAPP_ALLOWED_USERS', '')}]: ").strip() or env.get('WHATSAPP_ALLOWED_USERS', '')
-    if admin: updates["WHATSAPP_ALLOWED_USERS"] = admin.replace("+", "").replace(" ", "")
-
-    print("\n📒 3. Google API (Optional)")
-    cid = input(f"👉 CLIENT_ID [{env.get('GOOGLE_CONTACTS_CLIENT_ID', '')}]: ").strip() or env.get('GOOGLE_CONTACTS_CLIENT_ID', '')
-    sec = input(f"👉 CLIENT_SECRET [{env.get('GOOGLE_CONTACTS_CLIENT_SECRET', '')}]: ").strip() or env.get('GOOGLE_CONTACTS_CLIENT_SECRET', '')
-    if cid: updates["GOOGLE_CONTACTS_CLIENT_ID"] = cid
-    if sec: updates["GOOGLE_CONTACTS_CLIENT_SECRET"] = sec
-    
-    # Ensure bridge URL is explicitly set if missing
-    if "WHATSAPP_BRIDGE_URL" not in updates and "WHATSAPP_BRIDGE_URL" not in env:
-        updates["WHATSAPP_BRIDGE_URL"] = "http://localhost:3000"
-
-    write_env(updates)
-    
-    setup_memory_limits(env)
-
-    print("\n🔗 5. Deploying Skills & Permissions")
-    # Dynamic category detection for maximum compatibility
+    # Path Discovery
     skills_root = HERMES_HOME / "skills"
     category = "messaging"
     if (skills_root / "message").exists() and not (skills_root / "messaging").exists():
         category = "message"
-    
+
     hermes_base = skills_root / category / "andorina"
     scripts_dir = hermes_base / "scripts"
-    
+    env_file    = hermes_base / ".env"
+    soul_file   = HERMES_HOME / "SOUL.md"
+
+    # ── Welcome & Language ───────────────────────────────────
+    os.system("clear" if os.name != "nt" else "cls")
+    print(LOGO)
+    print(f"   {BOLD}{WHITE}A N D O R I Ñ A{RESET}")
+    hr()
+    lang_input = input(f"   {WHITE}👉 {t('lang_prompt')} [en]{RESET}: ").strip().lower() or "en"
+    LANG = "es" if lang_input in ("es", "español", "spanish") else "en"
+
+    print()
+    print(f"   {BOLD}{WHITE}A N D O R I Ñ A{RESET}   {DIM}{t('subtitle')}{RESET}")
+    print(f"   {DIM}{t('tagline')}{RESET}")
+    hr()
+    print(f"   {GRAY}{t('profile')}: {HERMES_HOME}{RESET}")
+    print(f"   {GRAY}{t('target')}:  {hermes_base}{RESET}")
+    hr()
+    print()
+
+    env = read_env(env_file)
+    updates = {}
+
+    # ── STEP 1: Region ───────────────────────────────────────
+    step(1, t("s1_title"))
+    cc = ask(t("s1_cc"), env.get("DEFAULT_COUNTRY_CODE", "34"))
+    updates["DEFAULT_COUNTRY_CODE"] = cc.replace("+", "").lstrip("0")
+
+    admin = ask(t("s1_admin"), env.get("WHATSAPP_ALLOWED_USERS", ""))
+    if admin:
+        updates["WHATSAPP_ALLOWED_USERS"] = admin.replace("+", "").replace(" ", "")
+
+    bot = ask(t("s1_bot"), env.get("ANDORINA_BOT_PHONE", ""))
+    if bot:
+        updates["ANDORINA_BOT_PHONE"] = bot.replace("+", "").replace(" ", "")
+
+    ok(t("s1_ok"))
+
+    # ── STEP 2: Google Contacts ──────────────────────────────
+    step(2, t("s2_title"))
+    has_refresh = bool(env.get("GOOGLE_CONTACTS_REFRESH_TOKEN"))
+
+    if has_refresh:
+        ok(t("s2_linked"))
+        if confirm(t("s2_relink"), "n"):
+            info(t("s2_browser"))
+            subprocess.run([sys.executable, str(SOURCE_DIR / "scripts" / "auth.py")])
+    else:
+        info(t("s2_info1"))
+        info(t("s2_info2"))
+        if confirm(t("s2_ask")):
+            subprocess.run([sys.executable, str(SOURCE_DIR / "scripts" / "auth.py")])
+            env = read_env(env_file)
+            if env.get("GOOGLE_CONTACTS_REFRESH_TOKEN"):
+                ok(t("s2_ok"))
+            else:
+                warn(t("s2_fail"))
+        else:
+            info(t("s2_skip"))
+            info(t("s2_later"))
+
+    # ── STEP 3: Performance ──────────────────────────────────
+    step(3, t("s3_title"))
+    info(t("s3_info"))
+    print()
+
+    ctx  = ask(t("s3_ctx"), env.get("ANDORINA_TARGET_CONTEXT", "75000"))
+    umem = ask(t("s3_umem"), env.get("ANDORINA_TARGET_USER_MEM", "5000"))
+    smem = ask(t("s3_smem"), env.get("ANDORINA_TARGET_SYS_MEM", "5000"))
+
+    perf_updates = {
+        "ANDORINA_TARGET_CONTEXT": ctx,
+        "ANDORINA_TARGET_USER_MEM": umem,
+        "ANDORINA_TARGET_SYS_MEM": smem,
+        "WHATSAPP_BRIDGE_URL": "http://localhost:3000"
+    }
+    updates.update(perf_updates)
+    write_env(env_file, updates)
+    ok(t("s3_ok"))
+
+    # ── STEP 4: Deploy ───────────────────────────────────────
+    step(4, t("s4_title"))
     try:
+        hermes_base.mkdir(parents=True, exist_ok=True)
         scripts_dir.mkdir(parents=True, exist_ok=True)
         (hermes_base / "state").mkdir(parents=True, exist_ok=True)
-        
-        import shutil
+
         shutil.copy2(SOURCE_DIR / "SKILL.md", hermes_base / "SKILL.md")
-        
+        count = 0
         for script in (SOURCE_DIR / "scripts").glob("*.py"):
             shutil.copy2(script, scripts_dir / script.name)
             (scripts_dir / script.name).chmod(0o755)
-            
+            count += 1
+
+        ok(t("s4_ok", n=count))
+    except Exception as e:
+        fail(t("s4_fail", e=e))
+
+    # ── STEP 5: Hooks ────────────────────────────────────────
+    step(5, t("s5_title"))
+    try:
         hook = scripts_dir / "hook_inbox.py"
-        # Ensure HERMES_HOME and HERMES_CMD are available for sub-modules
         os.environ["HERMES_HOME"] = str(HERMES_HOME)
         hermes_cmd = os.environ.get("HERMES_CMD", HERMES_HOME.name.lstrip(".") or "hermes")
         os.environ["HERMES_CMD"] = hermes_cmd
-        
-        # Safe Hook Injection instead of unstable CLI command
-        def inject_hooks_safely(profile_path, hook_script):
-            config_file = profile_path / "config.yaml"
-            if not config_file.exists(): return False
-            try:
-                content = config_file.read_text(encoding="utf-8")
-                hook_cmd = f"python3 '{hook_script}'"
-                if hook_cmd in content: return True
-                
+
+        config_file = HERMES_HOME / "config.yaml"
+        if config_file.exists():
+            content = config_file.read_text(encoding="utf-8")
+            hook_cmd = f"python3 '{hook}'"
+            if hook_cmd not in content:
                 lines = content.splitlines()
-                hooks_idx = -1
-                for i, line in enumerate(lines):
-                    if line.strip().startswith("hooks:"):
-                        hooks_idx = i
+                idx = -1
+                for i, l in enumerate(lines):
+                    if l.strip().startswith("hooks:"):
+                        idx = i
                         break
-                
                 new_hook = [
                     f"  - event: message_received",
                     f'    command: "{hook_cmd}"',
                     f"  - event: whatsapp:message",
                     f'    command: "{hook_cmd}"'
                 ]
-                
-                if hooks_idx == -1:
-                    if lines and lines[-1].strip(): lines.append("")
+                if idx == -1:
                     lines.append("hooks:")
                     lines.extend(new_hook)
                 else:
-                    if "[]" in lines[hooks_idx]: lines[hooks_idx] = "hooks:"
-                    for j, h_line in enumerate(new_hook):
-                        lines.insert(hooks_idx + 1 + j, h_line)
-                
+                    # Handle both "hooks: []" and "hooks: {}" empty formats
+                    if "[]" in lines[idx] or "{}" in lines[idx]:
+                        lines[idx] = "hooks:"
+                    for j, h in enumerate(new_hook):
+                        lines.insert(idx + 1 + j, h)
                 config_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
-                return True
-            except: return False
-
-        if inject_hooks_safely(HERMES_HOME, hook):
-            print("✅ Skills deployed and inbox hooks registered (Safe Inject).")
+                ok(t("s5_ok"))
+            else:
+                ok(t("s5_exists"))
         else:
-            print("⚠️ Warning: Skills deployed but hooks could not be registered automatically.")
+            warn(t("s5_noconf"))
     except Exception as e:
-        print(f"⚠️ Warning: Deployment failed: {e}")
+        fail(t("s5_fail", e=e))
 
-    # Now that scripts are deployed, run the portable components
+    # ── STEP 6: Qdrant ───────────────────────────────────────
+    step(6, t("s6_title"))
+    info(t("s6_info"))
+    if confirm(t("s6_ask")):
+        qdrant_setup = scripts_dir / "setup_portable.py"
+        if qdrant_setup.exists():
+            subprocess.run([sys.executable, str(qdrant_setup)])
+        else:
+            warn(t("s6_notfound"))
+    else:
+        info(t("s6_skip"))
+
+    # ── STEP 7: Autostart ────────────────────────────────────
+    step(7, t("s7_title"))
+    info(t("s7_info"))
+    if confirm(t("s7_ask")):
+        autostart_setup = scripts_dir / "setup_autostart.py"
+        if autostart_setup.exists():
+            subprocess.run([sys.executable, str(autostart_setup)])
+        else:
+            warn(t("s7_notfound"))
+    else:
+        info(t("s7_skip"))
+
+    # ── STEP 8: Bridge Patch ─────────────────────────────────
+    step(8, t("s8_title"))
+    info(t("s8_info"))
+    if confirm(t("s8_ask")):
+        patch_script = SOURCE_DIR / "patch_bridge.py"
+        if patch_script.exists():
+            subprocess.run([sys.executable, str(patch_script)])
+        else:
+            warn(t("s8_notfound"))
+    else:
+        info(t("s8_skip"))
+
+    # ── STEP 9: SOUL Optimization ────────────────────────────
+    step(9, t("s9_title"))
     try:
-        print("\n🧠 6. Memory Engine (Qdrant)")
-        do_qdrant = input("👉 Do you want to setup/check the Qdrant memory engine? (y/n) [y]: ").lower().strip() or "y"
-        if do_qdrant in ("y", "s"):
-            qdrant_setup = scripts_dir / "setup_portable.py"
-            if qdrant_setup.exists():
-                subprocess.run([sys.executable, str(qdrant_setup)])
+        anchoring = """
+# --- ANDORINA IDENTITY BEGIN ---
+## 🕊️ Andoriña Identity Anchoring (MANDATORY)
+- **WhatsApp = Andoriña:** You ONLY interact with WhatsApp through the `andorina` skill.
+- **Search-First:** Always run `contacts.py search` before any send or schedule command.
+- **No Native Tools:** Never use the native `cronjob` tools. Use the python scripts.
+- **Smart Dates:** When scheduling, use `HH:MM`, `DD/MM HH:MM` or `DD HH:MM` (24h format).
+# --- ANDORINA IDENTITY END ---
+"""
+        content = soul_file.read_text(encoding="utf-8") if soul_file.exists() else "# HERMES SOUL\n"
+        if "# --- ANDORINA IDENTITY BEGIN ---" in content:
+            content = re.sub(
+                r"# --- ANDORINA IDENTITY BEGIN ---.*?# --- ANDORINA IDENTITY END ---",
+                "", content, flags=re.DOTALL
+            ).strip()
+        soul_file.write_text(content + "\n" + anchoring, encoding="utf-8")
+        ok(t("s9_ok"))
     except Exception as e:
-        print(f"⚠️  Note: Qdrant setup skipped or failed: {e}")
+        warn(t("s9_skip", e=e))
 
-    try:
-        print("\n🖥️  7. Autostart Engine")
-        do_auto = input("👉 Do you want to enable automatic startup for Hermes on login? (y/n) [y]: ").lower().strip() or "y"
-        if do_auto in ("y", "s"):
-            autostart_setup = scripts_dir / "setup_autostart.py"
-            if autostart_setup.exists():
-                subprocess.run([sys.executable, str(autostart_setup)])
-    except Exception as e:
-        print(f"⚠️  Note: Autostart setup skipped or failed: {e}")
-
-    try:
-        optimize_soul()
-    except: pass
-    
-    print("\n" + "━"*50)
-    print("🎉 ANDORIÑA SETUP COMPLETE! 🕊️")
-    print("   Your assistant is ready to fly.")
-    print("━"*50 + "\n")
+    # ── Final Summary ────────────────────────────────────────
+    print()
+    hr()
+    print(f"\n   {GREEN}{BOLD}🎉 {t('done')}{RESET}\n")
+    print(f"   {WHITE}{t('ready')}{RESET}")
+    print(f"   {GRAY}{t('profile')}:  {HERMES_HOME}{RESET}")
+    print(f"   {GRAY}{t('target')}:   {hermes_base}{RESET}")
+    print()
+    print(f"   {DIM}{t('quick')}{RESET}")
+    print(f"   {CYAN}hermes{RESET}                    → {t('cmd_agent')}")
+    print(f"   {CYAN}hermes gateway start{RESET}      → {t('cmd_gw')}")
+    print(f"   {CYAN}python3 scripts/auth.py{RESET}   → {t('cmd_auth')}")
+    print(f"   {CYAN}python3 scripts/diag.py{RESET}   → {t('cmd_diag')}")
+    hr()
+    print()
 
 if __name__ == "__main__":
     main()

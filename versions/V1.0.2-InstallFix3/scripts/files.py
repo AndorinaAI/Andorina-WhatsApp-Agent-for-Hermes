@@ -14,6 +14,9 @@ try:
     bridge_health.ensure_patched()
 except: pass
 
+import os
+SCRIPTS_DIR = Path(__file__).parent.absolute()
+
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
 ENV_PATH = HERMES_HOME / ".env"
 BRIDGE_URL = "http://localhost:3000"
@@ -26,17 +29,35 @@ if ENV_PATH.exists():
     except Exception: pass
 
 BRIDGE_URL = os.environ.get("WHATSAPP_BRIDGE_URL", BRIDGE_URL)
+INBOX_FILE = SCRIPTS_DIR.parent / "state" / "inbox.json"
+
+def log_outgoing(chat_id, text, msg_type="text"):
+    """Saves outgoing messages to the local inbox for self-visibility"""
+    try:
+        entry = {
+            "chatId": chat_id,
+            "from": "Me",
+            "text": text,
+            "date": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "type": msg_type
+        }
+        inbox = []
+        if INBOX_FILE.exists():
+            inbox = json.loads(INBOX_FILE.read_text(encoding="utf-8"))
+        inbox.append(entry)
+        if len(inbox) > 500: inbox = inbox[-500:]
+        INBOX_FILE.parent.mkdir(parents=True, exist_ok=True)
+        INBOX_FILE.write_text(json.dumps(inbox, ensure_ascii=False, indent=2), encoding="utf-8")
+    except: pass
 
 def out(data):
     print(json.dumps(data, ensure_ascii=False))
 
 def post_json(endpoint, data, attempt=0, silent_pacing=False):
-    """Standardized POST with pacing and finite retries"""
-    max_attempts = 3
+    """Standardized POST with pacing"""
     url = f"{BRIDGE_URL}{endpoint}"
     headers = {"Content-Type": "application/json"}
     
-    # 🕊️ Request Pacing: Essential for heavy media uploads
     if not silent_pacing:
         time.sleep(1.0)
     
@@ -44,25 +65,15 @@ def post_json(endpoint, data, attempt=0, silent_pacing=False):
         req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers)
         with urllib.request.urlopen(req, timeout=120) as r:
             res = json.loads(r.read().decode('utf-8'))
-            if not res.get("success") and attempt < max_attempts:
-                import bridge_health
-                if bridge_health.ensure_patched():
-                    time.sleep(3)
-                    return post_json(endpoint, data, attempt=attempt + 1, silent_pacing=silent_pacing)
             return res, None
     except Exception as e:
-        if attempt < max_attempts:
-            import bridge_health
-            if bridge_health.ensure_patched():
-                time.sleep(3)
-                return post_json(endpoint, data, attempt=attempt + 1, silent_pacing=silent_pacing)
         return None, str(e)
 
 def simulate_presence(chat_id, presence_type="composing"):
-    """Simulates natural activity indicator before sending media"""
+    """Simulates activity (Base Bridge only supports 'composing')"""
     try:
-        post_json("/typing", {"chatId": chat_id, "presence": presence_type}, silent_pacing=True)
-        # Files and Voice Notes need a bit more 'simulation' time
+        # Base Hermes Bridge ignores 'presence' and always shows 'composing'
+        post_json("/typing", {"chatId": chat_id}, silent_pacing=True)
         time.sleep(3.0)
     except: pass
 
@@ -95,6 +106,8 @@ def cmd_enviar(path, chat_id, is_voice=False):
         out({"ok": False, "error": "NETWORK_ERROR", "detail": err})
         sys.exit(1)
     elif res and res.get("success"):
+        desc = "[Voice Note]" if is_voice else f"[File: {os.path.basename(path)}]"
+        log_outgoing(chat_id, desc, msg_type="voice" if is_voice else "document")
         out({"ok": True, "chatId": chat_id, "file": os.path.basename(path)})
     else:
         out({"ok": False, "error": "SEND_FAILED", "detail": res.get("error", "Unknown") if res else "No response"})
