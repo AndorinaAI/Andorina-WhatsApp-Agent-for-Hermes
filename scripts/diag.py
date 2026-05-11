@@ -54,8 +54,8 @@ def main():
     b_data = check_bridge()
     if b_data:
         out(f"WhatsApp Bridge: Online (v{b_data.get('version', '1.x')})", True)
-        status = b_data.get('status', 'Unknown')
-        out(f"WhatsApp Connection: {status}", status == 'connected')
+        status = b_data.get('status', 'Unknown').lower()
+        out(f"WhatsApp Connection: {status}", status in ['open', 'connected'])
     else:
         out(f"WhatsApp Bridge: Offline (Check port at {BRIDGE_URL})", False)
 

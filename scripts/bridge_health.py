@@ -38,12 +38,19 @@ def check_qdrant(retries=3, delay=2):
             if i < retries - 1: time.sleep(delay)
     return False
 
-def check_bridge(retries=2, delay=2):
-    """Wait for WhatsApp Bridge to be ready with retries"""
+def check_bridge(retries=2, delay=2, check_connection=False):
+    """Wait for WhatsApp Bridge to be ready with retries. 
+    If check_connection is True, also verifies if WhatsApp is linked.
+    """
     for i in range(retries):
         try:
             with urllib.request.urlopen(f"{BRIDGE_URL}/health", timeout=2) as r:
-                if r.getcode() == 200: return True
+                if r.getcode() == 200:
+                    if not check_connection: return True
+                    data = json.loads(r.read().decode('utf-8'))
+                    # Baileys connection states: 'open' is connected. Hermes might report 'connected' too.
+                    status = data.get('status', '').lower()
+                    return status in ['open', 'connected']
         except:
             if i < retries - 1: time.sleep(delay)
     return False
@@ -223,7 +230,8 @@ def apply_repair():
             
         subprocess.run([hermes_cmd, "gateway", "stop"], capture_output=True)
         time.sleep(1)
-        subprocess.run([hermes_cmd, "gateway", "start"], capture_output=True)
+        # We don't capture output here to allow the user to see the QR code if needed
+        subprocess.run([hermes_cmd, "gateway", "start"])
         
         # Wait with smart backoff
         for wait in [2, 4, 8, 15]:
@@ -241,8 +249,8 @@ def ensure_patched():
     # Maintenance: always check config
     check_config()
     
-    # Fast check: if healthy, do nothing
-    if STAMP_PATH.exists() and check_bridge(retries=1):
+    # Fast check: if healthy AND connected, do nothing
+    if STAMP_PATH.exists() and check_bridge(retries=1, check_connection=True):
         return False 
         
     return apply_repair()
@@ -251,4 +259,8 @@ if __name__ == "__main__":
     if ensure_patched():
         print("✅ Services are synchronized and healthy.")
     else:
+        # If ensure_patched returned False, it means it's already healthy and connected
         print("✅ System stability verified.")
+        if check_bridge(check_connection=True):
+            print("📱 WhatsApp session is already ACTIVE. No QR code needed.")
+            print("📱 La sesión de WhatsApp ya está ACTIVA. No es necesario el código QR.")
