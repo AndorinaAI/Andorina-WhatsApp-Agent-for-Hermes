@@ -1,38 +1,35 @@
 # 📝 Changelog - Andoriña v1.0.2
 
-## [v1.0.2-hotfix2] - 2026-05-11
-**"The YAML Integrity Fix" / "El Fix de Integridad YAML"**
-
----
+## [v1.0.2-hotfix3] - 2026-05-11
+**"The Installer Visibility & QR Fix" / "El Fix de Visibilidad y QR en Instalador"**
 
 ### 🇺🇸 English
-
 #### 🔧 Critical Fixes
-- **YAML Indentation Preservation:** Fixed a critical regression in `bridge_health.py` where updating Hermes configuration (like `context_length`) would strip leading indentation, corrupting the `config.yaml` file and preventing the agent from starting.
-- **YAML-Safe Hook Injection:** Refactored `setup.py` to wrap hook commands in double quotes, ensuring the generated YAML is 100% compliant and preventing parsing errors with complex file paths.
-- **Multi-Profile Log Wiping:** Updated `wipe_logs.py` to respect the `HERMES_HOME` environment variable, ensuring logs are wiped correctly for the active agent profile without affecting others.
-
-#### 📦 Consistency & Synchronization
-- **Version Alignment:** Synchronized the `v1.0.2-hotfix2` version string across `install.sh`, `SKILL.md`, `setup.py`, and documentation.
-- **Production Parity:** Guaranteed 100% file parity between the repository root and the `versions/V1.0.2-InstallFix2/` deployment folder.
-
----
-
-### 🇪🇸 Español
-
-#### 🔧 Fixes Críticos
-- **Preservación de Indentación YAML:** Corregida una regresión crítica en `bridge_health.py` donde la actualización de la configuración de Hermes (como `context_length`) eliminaba la indentación inicial, corrompiendo el archivo `config.yaml` e impidiendo el arranque del agente.
-- **Inyección de Hooks YAML-Safe:** Refactorizado `setup.py` para envolver los comandos de los hooks en comillas dobles, asegurando que el YAML generado cumpla al 100% con el estándar y evitando errores de parseo con rutas de archivos complejas.
-- **Borrado de Logs Multi-Perfil:** Actualizado `wipe_logs.py` para respetar la variable de entorno `HERMES_HOME`, asegurando que los logs se borren correctamente para el perfil de agente activo sin afectar a otros.
-
-#### 📦 Consistencia y Sincronización
-- **Alineación de Versión:** Sincronizado el string de versión `v1.0.2-hotfix2` en `install.sh`, `SKILL.md`, `setup.py` y toda la documentación.
-- **Paridad de Producción:** Garantizada la paridad de archivos al 100% entre la raíz del repositorio y la carpeta de despliegue `versions/V1.0.2-InstallFix2/`.
+- **WhatsApp QR Visibility:** Modified `bridge_health.py` and `install.sh` to allow the QR code to be displayed in the terminal during the setup process if a session is not active.
+- **Smart Connection Check:** The bridge health engine now detects the actual WhatsApp connection state (Open/Connected). It skips unnecessary restarts if the session is already active.
+- **Installer Input Alignment:** Fixed a bug in `install.sh` where the non-interactive setup was misaligned with the new memory limit prompts, causing EOF errors.
+- **Custom Bridge URL Preservation:** `setup.py` no longer overwrites a custom `WHATSAPP_BRIDGE_URL` if it already exists in the `.env` file.
 
 ---
 
 ## [v1.0.2-hotfix2] - 2026-05-11
-**"The Linux Portability Fix" / "El Fix de Portabilidad Linux"**
+**"Integrity & Portability Fix" / "Fix de Integridad y Portabilidad"**
+
+### 🇺🇸 English
+#### 🔧 Critical Fixes
+- **YAML Indentation Preservation:** Fixed a regression in `bridge_health.py` where updating Hermes configuration would strip leading indentation, corrupting `config.yaml`.
+- **YAML-Safe Hook Injection:** Refactored `setup.py` to wrap hook commands in double quotes.
+- **Universal Autostart:** Replaced hardcoded `gnome-terminal` with automatic detection of 6 terminal emulators with headless fallback.
+- **ARM64 Support:** `setup_portable.py` now detects CPU architecture and downloads the correct Qdrant binary.
+- **SyntaxError Fix:** Removed duplicate `chatId` declaration in bridge patching.
+
+### 🇪🇸 Español
+#### 🔧 Fixes Críticos
+- **Preservación de Indentación YAML:** Corregida regresión en `bridge_health.py` que eliminaba la indentación inicial en `config.yaml`.
+- **Inyección de Hooks YAML-Safe:** Refactorizado `setup.py` para envolver comandos en comillas dobles.
+- **Autostart Universal:** Detección automática de 6 emuladores de terminal con fallback sin ventana.
+- **Soporte ARM64:** Detección automática de arquitectura para descargar el binario de Qdrant correcto.
+- **Fix SyntaxError:** Eliminada declaración duplicada de `chatId` en el parcheo del bridge.
 
 ---
 

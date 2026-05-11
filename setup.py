@@ -26,7 +26,7 @@
       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@+:@@@@@@@@@@@@@@@
       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*@@@@@@@@@@@@@@
 
-🚀 Andoriña — Setup Assistant (v1.0.2-hotfix2)
+🚀 Andoriña — Setup Assistant (v1.0.2-hotfix3)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
@@ -96,7 +96,7 @@ def setup_memory_limits(env):
     print("✅ Limits applied.")
 
 def main():
-    print("🚀 Andoriña Setup v1.0.2-hotfix2\n")
+    print("🚀 Andoriña Setup v1.0.2-hotfix3\n")
     env = read_env()
     updates = {}
 
@@ -114,8 +114,9 @@ def main():
     if cid: updates["GOOGLE_CONTACTS_CLIENT_ID"] = cid
     if sec: updates["GOOGLE_CONTACTS_CLIENT_SECRET"] = sec
     
-    # Ensure bridge URL is explicitly set
-    updates["WHATSAPP_BRIDGE_URL"] = "http://localhost:3000"
+    # Ensure bridge URL is explicitly set if missing
+    if "WHATSAPP_BRIDGE_URL" not in updates and "WHATSAPP_BRIDGE_URL" not in env:
+        updates["WHATSAPP_BRIDGE_URL"] = "http://localhost:3000"
 
     write_env(updates)
     
@@ -211,16 +212,6 @@ def main():
                 subprocess.run([sys.executable, str(autostart_setup)])
     except Exception as e:
         print(f"⚠️  Note: Autostart setup skipped or failed: {e}")
-
-    try:
-        print("\n🔧 8. Patch Bridge")
-        do_patch = input("👉 Do you want to apply the compatibility patch and restart the bridge now? (y/n) [y]: ").lower().strip() or "y"
-        if do_patch in ("y", "s"):
-            health_script = scripts_dir / "bridge_health.py"
-            if health_script.exists():
-                subprocess.run([sys.executable, str(health_script)])
-    except Exception as e:
-        print(f"⚠️  Note: Bridge patching skipped or failed: {e}")
 
     try:
         optimize_soul()

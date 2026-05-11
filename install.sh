@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# 🕊️ ANDORIÑA SKILL (v1.0.2-hotfix2)
+# 🕊️ ANDORIÑA SKILL (v1.0.2-hotfix3)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 # Ensure we are operating in the script's directory
@@ -84,6 +84,7 @@ if [[ "$L_CHOICE" == "2" ]]; then
     M_WARN_AUT="ℹ️  Si dices NO, deberás abrir la terminal en cada reinicio."
     M_PROMPT_PAT="¿Deseas parchear y reiniciar el puente de WhatsApp? (s/n) [s]:"
     M_WARN_PAT="ℹ️  Si dices NO, el envío de audios y archivos multimedia fallará."
+    M_STEP4="Parcheando y reiniciando puente de WhatsApp"
     M_FINISHING="Aplicando cambios finales..."
     M_SUCCESS="INSTALACIÓN COMPLETADA CON ÉXITO"
     M_THANKS="Gracias por confiar en AndoriñaAI. Tu asistente está listo para volar."
@@ -107,6 +108,7 @@ else
     M_WARN_AUT="ℹ️  If NO, you'll need to start the agent manually on every reboot."
     M_PROMPT_PAT="Do you want to patch/restart the Bridge? (y/n) [y]:"
     M_WARN_PAT="ℹ️  If NO, sending audio and multimedia files will fail."
+    M_STEP4="Patching and restarting WhatsApp Bridge"
     M_FINISHING="Applying final changes..."
     M_SUCCESS="INSTALLATION COMPLETED SUCCESSFULLY"
     M_THANKS="Thank you for trusting AndoriñaAI. Your assistant is ready to fly."
@@ -216,9 +218,11 @@ $USER_CC
 $USER_PHONE
 $GOOGLE_CID
 $GOOGLE_SEC
+
+
+
 $DO_QDRANT
 $DO_AUTO
-$DO_PATCH
 EOF
 
 if [ $? -ne 0 ]; then
@@ -235,7 +239,28 @@ if [[ "$DO_GOOGLE" == "y" || "$DO_GOOGLE" == "s" ]]; then
     hr
 fi
 
-# Step 4: Final Touch
+# Step 4: Bridge Patch (Visible for QR)
+if [[ "$DO_PATCH" == "y" || "$DO_PATCH" == "s" ]]; then
+    echo -e "\n   ${C_CYAN}🔧 ${M_STEP4}${C_RESET}"
+    hr
+    # Dynamically find the deployed bridge_health.py
+    # setup.py deployed it to $HERMES_HOME/skills/(messaging|message)/andorina/scripts/
+    CATEGORY="messaging"
+    if [ -d "$HERMES_HOME/skills/message" ] && [ ! -d "$HERMES_HOME/skills/messaging" ]; then
+        CATEGORY="message"
+    fi
+    HEALTH_SCRIPT="$HERMES_HOME/skills/$CATEGORY/andorina/scripts/bridge_health.py"
+    
+    if [ -f "$HEALTH_SCRIPT" ]; then
+        python3 "$HEALTH_SCRIPT"
+    else
+        # Fallback to local script if not yet deployed (unlikely)
+        python3 scripts/bridge_health.py
+    fi
+    hr
+fi
+
+# Step 5: Final Touch
 echo -ne "   ${C_WHITE}● ${M_STEP3}${C_RESET} ... "
 echo -e "${C_GREEN}Done${C_RESET}"
 echo -e "   ${C_GRAY}----------------------------------------------------------${C_RESET}"

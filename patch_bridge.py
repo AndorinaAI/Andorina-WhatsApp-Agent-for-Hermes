@@ -106,7 +106,10 @@ def main():
         if not hermes_cmd:
             hermes_cmd = HERMES_HOME.name.lstrip(".")
             if not hermes_cmd: hermes_cmd = "hermes"
-        subprocess.run([hermes_cmd, "gateway", "restart"], capture_output=True)
+        subprocess.run([hermes_cmd, "gateway", "stop"], capture_output=True)
+        import time
+        time.sleep(1)
+        subprocess.run([hermes_cmd, "gateway", "start"])
     else:
         print("✅ bridge.js already patched.")
 
