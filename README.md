@@ -7,12 +7,12 @@
 </p>
 
 <p align="center">
-  <em>Autonomous WhatsApp Manager for Hermes (v1.0.2-hotfix1)</em><br>
-  <em>Gestor Autónomo de WhatsApp para Hermes (v1.0.2-hotfix1)</em>
+  <em>Autonomous WhatsApp Manager for Hermes (v1.0.2-hotfix2)</em><br>
+  <em>Gestor Autónomo de WhatsApp para Hermes (v1.0.2-hotfix2)</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.2--hotfix1-blueviolet?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.0.2--hotfix2-blueviolet?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/status-STABLE-green?style=flat-square" alt="Status">
   <img src="https://img.shields.io/badge/platform-Linux-lightgrey?style=flat-square&logo=linux" alt="Linux">
   <img src="https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square&logo=python" alt="Python">
@@ -27,10 +27,10 @@
 - **Follow on X:** [@andorinaAI](https://x.com/andorinaAI)
 
 > [!IMPORTANT]
-> **🚀 v1.0.2-hotfix1 OFFICIAL RELEASE: STABILITY UPDATE**
+> **🚀 v1.0.2-hotfix2 OFFICIAL RELEASE: STABILITY UPDATE**
 > This is the latest stable version of Andoriña. It features agent-proof refactoring and improved system resilience. Please report any bugs via GitHub Issues.
 >
-> **🚀 v1.0.2-hotfix1 LANZAMIENTO OFICIAL: ACTUALIZACIÓN DE ESTABILIDAD**
+> **🚀 v1.0.2-hotfix2 LANZAMIENTO OFICIAL: ACTUALIZACIÓN DE ESTABILIDAD**
 > Esta es la versión estable más reciente de Andoriña. Cuenta con refactorización a prueba de agentes y mejora de la resiliencia del sistema. Por favor, informa de cualquier error a través de las Issues de GitHub.
 
 ---
@@ -388,21 +388,19 @@ Andoriña usa un modelo de **dos niveles de privilegio**:
 
 ## 📜 Changelog
 
-### v1.0.2-hotfix1 — Linux Portability & Resilience Fix (Latest)
+### v1.0.2-hotfix2 — YAML Integrity & Portability Fix (Latest)
+- **🔧 YAML Integrity:** Fixed critical config corruption due to indentation stripping in `bridge_health.py`.
+- **🛡️ Secure Hooks:** Hook commands are now wrapped in double quotes for 100% YAML compliance.
+- **🌐 UTF-8 Global Safety:** Standardized `utf-8` decoding across all scripts to prevent locale-related crashes.
+- **🖥️ Synchronized Setup:** Aligned `install.sh` and `setup.py` inputs for custom memory limits.
 - **🔧 Bridge Safety:** Automatic backup of `bridge.js` before every patch (`bridge_andorina_bak.js`).
-- **🐛 SyntaxError Fix:** Resolved `Identifier 'chatId' has already been declared` crash in the presence/typing patch.
-- **🖥️ Universal Autostart:** Replaced hardcoded `gnome-terminal` with auto-detection of 6 terminal emulators (GNOME, KDE, XFCE, MATE, LXDE, xterm).
-- **🏗️ Profile Detection:** Installer now scans `~/.hermes/profiles/*` in addition to `$HOME` for multi-profile setups.
-- **🔍 Contacts Fix:** Fixed `contacts.py` parsing commented-out `.env` lines as real values.
-- **🏛️ ARM64 Support:** Qdrant portable setup now detects CPU architecture and downloads the correct binary.
 
-### v1.0.2-hotfix1 — Fix de Portabilidad y Resiliencia Linux (Última)
-- **🔧 Seguridad del Bridge:** Copia de seguridad automática de `bridge.js` antes de cada parcheo (`bridge_andorina_bak.js`).
-- **🐛 Fix SyntaxError:** Resuelto el crash `Identifier 'chatId' has already been declared` en el parche de presencia.
-- **🖥️ Autostart Universal:** Reemplazado `gnome-terminal` por detección automática de 6 emuladores de terminal.
-- **🏗️ Detección de Perfiles:** El instalador ahora escanea `~/.hermes/profiles/*` además de `$HOME` para configuraciones multiperfil.
-- **🔍 Fix de Contactos:** Corregido `contacts.py` que parseaba líneas comentadas del `.env` como valores reales.
-- **🏛️ Soporte ARM64:** El setup portable de Qdrant ahora detecta la arquitectura de CPU y descarga el binario correcto.
+### v1.0.2-hotfix2 — Fix de Integridad YAML y Portabilidad (Última)
+- **🔧 Integridad YAML:** Corregida la corrupción de configuración por pérdida de indentación en `bridge_health.py`.
+- **🛡️ Hooks Seguros:** Comandos de hooks envueltos en comillas dobles para cumplimiento total del estándar YAML.
+- **🌐 Seguridad UTF-8:** Estandarizado el decode `utf-8` en todos los scripts para evitar crashes por locales.
+- **🖥️ Setup Sincronizado:** Alineadas las entradas de `install.sh` y `setup.py` para límites de memoria.
+- **🔧 Seguridad del Bridge:** Backup automático de `bridge.js` antes de cada parcheo (`bridge_andorina_bak.js`).
 
 ### v1.0.2 — Stability & Resilience Update
 - **🛡️ Hardened Security:** `guard.py` now detects obfuscated text attacks and social engineering.

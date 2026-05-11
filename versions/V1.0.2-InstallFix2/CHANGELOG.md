@@ -1,5 +1,36 @@
 # 📝 Changelog - Andoriña v1.0.2
 
+## [v1.0.2-hotfix2] - 2026-05-11
+**"The YAML Integrity Fix" / "El Fix de Integridad YAML"**
+
+---
+
+### 🇺🇸 English
+
+#### 🔧 Critical Fixes
+- **YAML Indentation Preservation:** Fixed a critical regression in `bridge_health.py` where updating Hermes configuration (like `context_length`) would strip leading indentation, corrupting the `config.yaml` file and preventing the agent from starting.
+- **YAML-Safe Hook Injection:** Refactored `setup.py` to wrap hook commands in double quotes, ensuring the generated YAML is 100% compliant and preventing parsing errors with complex file paths.
+- **Multi-Profile Log Wiping:** Updated `wipe_logs.py` to respect the `HERMES_HOME` environment variable, ensuring logs are wiped correctly for the active agent profile without affecting others.
+
+#### 📦 Consistency & Synchronization
+- **Version Alignment:** Synchronized the `v1.0.2-hotfix2` version string across `install.sh`, `SKILL.md`, `setup.py`, and documentation.
+- **Production Parity:** Guaranteed 100% file parity between the repository root and the `versions/V1.0.2-InstallFix2/` deployment folder.
+
+---
+
+### 🇪🇸 Español
+
+#### 🔧 Fixes Críticos
+- **Preservación de Indentación YAML:** Corregida una regresión crítica en `bridge_health.py` donde la actualización de la configuración de Hermes (como `context_length`) eliminaba la indentación inicial, corrompiendo el archivo `config.yaml` e impidiendo el arranque del agente.
+- **Inyección de Hooks YAML-Safe:** Refactorizado `setup.py` para envolver los comandos de los hooks en comillas dobles, asegurando que el YAML generado cumpla al 100% con el estándar y evitando errores de parseo con rutas de archivos complejas.
+- **Borrado de Logs Multi-Perfil:** Actualizado `wipe_logs.py` para respetar la variable de entorno `HERMES_HOME`, asegurando que los logs se borren correctamente para el perfil de agente activo sin afectar a otros.
+
+#### 📦 Consistencia y Sincronización
+- **Alineación de Versión:** Sincronizado el string de versión `v1.0.2-hotfix2` en `install.sh`, `SKILL.md`, `setup.py` y toda la documentación.
+- **Paridad de Producción:** Garantizada la paridad de archivos al 100% entre la raíz del repositorio y la carpeta de despliegue `versions/V1.0.2-InstallFix2/`.
+
+---
+
 ## [v1.0.2-hotfix1] - 2026-05-11
 **"The Linux Portability Fix" / "El Fix de Portabilidad Linux"**
 

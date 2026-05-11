@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# 🕊️ ANDORIÑA SKILL (v1.0.2-hotfix1)
+# 🕊️ ANDORIÑA SKILL (v1.0.2-hotfix2)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 # Ensure we are operating in the script's directory

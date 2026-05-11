@@ -106,5 +106,5 @@ if __name__ == "__main__":
     elif cmd == "status":
         try:
             with urllib.request.urlopen(f"{BRIDGE_URL}/health", timeout=2) as r:
-                out({"ok": r.status == 200, "status": json.loads(r.read().decode())})
+                out({"ok": r.status == 200, "status": json.loads(r.read().decode('utf-8'))})
         except: out({"ok": False})
