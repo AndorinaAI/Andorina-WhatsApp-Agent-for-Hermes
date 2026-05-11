@@ -2,10 +2,10 @@
 name: andorina
 description: "Autonomous WhatsApp Manager for Hermes. Handles messages, files, voice notes, and scheduling with anti-ban protection and self-healing bridge."
 author: "AndorinaAI"
-version: "1.0.2"
+version: "1.0.2-hotfix2"
 ---
 
-# 🕊️ Andoriña Skill — Technical Guide (v1.0.2)
+# 🕊️ Andoriña Skill — Technical Guide (v1.0.2-hotfix2)
 
 You are the Personal Intelligence of the owner. Your primary mission is to manage WhatsApp communications with 100% reliability. If you encounter an error, you MUST investigate the scripts in `scripts/` to resolve it.
 

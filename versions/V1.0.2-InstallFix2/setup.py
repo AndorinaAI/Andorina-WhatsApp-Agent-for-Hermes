@@ -26,7 +26,7 @@
       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@+:@@@@@@@@@@@@@@@
       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*@@@@@@@@@@@@@@
 
-🚀 Andoriña — Setup Assistant (v1.0.2)
+🚀 Andoriña — Setup Assistant (v1.0.2-hotfix2)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
@@ -83,17 +83,20 @@ def optimize_soul():
 
 def setup_memory_limits(env):
     print("\n⚙️  4. Performance & Stability")
-    print("   Applying Recommended limits (75k context / 5k memory) for maximum stability.")
+    ctx = input(f"👉 Context limit [{env.get('ANDORINA_TARGET_CONTEXT', '75000')}]: ").strip() or env.get('ANDORINA_TARGET_CONTEXT', '75000')
+    umem = input(f"👉 User memory limit [{env.get('ANDORINA_TARGET_USER_MEM', '5000')}]: ").strip() or env.get('ANDORINA_TARGET_USER_MEM', '5000')
+    smem = input(f"👉 System memory limit [{env.get('ANDORINA_TARGET_SYS_MEM', '5000')}]: ").strip() or env.get('ANDORINA_TARGET_SYS_MEM', '5000')
+    
     updates = {
-        "ANDORINA_TARGET_CONTEXT": "75000",
-        "ANDORINA_TARGET_USER_MEM": "5000",
-        "ANDORINA_TARGET_SYS_MEM": "5000"
+        "ANDORINA_TARGET_CONTEXT": ctx,
+        "ANDORINA_TARGET_USER_MEM": umem,
+        "ANDORINA_TARGET_SYS_MEM": smem
     }
     write_env(updates)
     print("✅ Limits applied.")
 
 def main():
-    print("🚀 Andoriña Setup v1.0.2\n")
+    print("🚀 Andoriña Setup v1.0.2-hotfix2\n")
     env = read_env()
     updates = {}
 
@@ -163,9 +166,9 @@ def main():
                 
                 new_hook = [
                     f"  - event: message_received",
-                    f"    command: {hook_cmd}",
+                    f'    command: "{hook_cmd}"',
                     f"  - event: whatsapp:message",
-                    f"    command: {hook_cmd}"
+                    f'    command: "{hook_cmd}"'
                 ]
                 
                 if hooks_idx == -1:

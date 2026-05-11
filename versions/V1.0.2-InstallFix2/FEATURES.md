@@ -1,4 +1,4 @@
-# 🌟 Andoriña v1.0.2-hotfix1 — Complete Feature Reference
+# 🌟 Andoriña v1.0.2-hotfix2 — Complete Feature Reference
 ## 🇬🇧 English | 🇪🇸 Español
 
 ---
@@ -308,4 +308,4 @@
 | `ANDORINA_CRON_OFFSET` | `2` | Minutos entre tareas cron concurrentes. |
 
 ---
-*Developed with ❤️ by Jorge. — Andoriña v1.0.2-hotfix1*
+*Developed with ❤️ by Jorge. — Andoriña v1.0.2-hotfix2*
