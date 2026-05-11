@@ -31,7 +31,7 @@
 
 ---
 
-## [v1.0.2-hotfix1] - 2026-05-11
+## [v1.0.2-hotfix2] - 2026-05-11
 **"The Linux Portability Fix" / "El Fix de Portabilidad Linux"**
 
 ---
