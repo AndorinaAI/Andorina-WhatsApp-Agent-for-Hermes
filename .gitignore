@@ -5,3 +5,5 @@ state/
 .DS_Store
 node_modules/
 .gemini/
+feedback/
+
