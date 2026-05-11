@@ -10,7 +10,14 @@ from pathlib import Path
 
 # Config
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
-ENV_FILE = HERMES_HOME / ".env"
+def get_env_path(profile_path):
+    skills_root = profile_path / "skills"
+    category = "messaging"
+    if (skills_root / "message").exists() and not (skills_root / "messaging").exists():
+        category = "message"
+    return skills_root / category / "andorina" / ".env"
+
+ENV_FILE = get_env_path(HERMES_HOME)
 SCRIPTS_DIR = Path(__file__).parent.absolute()
 CACHE_FILE = SCRIPTS_DIR.parent / "state" / "contacts_cache.json"
 CACHE_TTL = 3600 * 24 # 24 hours
@@ -42,7 +49,8 @@ def save_token(token):
         if "GOOGLE_CONTACTS_ACCESS_TOKEN=" in content:
             content = re.sub(r"GOOGLE_CONTACTS_ACCESS_TOKEN=.*", f"GOOGLE_CONTACTS_ACCESS_TOKEN={token}", content)
         else:
-            content += f"\nGOOGLE_CONTACTS_ACCESS_TOKEN={token}\n"
+            if not content.endswith("\n"): content += "\n"
+            content += f"GOOGLE_CONTACTS_ACCESS_TOKEN={token}\n"
         ENV_FILE.write_text(content, encoding="utf-8")
     except: pass
 
@@ -92,12 +100,12 @@ def fetch_all(token, env):
     return all_c
 
 def norm(text):
-    text = text.lower().strip()
+    text = str(text).lower().strip()
     text = unicodedata.normalize("NFD", text)
     return "".join(c for c in text if unicodedata.category(c) != "Mn")
 
 def clean_phone(raw, env):
-    digits = re.sub(r"[^\d]", "", raw).lstrip("0") or ""
+    digits = re.sub(r"[^\d]", "", str(raw)).lstrip("0") or ""
     cc = env.get("DEFAULT_COUNTRY_CODE", "34")
     if 8 <= len(digits) <= 10: digits = cc + digits
     return digits
@@ -130,7 +138,8 @@ def load_cache():
 
 def save_cache(contacts):
     try:
-        CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        state_dir = SCRIPTS_DIR.parent / "state"
+        state_dir.mkdir(parents=True, exist_ok=True)
         CACHE_FILE.write_text(json.dumps({"ts": time.time(), "contacts": contacts}, ensure_ascii=False), encoding="utf-8")
     except: pass
 
@@ -140,29 +149,32 @@ def out(data):
 def cmd_buscar(contacts, query, retry=True):
     q = norm(query)
     found = []
+    
     for c in contacts:
-        # Search in Name, Number or ChatId
-        if q in norm(c["name"]) or q in norm(c.get("number", "")) or q in norm(c.get("chatId", "")):
+        name_n = norm(c["name"])
+        num_n = norm(c.get("number", ""))
+        if q in name_n or name_n in q or q in num_n:
             c["type"] = "Contact"
             found.append(c)
     
+    # 2. Search Groups
     groups = obtener_grupos()
     for g in groups:
-        # Search in Group Name or Group Id
-        if q in norm(g["name"]) or q in norm(g.get("chatId", "")):
+        gn = norm(g["name"])
+        if q in gn or gn in q:
             g["type"] = "Group"
             if not any(f["chatId"] == g["chatId"] for f in found):
                 found.append(g)
 
     if not found and retry:
-        CACHE_FILE.unlink(missing_ok=True)
         env = load_env()
-        token = env.get("GOOGLE_CONTACTS_ACCESS_TOKEN", "")
+        token = env.get("GOOGLE_CONTACTS_ACCESS_TOKEN") or refresh_token(env)
         if token:
             raw = fetch_all(token, env)
             new_contacts = build_contacts(raw, env)
-            save_cache(new_contacts)
-            return cmd_buscar(new_contacts, query, retry=False)
+            if new_contacts:
+                save_cache(new_contacts)
+                return cmd_buscar(new_contacts, query, retry=False)
 
     if not found:
         out({"ok": False, "message": f"No results found for '{query}'"})
@@ -170,54 +182,68 @@ def cmd_buscar(contacts, query, retry=True):
         out({"ok": True, "total": len(found), "results": found[:30]})
 
 def obtener_grupos():
-    """Fetches groups from Bridge or Local Cache"""
+    # 1. Try Bridge Endpoint (only works on patched version)
     try:
         with urllib.request.urlopen(f"{BRIDGE_URL}/groups", timeout=3) as r:
-            data = json.loads(r.read().decode('utf-8'))
-            if isinstance(data, list):
-                return [{"name": g.get("name", g.get("id")), "chatId": g.get("id")} for g in data]
-            elif isinstance(data, dict):
-                return [{"name": v.get("name", k), "chatId": k} for k, v in data.items()]
-    except Exception:
-        # If bridge fails, try self-healing or local fallback
+            if r.getcode() == 200:
+                data = json.loads(r.read().decode('utf-8'))
+                # The Bridge can return a list of objects or a dict
+                if isinstance(data, list):
+                    # We accept both 'name' and 'subject' (Baileys uses subject)
+                    return [{"name": g.get("name") or g.get("subject") or g.get("id"), "chatId": g.get("id")} for g in data]
+                elif isinstance(data, dict):
+                    return [{"name": v.get("name") or v.get("subject") or k, "chatId": k} for k, v in data.items()]
+    except Exception as e:
         pass
 
-    # 2. Try Local Hermes Cache (Fallback)
+    # 2. Fallback: Local channel directory (standard Hermes behavior)
     f = HERMES_HOME / 'channel_directory.json'
-    if not f.exists(): return []
+    if f.exists():
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+            # Hermes stores groups in platforms.whatsapp
+            groups = [c for c in d.get('platforms', {}).get('whatsapp', []) if '@g.us' in str(c.get('id', ''))]
+            if groups:
+                return [{"name": g.get("name") or g.get("id"), "chatId": g.get("id")} for g in groups]
+        except: pass
+    
+    # 3. Last Resort: Check state/inbox.json for active groups
     try:
-        d = json.loads(f.read_text(encoding="utf-8"))
-        groups = [c for c in d.get('platforms', {}).get('whatsapp', []) if '@g.us' in c.get('id', '')]
-        return [{"name": g.get("name", g.get("id")), "chatId": g.get("id")} for g in groups]
-    except: return []
+        inbox_file = SCRIPTS_DIR.parent / "state" / "inbox.json"
+        if inbox_file.exists():
+            inbox = json.loads(inbox_file.read_text(encoding="utf-8"))
+            active_groups = {}
+            for m in inbox:
+                cid = m.get("chatId", "")
+                if "@g.us" in cid:
+                    active_groups[cid] = cid # We don't have the name here easily
+            if active_groups:
+                return [{"name": cid.split("@")[0], "chatId": cid} for cid in active_groups.keys()]
+    except: pass
+
+    return []
 
 def main():
-    load_env() # Ensure BRIDGE is loaded
+    load_env()
     if len(sys.argv) < 2: sys.exit(0)
     cmd = sys.argv[1].lower()
     arg = " ".join(sys.argv[2:]).strip()
 
-    if cmd == "refresh":
-        CACHE_FILE.unlink(missing_ok=True); out({"ok": True}); return
-
-    contacts = load_cache()
-    if contacts is None:
+    if cmd == "search":
+        contacts = load_cache() or []
+        cmd_buscar(contacts, arg)
+    elif cmd == "groups":
+        out({"ok": True, "results": obtener_grupos()})
+    elif cmd == "refresh":
         env = load_env()
-        token = env.get("GOOGLE_CONTACTS_ACCESS_TOKEN", "")
-        if not token: 
-            # If no Google Contacts, we still want to see groups
-            if cmd in ("search", "buscar", "groups", "grupos"):
-                contacts = []
-            else:
-                out({"ok": False, "error": "No token"}); sys.exit(1)
-        else:
+        token = refresh_token(env)
+        if token:
             raw = fetch_all(token, env)
-            contacts = build_contacts(raw, env)
-            save_cache(contacts)
-
-    if cmd in ("search", "buscar"): cmd_buscar(contacts, arg)
-    elif cmd in ("groups", "grupos"): out({"ok": True, "groups": obtener_grupos()})
-    elif cmd == "all": out({"ok": True, "total": len(contacts), "contacts": contacts})
+            new_contacts = build_contacts(raw, env)
+            save_cache(new_contacts)
+            out({"ok": True, "message": f"Synced {len(new_contacts)} contacts."})
+        else:
+            out({"ok": False, "message": "Failed to refresh token."})
 
 if __name__ == "__main__":
     main()
