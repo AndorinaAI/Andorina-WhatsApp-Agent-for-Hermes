@@ -23,7 +23,6 @@ sys.path.append(str(Path(__file__).parent))
 from send import post_json
 
 # ─────────────── Paths ────────────────────────────────────────────────────────
-# ─────────────── Paths ────────────────────────────────────────────────────────
 SCRIPTS_DIR = Path(__file__).parent.absolute()
 HERMES_BASE = SCRIPTS_DIR.parent
 AGENDA_FILE = HERMES_BASE / "state" / "agenda.json"

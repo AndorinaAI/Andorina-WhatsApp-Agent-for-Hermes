@@ -72,15 +72,15 @@ def check_config():
         conf = conf_path.read_text(encoding="utf-8")
         changed = False
         if targets["context_length"]:
-            new_conf = re.sub(r"#?\s*context_length:\s*\d+", f"context_length: {targets['context_length']}", conf)
+            new_conf = re.sub(r"^([ \t]*)#?\s*context_length:\s*\d+", rf"\1context_length: {targets['context_length']}", conf, flags=re.MULTILINE)
             if new_conf != conf: conf = new_conf; changed = True
         
         if targets["user_char_limit"]:
-            new_conf = re.sub(r"#?\s*user_char_limit:\s*\d+", f"user_char_limit: {targets['user_char_limit']}", conf)
+            new_conf = re.sub(r"^([ \t]*)#?\s*user_char_limit:\s*\d+", rf"\1user_char_limit: {targets['user_char_limit']}", conf, flags=re.MULTILINE)
             if new_conf != conf: conf = new_conf; changed = True
 
         if targets["memory_char_limit"]:
-            new_conf = re.sub(r"#?\s*memory_char_limit:\s*\d+", f"memory_char_limit: {targets['memory_char_limit']}", conf)
+            new_conf = re.sub(r"^([ \t]*)#?\s*memory_char_limit:\s*\d+", rf"\1memory_char_limit: {targets['memory_char_limit']}", conf, flags=re.MULTILINE)
             if new_conf != conf: conf = new_conf; changed = True
             
         if changed:

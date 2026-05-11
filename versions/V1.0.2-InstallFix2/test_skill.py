@@ -10,7 +10,6 @@ from pathlib import Path
 SOURCE_DIR  = Path(__file__).parent
 SCRIPTS     = SOURCE_DIR / "scripts"
 # Dynamic detection for tests
-import os
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
 HERMES_DIR  = SOURCE_DIR if (SOURCE_DIR / "scripts").exists() else HERMES_HOME / "skills" / ("message" if (HERMES_HOME / "skills" / "message").exists() else "messaging") / "andorina"
 
@@ -42,12 +41,12 @@ def _():
     for s in scripts:
         r = subprocess.run([sys.executable, "-m", "py_compile", str(SCRIPTS/s)], capture_output=True)
         if r.returncode != 0:
-            raise AssertionError(f"Syntax error in {s}: {r.stderr.decode()}")
+            raise AssertionError(f"Syntax error in {s}: {r.stderr.decode('utf-8')}")
             
     for s in root_scripts:
         r = subprocess.run([sys.executable, "-m", "py_compile", str(SOURCE_DIR/s)], capture_output=True)
         if r.returncode != 0:
-            raise AssertionError(f"Syntax error in {s}: {r.stderr.decode()}")
+            raise AssertionError(f"Syntax error in {s}: {r.stderr.decode('utf-8')}")
 
 # ── Group: Logic ──────────────────────────────────────────────────────────────
 

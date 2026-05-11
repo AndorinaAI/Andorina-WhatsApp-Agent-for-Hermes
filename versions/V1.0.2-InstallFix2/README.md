@@ -7,12 +7,12 @@
 </p>
 
 <p align="center">
-  <em>Autonomous WhatsApp Manager for Hermes (v1.0.2-hotfix1)</em><br>
-  <em>Gestor Autónomo de WhatsApp para Hermes (v1.0.2-hotfix1)</em>
+  <em>Autonomous WhatsApp Manager for Hermes (v1.0.2-hotfix2)</em><br>
+  <em>Gestor Autónomo de WhatsApp para Hermes (v1.0.2-hotfix2)</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.2--hotfix1-blueviolet?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.0.2--hotfix2-blueviolet?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/status-STABLE-green?style=flat-square" alt="Status">
   <img src="https://img.shields.io/badge/platform-Linux-lightgrey?style=flat-square&logo=linux" alt="Linux">
   <img src="https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square&logo=python" alt="Python">
