@@ -7,12 +7,12 @@
 </p>
 
 <p align="center">
-  <em>Autonomous WhatsApp Manager for Hermes (v1.0.3)</em><br>
-  <em>Gestor Autónomo de WhatsApp para Hermes (v1.0.3)</em>
+  <em>Autonomous WhatsApp Manager for Hermes (v1.0.3-patch1)</em><br>
+  <em>Gestor Autónomo de WhatsApp para Hermes (v1.0.3-patch1)</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.3-blueviolet?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.0.3--patch1-blueviolet?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/status-STABLE-green?style=flat-square" alt="Status">
   <img src="https://img.shields.io/badge/platform-Linux-lightgrey?style=flat-square&logo=linux" alt="Linux">
   <img src="https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square&logo=python" alt="Python">
@@ -27,10 +27,10 @@
 - **Follow on X:** [@andorinaAI](https://x.com/andorinaAI)
 
 > [!IMPORTANT]
-> **🚀 v1.0.3 OFFICIAL RELEASE: STABLE INSTALLER & BRIDGE**
+> **🚀 v1.0.3-patch1 OFFICIAL RELEASE: STABLE INSTALLER & BRIDGE**
 > This is the latest stable version of Andoriña. It features agent-proof refactoring and improved system resilience. Please report any bugs via GitHub Issues.
 >
-> **🚀 v1.0.3 LANZAMIENTO OFICIAL: INSTALADOR Y BRIDGE ESTABLES**
+> **🚀 v1.0.3-patch1 LANZAMIENTO OFICIAL: INSTALADOR Y BRIDGE ESTABLES**
 > Esta es la versión estable más reciente de Andoriña. Cuenta con refactorización a prueba de agentes y mejora de la resiliencia del sistema. Por favor, informa de cualquier error a través de las Issues de GitHub.
 
 ---
@@ -131,6 +131,10 @@ If you are using a local model (Ollama/LM Studio), we highly recommend adding th
 
 - "Schedule a WhatsApp for Carlos tomorrow at 18:00 saying: 'Ready for the match?'."
 - *The agent will automatically use the simplified `auto-schedule` command.*
+
+> [!TIP]
+> **File Sending Tip:** For images, videos, and complex documents (like Office or PDF), the AI cannot read or see the content. To avoid errors, please provide exact filenames or be as specific as possible so the agent can find them!
+
 
 ---
 
@@ -278,6 +282,10 @@ Si usas un modelo local (Ollama/LM Studio), te recomendamos encarecidamente aña
 - "Programa un WhatsApp para Carlos mañana a las 18:00 que diga: '¿Listo para el partido?'."
 - *El asistente usará automáticamente el nuevo comando simplificado `auto-schedule`.*
 
+> [!TIP]
+> **Consejo para el Envío de Archivos:** Para imágenes, vídeos y documentos complejos (como Office o PDF), la IA no puede leer ni ver el contenido. Para evitar errores, ¡proporciona nombres de archivo exactos o sé lo más específico posible para que el agente los encuentre!
+
+
 ---
 
 ## 🌟 CAPACIDADES Y CARACTERÍSTICAS CLAVE
@@ -388,7 +396,7 @@ Andoriña usa un modelo de **dos niveles de privilegio**:
 
 ## 📜 Changelog
 
-### v1.0.3 — Stable Release (Latest)
+### v1.0.3-patch1 — Stable Release (Latest)
 - **Visual Bilingual Setup:** New professional interactive installer in English and Spanish.
 - **Embedded OAuth:** No longer requires users to create their own Google API keys (pre-configured).
 - **Self-Healing Bridge:** Flawless injection engine `patch_bridge.py` preventing module crashes.

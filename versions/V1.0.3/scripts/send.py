@@ -118,3 +118,6 @@ if __name__ == "__main__":
             with urllib.request.urlopen(f"{BRIDGE_URL}/health", timeout=2) as r:
                 out({"ok": r.status == 200, "status": json.loads(r.read().decode('utf-8'))})
         except: out({"ok": False})
+    else:
+        out({"ok": False, "error": "UNKNOWN_COMMAND", "detail": f"Command '{cmd}' not found in send.py. Did you mean to use files.py for sending files?"})
+        sys.exit(1)

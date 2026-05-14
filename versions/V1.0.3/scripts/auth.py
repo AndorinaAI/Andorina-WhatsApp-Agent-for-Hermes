@@ -22,8 +22,8 @@ def get_env_path(profile_path):
 ENV_FILE = get_env_path(HERMES_HOME)
 
 # --- ANDORIÑA PUBLIC CREDENTIALS (for Easy Setup) ---
-DEFAULT_CID = "945115201402-b06it94lslqdqsh0e6761v75v6iun547.apps.googleusercontent.com"
-DEFAULT_SEC = "GOCSPX-uLqO8Y_X_F79u_qRjE9_j_w_X_q" # Placeholder for demo, normally would be the project's secret
+DEFAULT_CID = "887237862821-pdhjfg3nnqc1l3no9ujvt5ouapthrimk.apps.googleusercontent.com"
+DEFAULT_SEC = "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"
 
 def load_env():
     env = {}

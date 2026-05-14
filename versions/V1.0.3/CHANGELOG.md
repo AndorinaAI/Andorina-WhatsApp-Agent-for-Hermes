@@ -1,5 +1,26 @@
 # 📝 Changelog - Andoriña v1.0.3
 
+## [v1.0.3-patch1] - 2026-05-13
+**"The Installer Updates & Refined File Search Protocol" / "Actualizaciones del Instalador y Protocolo de Búsqueda de Archivos Refinado"**
+
+### 🇺🇸 English
+
+#### 🔧 Critical Fixes & Improvements
+- **Gateway Auto-Install:** Updated `setup.py` to automatically install and start the Hermes gateway service during the installation process, preventing manual setup steps.
+- **Agent Command Hallucination Defense:** Added strict error handling in `send.py` and `contacts.py` to return JSON errors and exit code 1 on unknown commands, preventing agents from assuming success on invalid commands.
+- **Refined File Search Protocol:** Updated `SKILL.md` with a strict step-by-step search algorithm using `xdg-user-dir` for localized paths and explicit placeholders to prevent small LLMs from over-fitting on examples.
+- **Multimedia & Office Warning:** Added explicit warnings in `SKILL.md` and `README.md` about the inability of LLMs to read images, videos, and Office documents, advising users to use precise filenames.
+
+### 🇪🇸 Español
+
+#### 🔧 Fixes Críticos y Mejoras
+- **Auto-instalación de Gateway:** Actualizado `setup.py` para instalar y arrancar automáticamente el servicio gateway de Hermes durante la instalación, evitando pasos manuales.
+- **Defensa contra Alucinaciones de Comandos:** Añadido control de errores estricto en `send.py` y `contacts.py` para devolver errores JSON y código 1 ante comandos desconocidos, evitando que la IA asuma éxito en comandos inventados.
+- **Protocolo de Búsqueda Refinado:** Actualizado `SKILL.md` con un algoritmo de búsqueda estricto paso a paso usando `xdg-user-dir` para rutas localizadas y variables genéricas para evitar que modelos pequeños se confundan con los ejemplos.
+- **Aviso de Multimedia y Office:** Añadidas advertencias explícitas en `SKILL.md` y `README.md` sobre la incapacidad de la IA para leer imágenes, vídeos y documentos de Office, aconsejando al usuario usar nombres de archivo precisos.
+
+---
+
 ## [v1.0.3] - 2026-05-12
 **"The Stable Installer Update" / "La Actualización del Instalador Estable"**
 

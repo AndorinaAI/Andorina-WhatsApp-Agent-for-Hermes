@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🚀 Andoriña — Setup Assistant (v1.0.3)
+🚀 Andoriña — Setup Assistant (v1.0.3-patch1)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
@@ -20,7 +20,6 @@ BOLD    = "\033[1m"
 RESET   = "\033[0m"
 
 # ── Paths ────────────────────────────────────────────────────
-HERMES_HOME = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
 SOURCE_DIR  = Path(__file__).parent
 
 LOGO = f"""{CYAN}
@@ -57,15 +56,22 @@ LANG = "en"  # default
 STRINGS = {
     "es": {
         "lang_prompt":     "Selecciona idioma / Select language (es/en)",
-        "subtitle":        "Asistente de Instalación v1.0.3",
+        "subtitle":        "Asistente de Instalación v1.0.3-patch1",
         "tagline":         "Gestor Autónomo de WhatsApp para Hermes Agent",
         "profile":         "Perfil",
         "target":          "Destino",
+        # Prerequisite
+        "prereq_title":    "Requisito Previo",
+        "prereq_warn":     "¡IMPORTANTE! Antes de instalar Andoriña, debes haber configurado WhatsApp en Hermes.",
+        "prereq_detail":   "Ejecuta 'hermes gateway start' y escanea el QR con tu móvil PRIMERO.",
+        "prereq_found":    "bridge.js encontrado.",
+        "prereq_missing":  "bridge.js NO encontrado. Hermes no tiene el gateway de WhatsApp configurado.",
+        "prereq_abort":    "Configura WhatsApp en Hermes primero y vuelve a ejecutar el instalador.",
+        "prereq_ask":      "¿Ya has configurado WhatsApp en Hermes?",
         # Step 1
         "s1_title":        "Región e Identidad",
         "s1_cc":           "Prefijo de país (ej. 34 para España)",
         "s1_admin":        "Tu número de WhatsApp (admin)",
-        "s1_bot":          "Número de WhatsApp del bot",
         "s1_ok":           "Identidad configurada.",
         # Step 2
         "s2_title":        "Google Contacts",
@@ -110,7 +116,7 @@ STRINGS = {
         "s7_notfound":     "setup_autostart.py no encontrado en los scripts desplegados.",
         # Step 8
         "s8_title":        "Parcheo del Puente WhatsApp",
-        "s8_info":         "Añade soporte multimedia, listado de grupos y obtención de QR al puente.",
+        "s8_info":         "Añade soporte multimedia y listado de grupos al puente.",
         "s8_ask":          "¿Parchear y reiniciar el puente de WhatsApp?",
         "s8_skip":         "Omitido. Algunas funciones (audio, grupos) podrían no funcionar.",
         "s8_notfound":     "patch_bridge.py no encontrado.",
@@ -129,15 +135,22 @@ STRINGS = {
     },
     "en": {
         "lang_prompt":     "Selecciona idioma / Select language (es/en)",
-        "subtitle":        "Setup Assistant v1.0.3",
+        "subtitle":        "Setup Assistant v1.0.3-patch1",
         "tagline":         "Autonomous WhatsApp Manager for Hermes Agent",
         "profile":         "Profile",
         "target":          "Target",
+        # Prerequisite
+        "prereq_title":    "Prerequisite Check",
+        "prereq_warn":     "IMPORTANT! You must configure WhatsApp in Hermes BEFORE installing Andoriña.",
+        "prereq_detail":   "Run 'hermes gateway start' and scan the QR code with your phone FIRST.",
+        "prereq_found":    "bridge.js found.",
+        "prereq_missing":  "bridge.js NOT found. Hermes does not have the WhatsApp gateway configured.",
+        "prereq_abort":    "Configure WhatsApp in Hermes first, then re-run this installer.",
+        "prereq_ask":      "Have you already configured WhatsApp in Hermes?",
         # Step 1
         "s1_title":        "Region & Identity",
         "s1_cc":           "Country prefix (e.g. 34 for Spain)",
         "s1_admin":        "Your WhatsApp number (admin)",
-        "s1_bot":          "Bot's WhatsApp number",
         "s1_ok":           "Identity configured.",
         # Step 2
         "s2_title":        "Google Contacts",
@@ -182,7 +195,7 @@ STRINGS = {
         "s7_notfound":     "setup_autostart.py not found in deployed scripts.",
         # Step 8
         "s8_title":        "WhatsApp Bridge Patching",
-        "s8_info":         "Adds multimedia support, group listing, and QR retrieval to the bridge.",
+        "s8_info":         "Adds multimedia support and group listing to the bridge.",
         "s8_ask":          "Patch and restart the WhatsApp bridge?",
         "s8_skip":         "Skipped. Some features (audio, groups) may not work.",
         "s8_notfound":     "patch_bridge.py not found.",
@@ -213,7 +226,10 @@ def hr():
     print(f"   {GRAY}{'━' * 58}{RESET}")
 
 def step(num, title):
-    s = "PASO" if LANG == "es" else "STEP"
+    if num == "⚠":
+        s = ""
+    else:
+        s = "PASO" if LANG == "es" else "STEP"
     print(f"\n   {MAGENTA}{'━' * 58}{RESET}")
     print(f"   {BOLD}{WHITE}{s} {num}{RESET}  {CYAN}{title}{RESET}")
     print(f"   {MAGENTA}{'━' * 58}{RESET}")
@@ -264,10 +280,77 @@ def write_env(env_path, updates):
     env_path.parent.mkdir(parents=True, exist_ok=True)
     env_path.write_text(text, encoding="utf-8")
 
+# ── Agent Auto-Detection ─────────────────────────────────────
+def detect_agents():
+    """Scan for Hermes agent profiles."""
+    agents = []
+    home = Path.home()
+    # Check hidden dirs in $HOME with 'skills' subdirectory
+    for p in sorted(home.iterdir()):
+        if p.name.startswith(".") and p.is_dir() and (p / "skills").is_dir():
+            agents.append(p)
+    # Check $HOME/.hermes/profiles/
+    profiles_dir = home / ".hermes" / "profiles"
+    if profiles_dir.is_dir():
+        for p in sorted(profiles_dir.iterdir()):
+            if p.is_dir() and (p / "skills").is_dir():
+                agents.append(p)
+    # Deduplicate while preserving order
+    seen = set()
+    unique = []
+    for a in agents:
+        r = a.resolve()
+        if r not in seen:
+            seen.add(r)
+            unique.append(a)
+    return unique
+
 # ── Main ─────────────────────────────────────────────────────
 def main():
     global LANG
     import shutil
+
+    # ── Welcome & Language ───────────────────────────────────
+    os.system("clear" if os.name != "nt" else "cls")
+    print(LOGO)
+    print(f"   {BOLD}{WHITE}A N D O R I Ñ A{RESET}")
+    hr()
+    lang_input = input(f"   {WHITE}👉 {t('lang_prompt')} [en]{RESET}: ").strip().lower() or "en"
+    LANG = "es" if lang_input in ("es", "español", "spanish") else "en"
+
+    # ── Agent Auto-Detection ─────────────────────────────────
+    HERMES_HOME = None
+    if not os.environ.get("HERMES_HOME"):
+        agents = detect_agents()
+        if agents:
+            msg_detect = "Agentes detectados" if LANG == "es" else "Detected Agents"
+            print(f"\n   {BOLD}{WHITE}🤖 {msg_detect}:{RESET}")
+            for i, a in enumerate(agents):
+                name = a.name.lstrip(".")
+                print(f"      {CYAN}{i+1}){RESET} {name} {GRAY}({a}){RESET}")
+            msg_manual = "Ingreso manual" if LANG == "es" else "Manual entry"
+            print(f"      {CYAN}0){RESET} {msg_manual}")
+            msg_select = "Selecciona agente" if LANG == "es" else "Select agent"
+            choice = ask(msg_select, "1")
+            try:
+                idx = int(choice)
+                if 1 <= idx <= len(agents):
+                    HERMES_HOME = agents[idx - 1]
+                else:
+                    raise ValueError
+            except ValueError:
+                msg_path = "Ruta completa del agente" if LANG == "es" else "Full agent path"
+                manual = ask(msg_path, str(Path.home() / ".hermes"))
+                HERMES_HOME = Path(manual)
+        else:
+            msg_path = "Ruta completa del agente" if LANG == "es" else "Full agent path"
+            manual = ask(msg_path, str(Path.home() / ".hermes"))
+            HERMES_HOME = Path(manual)
+    else:
+        HERMES_HOME = Path(os.environ["HERMES_HOME"])
+
+    # Export for child processes (auth.py, etc.)
+    os.environ["HERMES_HOME"] = str(HERMES_HOME)
 
     # Path Discovery
     skills_root = HERMES_HOME / "skills"
@@ -280,13 +363,11 @@ def main():
     env_file    = hermes_base / ".env"
     soul_file   = HERMES_HOME / "SOUL.md"
 
-    # ── Welcome & Language ───────────────────────────────────
-    os.system("clear" if os.name != "nt" else "cls")
-    print(LOGO)
-    print(f"   {BOLD}{WHITE}A N D O R I Ñ A{RESET}")
-    hr()
-    lang_input = input(f"   {WHITE}👉 {t('lang_prompt')} [en]{RESET}: ").strip().lower() or "en"
-    LANG = "es" if lang_input in ("es", "español", "spanish") else "en"
+    # Discover bridge path
+    main_hermes = HERMES_HOME
+    if main_hermes.parent.name == "profiles":
+        main_hermes = main_hermes.parent.parent
+    bridge_path = main_hermes / "hermes-agent" / "scripts" / "whatsapp-bridge" / "bridge.js"
 
     print()
     print(f"   {BOLD}{WHITE}A N D O R I Ñ A{RESET}   {DIM}{t('subtitle')}{RESET}")
@@ -296,6 +377,25 @@ def main():
     print(f"   {GRAY}{t('target')}:  {hermes_base}{RESET}")
     hr()
     print()
+
+    # ── PREREQUISITE: WhatsApp must be configured in Hermes ──
+    step("⚠", t("prereq_title"))
+    print(f"   {YELLOW}{BOLD}{t('prereq_warn')}{RESET}")
+    print(f"   {GRAY}{t('prereq_detail')}{RESET}")
+    print()
+    if bridge_path.exists():
+        ok(t("prereq_found"))
+    else:
+        fail(t("prereq_missing"))
+        print(f"   {GRAY}   → {bridge_path}{RESET}")
+        print()
+        if not confirm(t("prereq_ask"), "n"):
+            print()
+            fail(t("prereq_abort"))
+            print()
+            sys.exit(1)
+        else:
+            warn(t("prereq_detail"))
 
     env = read_env(env_file)
     updates = {}
@@ -309,14 +409,15 @@ def main():
     if admin:
         updates["WHATSAPP_ALLOWED_USERS"] = admin.replace("+", "").replace(" ", "")
 
-    bot = ask(t("s1_bot"), env.get("ANDORINA_BOT_PHONE", ""))
-    if bot:
-        updates["ANDORINA_BOT_PHONE"] = bot.replace("+", "").replace(" ", "")
-
     ok(t("s1_ok"))
 
     # ── STEP 2: Google Contacts ──────────────────────────────
     step(2, t("s2_title"))
+
+    # Write identity data FIRST so auth.py can find the .env
+    hermes_base.mkdir(parents=True, exist_ok=True)
+    write_env(env_file, updates)
+
     has_refresh = bool(env.get("GOOGLE_CONTACTS_REFRESH_TOKEN"))
 
     if has_refresh:
@@ -328,6 +429,7 @@ def main():
         info(t("s2_info1"))
         info(t("s2_info2"))
         if confirm(t("s2_ask")):
+            info(t("s2_browser"))
             subprocess.run([sys.executable, str(SOURCE_DIR / "scripts" / "auth.py")])
             env = read_env(env_file)
             if env.get("GOOGLE_CONTACTS_REFRESH_TOKEN"):
@@ -351,8 +453,10 @@ def main():
         "ANDORINA_TARGET_CONTEXT": ctx,
         "ANDORINA_TARGET_USER_MEM": umem,
         "ANDORINA_TARGET_SYS_MEM": smem,
-        "WHATSAPP_BRIDGE_URL": "http://localhost:3000"
     }
+    # Only set bridge URL if not already configured by the user
+    if not env.get("WHATSAPP_BRIDGE_URL"):
+        perf_updates["WHATSAPP_BRIDGE_URL"] = "http://localhost:3000"
     updates.update(perf_updates)
     write_env(env_file, updates)
     ok(t("s3_ok"))
@@ -434,6 +538,13 @@ def main():
     step(7, t("s7_title"))
     info(t("s7_info"))
     if confirm(t("s7_ask")):
+        try:
+            hermes_cmd = os.environ.get("HERMES_CMD", HERMES_HOME.name.lstrip(".") or "hermes")
+            subprocess.run([hermes_cmd, "gateway", "install"], capture_output=True)
+            subprocess.run([hermes_cmd, "gateway", "start"], capture_output=True)
+        except:
+            pass
+            
         autostart_setup = scripts_dir / "setup_autostart.py"
         if autostart_setup.exists():
             subprocess.run([sys.executable, str(autostart_setup)])
@@ -445,7 +556,10 @@ def main():
     # ── STEP 8: Bridge Patch ─────────────────────────────────
     step(8, t("s8_title"))
     info(t("s8_info"))
-    if confirm(t("s8_ask")):
+    if not bridge_path.exists():
+        warn(t("prereq_missing"))
+        info(t("s8_skip"))
+    elif confirm(t("s8_ask")):
         patch_script = SOURCE_DIR / "patch_bridge.py"
         if patch_script.exists():
             subprocess.run([sys.executable, str(patch_script)])
@@ -457,13 +571,14 @@ def main():
     # ── STEP 9: SOUL Optimization ────────────────────────────
     step(9, t("s9_title"))
     try:
-        anchoring = """
+        owner_num = env.get("WHATSAPP_ALLOWED_USERS", "your owner")
+        anchoring = f"""
 # --- ANDORINA IDENTITY BEGIN ---
-## 🕊️ Andoriña Identity Anchoring (MANDATORY)
-- **WhatsApp = Andoriña:** You ONLY interact with WhatsApp through the `andorina` skill.
-- **Search-First:** Always run `contacts.py search` before any send or schedule command.
-- **No Native Tools:** Never use the native `cronjob` tools. Use the python scripts.
-- **Smart Dates:** When scheduling, use `HH:MM`, `DD/MM HH:MM` or `DD HH:MM` (24h format).
+## 🕊️ WHATSAPP PROTOCOL (MANDATORY)
+If the user asks you to send, read, or manage ANYTHING related to WhatsApp:
+1. DO NOT use native tools like `send_message` or `cronjob`. They will fail.
+2. ALWAYS use your `skill_view` tool to read the `andorina` skill manual FIRST to learn the correct terminal commands.
+3. PERSONA: You are the AI assistant of {owner_num}. Speak naturally with them. If messaging third parties, introduce yourself. If told "Literal", send ONLY the exact text.
 # --- ANDORINA IDENTITY END ---
 """
         content = soul_file.read_text(encoding="utf-8") if soul_file.exists() else "# HERMES SOUL\n"
@@ -472,7 +587,9 @@ def main():
                 r"# --- ANDORINA IDENTITY BEGIN ---.*?# --- ANDORINA IDENTITY END ---",
                 "", content, flags=re.DOTALL
             ).strip()
-        soul_file.write_text(content + "\n" + anchoring, encoding="utf-8")
+        
+        # Prepend to the very top of the SOUL file for maximum LLM attention
+        soul_file.write_text(anchoring.strip() + "\n\n" + content, encoding="utf-8")
         ok(t("s9_ok"))
     except Exception as e:
         warn(t("s9_skip", e=e))

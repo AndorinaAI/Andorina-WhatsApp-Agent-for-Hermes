@@ -225,7 +225,9 @@ def obtener_grupos():
 
 def main():
     load_env()
-    if len(sys.argv) < 2: sys.exit(0)
+    if len(sys.argv) < 2:
+        out({"ok": False, "error": "MISSING_ARGUMENTS", "usage": "contacts.py [search|groups|refresh]"})
+        sys.exit(1)
     cmd = sys.argv[1].lower()
     arg = " ".join(sys.argv[2:]).strip()
 
@@ -244,6 +246,9 @@ def main():
             out({"ok": True, "message": f"Synced {len(new_contacts)} contacts."})
         else:
             out({"ok": False, "message": "Failed to refresh token."})
+    else:
+        out({"ok": False, "error": "UNKNOWN_COMMAND", "detail": f"Command '{cmd}' not found in contacts.py."})
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
