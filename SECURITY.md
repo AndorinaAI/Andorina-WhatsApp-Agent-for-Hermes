@@ -22,7 +22,7 @@ Your security and privacy are our absolute priority. Given the nature of this pr
 If you discover a security vulnerability or a privacy flaw (such as path traversal, prompt injection bypasses, or data leaks), please **DO NOT** open a public issue.
 
 Instead, please send an email directly to the project maintainer:
-**Email:** `jorgegformoso@gmail.com`
+**Email:** `andorinacoding@gmail.com`
 
 **What to expect:**
 - We will acknowledge receipt of your vulnerability report within 48 hours.
@@ -52,7 +52,7 @@ Tu seguridad y privacidad son nuestra prioridad absoluta. Dada la naturaleza de 
 Si descubres una vulnerabilidad de seguridad o un fallo de privacidad (como un salto de directorio, evasiones de inyección de prompts o fugas de datos), por favor **NO** abras una issue pública.
 
 En su lugar, envía un correo electrónico directamente al mantenedor del proyecto:
-**Correo electrónico:** `jorgegformoso@gmail.com`
+**Correo electrónico:** `andorinacoding@gmail.com`
 
 **Qué esperar:**
 - Confirmaremos la recepción de tu informe de vulnerabilidad en un plazo de 48 horas.

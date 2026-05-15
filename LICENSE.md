@@ -42,7 +42,7 @@ If a company wishes to use Andoriña *without being bound by AGPL-3.0, they must
 
 Companies or organizations interested in using Andoriña commercially must contact:
 
-*📧 <jorgegformoso@gmail.com>*
+*📧 <andorinacoding@gmail.com>*
 
 ---
 
@@ -84,7 +84,7 @@ Si una empresa desea utilizar Andoriña *sin estar sujeta a la AGPL-3.0, debe ob
 
 Las empresas u organizaciones interesadas en utilizar Andoriña comercialmente deben ponerse en contacto con:
 
-*📧 <jorgegformoso@gmail.com>*
+*📧 <andorinacoding@gmail.com>*
 
 ---
 

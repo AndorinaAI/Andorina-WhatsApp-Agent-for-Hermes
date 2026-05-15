@@ -9,7 +9,7 @@ This document defines the permitted and prohibited uses of the Andoriña Marks.
 ## 🇬🇧 English
 
 ### 1. Ownership
-All rights to the Andoriña Marks are owned exclusively by **Jorge (jorgegformoso@gmail.com)**. The Andoriña Marks are **NOT** licensed under the AGPL-3.0 or any other open-source license.
+All rights to the Andoriña Marks are owned exclusively by **Jorge (andorinacoding@gmail.com)**. The Andoriña Marks are **NOT** licensed under the AGPL-3.0 or any other open-source license.
 
 ### 2. Permitted Use
 You may:
@@ -32,14 +32,14 @@ Forks are allowed under AGPL-3.0, but:
 - **Example of unacceptable fork names:** “Andoriña Pro”, “Andoriña Cloud”, “Andoriña Enhanced”.
 
 ### 5. Contact for Inquiries
-Any commercial use of the Andoriña Marks requires a separate written agreement. Contact: **jorgegformoso@gmail.com**
+Any commercial use of the Andoriña Marks requires a separate written agreement. Contact: **andorinacoding@gmail.com**
 
 ---
 
 ## 🇪🇸 Español
 
 ### 1. Propiedad
-Todos los derechos sobre las Marcas de Andoriña son propiedad exclusiva de **Jorge (jorgegformoso@gmail.com)**. Las Marcas de Andoriña **NO** están licenciadas bajo AGPL-3.0 ni ninguna otra licencia de código abierto.
+Todos los derechos sobre las Marcas de Andoriña son propiedad exclusiva de **Jorge (andorinacoding@gmail.com)**. Las Marcas de Andoriña **NO** están licenciadas bajo AGPL-3.0 ni ninguna otra licencia de código abierto.
 
 ### 2. Uso Permitido
 Puedes:
@@ -62,7 +62,7 @@ Los forks están permitidos bajo AGPL-3.0, pero:
 - **Ejemplos de nombres inaceptables:** “Andoriña Pro”, “Andoriña Cloud”, “Andoriña Enhanced”.
 
 ### 5. Contacto para Consultas
-Cualquier uso comercial de las Marcas de Andoriña requiere un acuerdo por escrito por separado. Contacto: **jorgegformoso@gmail.com**
+Cualquier uso comercial de las Marcas de Andoriña requiere un acuerdo por escrito por separado. Contacto: **andorinacoding@gmail.com**
 
 ---
 

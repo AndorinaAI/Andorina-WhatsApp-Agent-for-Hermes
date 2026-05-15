@@ -26,7 +26,7 @@ Examples of unacceptable behavior include:
 * **Encouraging Spam/Abuse:** Promoting the use of Andoriña for spam, harassment, or mass-marketing in violation of WhatsApp's Terms of Service.
 
 ### Enforcement
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at **jorgegformoso@gmail.com**. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at **andorinacoding@gmail.com**. All complaints will be reviewed and investigated promptly and fairly.
 
 ---
 
@@ -52,4 +52,4 @@ Ejemplos de comportamiento inaceptable incluyen:
 * **Fomentar el Spam/Abuso:** Promover el uso de Andoriña para spam, acoso o marketing masivo en violación de los Términos de Servicio de WhatsApp.
 
 ### Aplicación
-Los casos de comportamiento abusivo, de acoso o de otro modo inaceptable pueden ser reportados a los líderes de la comunidad responsables de su aplicación en **jorgegformoso@gmail.com**. Todas las quejas serán revisadas e investigadas de manera rápida y justa.
+Los casos de comportamiento abusivo, de acoso o de otro modo inaceptable pueden ser reportados a los líderes de la comunidad responsables de su aplicación en **andorinacoding@gmail.com**. Todas las quejas serán revisadas e investigadas de manera rápida y justa.
