@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# 🕊️ ANDORIÑA SKILL INSTALLER (v1.0.4-Beta1)
+# 🕊️ ANDORIÑA SKILL INSTALLER (v1.5.0-Beta1)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # This script is the main entry point for installation.
 # It performs pre-flight checks and then delegates the full interactive
@@ -61,7 +61,7 @@ function hr() {
 clear
 echo -e "\n   ${C_CYAN}${LOGO}${C_RESET}\n"
 hr
-echo -e "   ${BOLD}${C_WHITE}A N D O R I Ñ A${C_RESET}   v1.0.4-Beta1"
+echo -e "   ${BOLD}${C_WHITE}A N D O R I Ñ A${C_RESET}   v1.5.0-Beta1"
 hr
 
 echo -ne "\n   ${C_WHITE}● Checking Python 3 ...${C_RESET} "

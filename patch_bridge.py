@@ -21,7 +21,17 @@ REQUIRED_MIMES = {
     "txt": "text/plain", "md": "text/markdown", "csv": "text/csv", "rtf": "application/rtf",
     "xls": "application/vnd.ms-excel", "zip": "application/zip", "bmp": "image/bmp",
     "heic": "image/heic", "mp3": "audio/mpeg", "wav": "audio/wav", "ogg": "audio/ogg", "opus": "audio/ogg",
-    "xcf": "image/x-xcf", "psd": "image/vnd.adobe.photoshop"
+    "xcf": "image/x-xcf", "psd": "image/vnd.adobe.photoshop",
+    # Common docs & archives
+    "pdf": "application/pdf",
+    "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "7z": "application/x-7z-compressed",
+    "rar": "application/vnd.rar",
+    "gz": "application/gzip", "tar": "application/x-tar",
+    # Audio formats
+    "m4a": "audio/mp4", "flac": "audio/flac", "aac": "audio/aac",
 }
 
 def read_bridge():
@@ -37,7 +47,7 @@ def patch_mime_map(content):
     missing = []
     for ext, mime in REQUIRED_MIMES.items():
         if not re.search(rf"['\"]?{ext}['\"]?\s*:", content):
-            missing.append(f"  {ext}: '{mime}',")
+            missing.append(f"  '{ext}': '{mime}',")
 
     if not missing: return content, False
 
@@ -52,7 +62,7 @@ def patch_logic(content):
 
     # 1. Health Endpoint
     if "app.get('/health'" not in content:
-        health_code = "\napp.get('/health', (req, res) => { res.json({ status: connectionState, uptime: process.uptime(), version: '1.0.4-Beta1' }); });\n"
+        health_code = "\napp.get('/health', (req, res) => { res.json({ status: connectionState, uptime: process.uptime(), version: '1.5.0-Beta1' }); });\n"
         content = re.sub(r"app\.listen\s*\(", health_code + "app.listen(", content)
         patched = True
 
@@ -118,6 +128,68 @@ app.get('/groups', async (req, res) => {
             )
             patched = True
 
+    # 6. Profile Picture Endpoint
+    if "app.get('/profile-pic'" not in content:
+        pic_code = """
+// ANDORINA: Profile Picture Fetch
+app.get('/profile-pic/:jid', async (req, res) => {
+  if (!sock || connectionState !== 'connected') return res.status(503).json({ error: 'Not connected' });
+  try {
+    const url = await sock.profilePictureUrl(req.params.jid, 'image');
+    res.json({ url });
+  } catch (err) { res.status(404).json({ error: 'Not found' }); }
+});
+"""
+        content = re.sub(r"app\.listen\s*\(", pic_code + "\napp.listen(", content)
+        patched = True
+
+    # 7. fromMe Inbox Fix
+    if "ANDORINA INBOX FIX" not in content:
+        from_me_pattern = r"(if\s*\(\s*msg\.key\.fromMe\s*\)\s*\{)"
+        from_me_fix = """\\1
+        // --- ANDORINA INBOX FIX ---
+        try {
+            const body = msg.message?.conversation || msg.message?.extendedTextMessage?.text || "";
+            if (body) {
+                const hermesHome = process.env.HERMES_HOME || path.join(process.env.HOME || '/root', '.hermes');
+                const inboxFile = path.join(hermesHome, 'skills', 'andorina', 'state', 'inbox.json');
+                let inbox = [];
+                try {
+                    if (existsSync(inboxFile)) {
+                        inbox = JSON.parse(readFileSync(inboxFile, 'utf8'));
+                    }
+                } catch(e) {}
+                
+                // Deduplicate (avoid logging the same echo twice within a short time)
+                const now = Date.now();
+                const isDuplicate = inbox.some(m => {
+                    if (m.from !== "Me" || m.text !== body) return false;
+                    const d = new Date(m.date).getTime();
+                    return Math.abs(now - d) < 15000;
+                });
+                
+                if (!isDuplicate) {
+                    inbox.push({
+                        chatId: chatId,
+                        chatName: chatId.split('@')[0],
+                        from: "Me",
+                        senderName: "Me",
+                        text: body,
+                        date: new Date().toLocaleString('sv-SE', {timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone}).replace(' ', 'T').substring(0, 19),
+                        type: "text",
+                        read: true
+                    });
+                    writeFileSync(inboxFile, JSON.stringify(inbox, null, 2));
+                }
+            }
+        } catch(e) {
+            console.error("Andorina inbox fix failed:", e);
+        }
+        // --- END FIX ---
+"""
+        content = re.sub(from_me_pattern, from_me_fix, content)
+        patched = True
+
     return content, patched
 
 def main():
@@ -134,9 +206,9 @@ def main():
         if not hermes_cmd:
             hermes_cmd = HERMES_HOME.name.lstrip(".")
             if not hermes_cmd: hermes_cmd = "hermes"
-        subprocess.run([hermes_cmd, "gateway", "stop"], capture_output=True)
+        subprocess.run(["bash", "-c", f"{hermes_cmd} gateway stop"], capture_output=True)
         time.sleep(1)
-        subprocess.run([hermes_cmd, "gateway", "start"])
+        subprocess.Popen(["bash", "-c", f"{hermes_cmd} gateway start"], start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     else:
         print("✅ bridge.js already fully patched.")
 

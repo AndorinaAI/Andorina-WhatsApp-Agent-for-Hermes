@@ -1,25 +1,46 @@
-import os, sys, json, time, urllib.request, urllib.error, fcntl
+import os
+import json
+import time
+import urllib.request
+import urllib.error
+import fcntl
 from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).parent.absolute()
+STATE_DIR   = SCRIPTS_DIR.parent / "state"
 
-# The user requested to review the .env path logic.
-# I will use the same logic as auth.py and contacts.py to unify it,
-# but fallback to HERMES_HOME/.env just in case.
+# Helper to locate the appropriate .env file
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
 
 def get_env_path(profile_path):
-    skills_root = profile_path / "skills"
-    category = "messaging"
-    if (skills_root / "message").exists() and not (skills_root / "messaging").exists():
-        category = "message"
-    skill_env = skills_root / category / "andorina" / ".env"
-    
+    # FIRST priority: local .env next to the skill folder (always wins)
+    local_env = SCRIPTS_DIR.parent / ".env"
+    if local_env.exists():
+        return local_env
+
+    # Secondary: flat skills/andorina hierarchy (Hermes >= 2025)
+    skill_env = profile_path / "skills" / "andorina" / ".env"
     if skill_env.exists():
         return skill_env
+
+    # Last resort: global Hermes .env
     return profile_path / ".env"
 
 ENV_PATH = get_env_path(HERMES_HOME)
+
+def load_env(env_path=None):
+    """Load .env file into a dict, filtering comments and empty lines."""
+    path = env_path or ENV_PATH
+    env = {}
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, _, v = line.partition("=")
+                env[k.strip()] = v.strip()
+    except FileNotFoundError:
+        pass
+    return env
 
 BRIDGE_URL = "http://localhost:3000"
 

@@ -7,13 +7,13 @@
 </p>
 
 <p align="center">
-  <em>Autonomous WhatsApp Manager for Hermes (v1.0.4-Beta1)</em><br>
-  <em>Gestor Autónomo de WhatsApp para Hermes (v1.0.4-Beta1)</em>
+  <em>Autonomous WhatsApp Manager for Hermes (v1.5.0-Beta1)</em><br>
+  <em>Gestor Autónomo de WhatsApp para Hermes (v1.5.0-Beta1)</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.4-Beta1-blueviolet?style=flat-square" alt="Version">
-  <img src="https://img.shields.io/badge/status-STABLE-green?style=flat-square" alt="Status">
+  <img src="https://img.shields.io/badge/version-1.5.0--Beta1-blueviolet?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/status-BETA-orange?style=flat-square" alt="Status">
   <img src="https://img.shields.io/badge/platform-Linux-lightgrey?style=flat-square&logo=linux" alt="Linux">
   <img src="https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square&logo=python" alt="Python">
 </p>
@@ -27,11 +27,11 @@
 - **Follow on X:** [@andorinaAI](https://x.com/andorinaAI)
 
 > [!IMPORTANT]
-> **🚀 v1.0.4-Beta1 OFFICIAL RELEASE: GROUPS & ALERTS ENGINE**
-> This is the latest stable version of Andoriña. It features advanced group management, semantic topic alerts, and deep history context. Please report any bugs via GitHub Issues.
+> **🚀 v1.5.0-Beta1 OFFICIAL RELEASE: INFRASTRUCTURE & UI POLISH**
+> This version introduces the comprehensive Zero-Trust Security Pipeline, advanced Agenda auto-offset features, a fully functional Live Log Monitor, and structural guarantees for RAG context and idempotent Inbox writes.
 >
-> **🚀 v1.0.4-Beta1 LANZAMIENTO OFICIAL: MOTOR DE ALERTAS Y GRUPOS**
-> Esta es la versión estable más reciente de Andoriña. Cuenta con gestión avanzada de grupos, alertas semánticas por temas y contexto de historial profundo. Por favor, informa de cualquier error a través de las Issues de GitHub.
+> **🚀 v1.5.0-Beta1 LANZAMIENTO OFICIAL: INFRAESTRUCTURA Y UI**
+> Esta versión introduce una Tubería de Seguridad Zero-Trust integral, programación con auto-offset para evitar colisiones, un Monitor de Logs en vivo y escrituras idempotentes en el Inbox.
 
 ---
 
@@ -45,8 +45,8 @@
   Toma el control absoluto de tus comunicaciones. Olvídate de teclear: programa envíos, lanza notas de voz, adjunta archivos de tu PC y busca en tu agenda al instante. Tu mensajería, en piloto automático.
 </p>
 
-> ⚠️ **Currently optimized exclusively for Linux.** Windows and macOS support in development.
-> ⚠️ **Optimizado exclusivamente para Linux.** Soporte para Windows y macOS en desarrollo.
+> ⚠️ **Exclusive for Linux.** We have shifted our direction to prioritize the free software community. To resist privatization and Big Tech monopolies, Andoriña is currently developed exclusively for Linux (though we remain open to future possibilities).
+> ⚠️ **Exclusivo para Linux.** Hemos cambiado de rumbo para priorizar a la comunidad y el software libre. Frente a la privatización y el control de las Big Tech, Andoriña se desarrolla ahora exclusivamente para Linux (sin cerrarnos a cambiar de idea en el futuro).
 
 ---
 
@@ -80,24 +80,31 @@
 | 📤 **Message sending** | Send text to any contact or group by name or number |
 | 📁 **File sending** | Upload documents, images, audio, or video from your local folders |
 | 🎙️ **Voice notes** | Native PTT support: converts audio and shows "Recording..." status |
-| 🛡️ **Guard (Firewall)** | Blocks prompt injections and **obfuscated attacks** (e.g. `d a m e`) |
+| 🧩 **Sandbox (V2)** | Execute isolated Python plugins & games with local DBs **[Coming Soon]** |
+| 📚 **Knowledge (RAG)** | Upload PDF/TXT files to automatically inject context into the LLM |
+| 🛡️ **Zero-Trust Guard** | Security validation via `input_guard.py` & `tool_guard.py`. Timeouts & restrictions applied. |
+| 🛂 **RBAC Engine** | Granular roles (Owner, Manager, Chatbot, Blocked) with allowed_folders validation |
+| 🕵️ **DLP Pipeline** | Data Loss Prevention truncates spam, deletes internal reasoning logs, blocks API leakage |
+| 🧠 **Long-Term Memory**| Permanent section-based notes (`contacts.py note-section-set`) to save context about users |
+| 🖥️ **GUI Dashboard** | Fully graphical UI (Dark/Light mode) to manage RBAC, Sub-Souls, Plugins, and a **Live Monitor** |
+| ☁️ **Remote Access** | **Cloudflare Tunnel** (free or custom domain) to expose the panel from anywhere |
+| 🔄 **Auto-Update** | One-click GitHub updater that preserves all user data atomically |
 | 🤖 **Multi-Agent** | Full **Crontab Isolation** and environment-specific routing |
-| ⏰ **Anti-Ban Protection** | **Request Pacing (1.0s delay)** and **Auto-Collision Offset** for safe sending |
-| 📥 **Inbox Storage** | Local inbox stores incoming text with **Context Protection (lim. 50)** |
+| ⏰ **Anti-Ban Protection** | **Request Pacing (1.0s delay)** and **Auto-Collision Offset (2 mins)** for scheduling |
+| 📥 **Inbox Storage** | Idempotent local inbox storage (`inbox.json`) via webhook interceptors |
+| 🔕 **Away & Mute** | Per-contact mute and global away auto-responder with cooldowns |
 | 🔐 **Absolute Privacy** | **100% Local Processing**. Zero telemetry, no cloud storage |
-| 📁 **Media Isolation** | Dedicated per-agent cache for incoming images, videos, and voice notes |
-| 📒 **Google Cloud Sync** | Full OAuth2 sync with Google Contacts and **Fuzzy Search** support |
-| ⚖️ **Dual License** | AGPL-3.0 for users and **Commercial License** for companies |
-| ⚕️ **Self-Healing** | Automated infra repair and **Unified Diagnostic Engine** |
+| 📒 **Google Cloud Sync** | Full OAuth2 sync with Google Contacts, **Fuzzy Search**, and **LID-Mapping** |
+| ⚕️ **Self-Healing** | Automated infra repair, patch checker (`check_patches.py`), and Diagnostic Engine |
+| 🧠 **Cognitive Reset** | Surgical memory wipe (logs + inbox) without breaking WhatsApp sessions (`inbox.py delete`) |
 
 ### 🚀 Installation & Documentation
 
-1. **Quick Start:** Download the repository and run the installer:
-   ```bash
-   bash install.sh
-   ```
-2. **Comprehensive Guide:** See [GUIDE.md](./GUIDE.md) for a full breakdown of requirements, architecture, and troubleshooting.
-3. **Full Feature List:** See [FEATURES.md](./FEATURES.md) for a complete reference of all capabilities, commands, and environment variables.
+1. **Quick Start:** Unzip the downloaded folder and double-click `Andorina-Panel.sh` (If it doesn't open, open a terminal and run `bash ./Andorina-Panel.sh`). The Andoriña Control Panel will open in your browser and guide you visually through the entire installation process.
+2. **First Login:** On the first login screen, you can enter **any password you want** to set it as your master password.
+3. **Post-Installation:** Once all steps are complete, **you must close the current browser tab** (it belongs to the temporary installation folder). Open the panel again from the Desktop Shortcut or from the final installed skill folder.
+4. **Comprehensive Guide:** See [GUIDE.md](./GUIDE.md) for a full breakdown of requirements, architecture, and troubleshooting.
+5. **Full Feature List:** See [FEATURES.md](./FEATURES.md) for a complete reference of all capabilities, commands, and environment variables.
 
 ---
 
@@ -105,115 +112,84 @@
 Andoriña is designed for **personal assistance**, not for bulk messaging. 
 - **Request Pacing:** The system implements a **1.0s delay** between messages to avoid bridge saturation.
 - **Human Simulation:** Native support for **Typing...** and **Recording audio...** status indicators to mimic natural interaction.
-- **Auto-Offset:** Scheduled messages are automatically separated by 2 minutes to avoid bot-like patterns.
+- **Auto-Offset:** Scheduled tasks sharing the same timestamp are safely offset by 2 minutes internally via `agenda.py` to prevent LLM timeouts and API spam.
 
 > [!CAUTION]
 > **Spam Warning:** Using this skill for spam or mass-marketing is strictly prohibited and will lead to an immediate account ban by Meta. The developers are not responsible for account suspensions. Use responsibly.
 
 ---
 
-### 💡 Best Practices for Small Models (4B - 8B)
-
-If you are using a local model (Ollama/LM Studio), we highly recommend adding this to your `SOUL.md`:
-
-> "You are the Andoriña engine. WhatsApp = Andoriña. Use the scripts in `[HERMES_HOME]/skills/messaging/andorina/scripts/` directly. Never ask how to connect. Execute commands immediately without explanation."
-
----
-
 ### 💬 Usage — Natural Examples
 
 **Sending messages:**
-
 - "Send a WhatsApp to my boss saying I'll be 5 minutes late."
-- "Write to Laura: I have the budget ready."
 
 **Scheduling messages (One-Step):**
-
 - "Schedule a WhatsApp for Carlos tomorrow at 18:00 saying: 'Ready for the match?'."
-- *The agent will automatically use the simplified `auto-schedule` command.*
+- *The agent leverages the `auto-schedule` command, keeping the task in a 60-minute delivery window even if the AI responds late.*
+
+**Information Management:**
+- "Update Laura's profile note in the 'Preferences' section to state she is vegan."
+- *The AI uses `contacts.py note-section-set` to update memory safely.*
 
 > [!TIP]
-> **File Sending Tip:** For images, videos, and complex documents (like Office or PDF), the AI cannot read or see the content. To avoid errors, please provide exact filenames or be as specific as possible so the agent can find them!
-
+> **File Sending Tip:** For images, videos, and complex documents, the AI cannot read or see the content. Provide exact filenames or be extremely specific so the agent finds them using `files.py`!
 
 ---
 
 ## 🌟 KEY CAPABILITIES & CHARACTERISTICS
 
 ### 🛡️ Anti-Ban & Resilient Architecture
+- **Request Pacing & Simulation:** Simulated "composing" time proportionate to the message length.
+- **Collision Avoidance:** `agenda.py` offsets concurrent tasks by 2 minutes automatically.
+- **Self-Healing Bridge:** Auto-restores Qdrant/Node bridge processes.
+- **Idempotent Webhooks:** `whatsapp.py` patches strictly eliminate duplicate incoming message records.
 
-- **Request Pacing:** Every message sent includes a 1.0s "breath" delay to simulate natural interaction and avoid WhatsApp bridge saturation.
-- **Collision Avoidance:** `agenda.py` automatically offsets concurrent scheduled tasks by 2 minutes to prevent agent overloads.
-- **Self-Healing Bridge:** Infrastructure shield that resurrects Qdrant and the WhatsApp Bridge if they crash or hang.
-- **MIME Extender:** Native support for modern formats like `.heic`, `.opus`, `.md`, `.csv`, `.rtf`, and `.webp`.
-
-### 🤖 Multi-Agent & Isolation
-
-- **Crontab Isolation:** Automated injection of `HERMES_HOME` and `HERMES_CMD` into native cron jobs to maintain instance independence.
-- **Environment-Specific Routing:** Dynamic port and path extraction to prevent cross-agent data contamination.
+### 🛂 Military-Grade Security (Zero-Trust Pipeline)
+- **Pre-LLM & Tool Validation:** `input_guard.py` blocks specific character spam, while `tool_guard.py` enforces directory reading limitations (`allowed_folders`) via restricted access roles.
+- **Execution Subprocess Timeout:** External commands executed by the LLM are given a strict 30-second TTL to avoid freezing the system.
+- **Semantic Topic Alerts:** Add permanent listening rules with transparency notifications via `alerts.py`.
 
 ### 📒 Smart Contacts & Identity
+- **LID Resolution:** The identity engine correctly intercepts WhatsApp LIDs dynamically, applying a heuristic suffix parser (`@g.us` vs `@s.whatsapp.net`) for seamless Group interactions.
+- **Fuzzy Search:** `contacts.py` ignores accents and character cases to find contacts across Bridge APIs, Local caches, and Google integrations.
 
-- **Search-First Protocol:** Mandatory contact verification before any send command to ensure 100% accuracy in target IDs.
-- **Identity Anchoring:** Specialized instructions that link the agent's identity directly to the "Andoriña" ecosystem.
-- **Google Cloud Sync:** Full integration with Google People API with automatic OAuth2 token refreshing.
-- **Fuzzy Search:** Search logic that ignores accents, casing, and special characters to find contacts even with typos.
-
-### 📥 Inbox & Privacy Engine
-
-- **Local-Only Processing:** 100% of data (messages, contacts, files) is processed on the user's machine. Zero telemetry.
-- **Context Protection:** `inbox.py read` automatically limits history to the last 50 messages to prevent LLM context overflow.
-- **Message Content Storage:** Persistent local storage of incoming text in `state/inbox.json` for long-term memory.
-- **Persistent Agenda:** Scheduled tasks are kept in `state/agenda.json` until successfully delivered.
-
-### 🎙️ Advanced Media
-
-- **Native Voice Notes:** Sends audio files as "PTT" (Push-To-Talk), showing the "Recording audio..." status to the receiver.
-- **Absolute Path Resolution:** Automated handling of local file paths to ensure secure and accurate media transmission.
-- **Media Reception Isolation:** Every agent profile maintains its own `image_cache`, `video_cache`, and `audio_cache` folders within its `.hermes` directory, ensuring strict data privacy in multi-agent environments.
+### 🎙️ Advanced Media & UI
+- **Live Server Monitor:** Easily check Bridge, Agent, and Server execution events visually inside the Web panel (`monitor.html`).
+- **Media Support:** Native `.heic`, `.opus`, `.xcf`, and `.psd` MIME resolving for document-based deliveries.
 
 ## 🛠️ THE TOOLBOX
 
 ### 📒 Contacts & Groups
-
 | Script | Command | Usage |
 | :--- | :--- | :--- |
-| `contacts.py` | `search "Query"` | Universal search (names, numbers, groups). |
-| `contacts.py` | `groups` | Lists all WhatsApp groups. |
-| `contacts.py` | `all` | Lists every known contact in a JSON array. |
-| `contacts.py` | `refresh` | Clears local cache and forces a cloud sync. |
+| `tools/contacts.py` | `search "Query"` | Universal search (names, numbers, groups). |
+| `tools/contacts.py` | `note-add` / `note-section-set` | Modifies permanent memory notes for a user. |
+| `tools/contacts.py` | `groups` | Lists all WhatsApp groups. |
+| `tools/contacts.py` | `refresh` | Clears local cache and forces a cloud sync. |
 
 ### ✉️ Messaging & Files
-
 | Script | Command | Usage |
 | :--- | :--- | :--- |
-| `send.py` | `message "ID" "Text"` | Sends a text message immediately. |
-| `files.py` | `"Path" "ID"` | Sends images, videos or documents immediately. |
-| `files.py` | `"Path" "ID" --voice` | Sends an audio file as a Voice Note (PTT). |
-| `inbox.py` | `list` | Lists unique recent chats with the last message. |
-| `inbox.py` | `read "ID"` | Reads the message history of a specific chat (lim. 50). |
+| `transport/send.py` | `message "ID" "Txt"` | Sends a text message immediately with pacing. |
+| `transport/send.py` | `broadcast "Txt" "IDs"` | Sends paced mass messages to multiple users. |
+| `tools/files.py` | `"Path" "ID"` | Sends images, videos or documents immediately. |
+| `tools/inbox.py` | `list` / `search "Query"`| Lists recent chats / searches local history cache. |
+| `tools/alerts.py` | `add "Source" "Target"` | Creates a keyword rule and notifies the target. |
 
 ### 📅 Scheduling (Agenda)
-
 | Script | Command | Usage |
 | :--- | :--- | :--- |
-| `agenda.py` | `auto-schedule "ID" "TIME" "Msg"` | Automated text scheduling (handles collisions). |
-| `agenda.py` | `auto-schedule "ID" "TIME" "Path"` | Automated file scheduling. |
-| `agenda.py` | `auto-schedule "ID" "TIME" "Path" --voice` | Scheduled Voice Note (PTT). |
-| `agenda.py` | `list` | Lists all pending messages in the agenda. |
-| `agenda.py` | `remove "msg_ID"` | Cancels a pending scheduled message. |
+| `tools/agenda.py` | `auto-schedule "ID" "TIME" "Msg"` | Automated text scheduling (handles collisions). |
+| `tools/agenda.py` | `recurring add "ID" "CRON" "Msg"`| Adds a recurring crontab task. |
+| `tools/agenda.py` | `list` / `remove "ID"` | Lists / Cancels scheduled messages. |
 
 ### 🛡️ Security & System
-
 | Script | Command | Usage |
 | :--- | :--- | :--- |
-| `guard.py` | `status` | Checks current rate limits and blocked numbers. |
-| `guard.py` | `reset "Number"` | Resets the security counter for a specific number. |
-| `diag.py` | (none) | Performs a full system health diagnosis. |
-| `bridge_health.py` | (none) | Auto-repairs and restarts the bridge if down. |
-
----
-*Note: All scripts are in the `scripts/` folder.*
+| `Andorina-Panel.sh` | (none) | Opens the full Linux Desktop GUI Dashboard. |
+| `utils/admin_cli.py` | `role set "ID" "Role"` | Assigns an RBAC role to a user. |
+| `utils/diag.py` / `bridge_health.py` | (none) | System health diagnosis & Bridge auto-repair. |
 
 ---
 
@@ -228,161 +204,82 @@ If you are using a local model (Ollama/LM Studio), we highly recommend adding th
 | 📤 **Envío de mensajes** | Envía texto a cualquier contacto o grupo por nombre o número |
 | 📁 **Envío de archivos** | Sube documentos, imágenes, audio o vídeo desde tus carpetas locales |
 | 🎙️ **Notas de voz** | Soporte PTT nativo: convierte audio y muestra estado "Grabando..." |
-| 🛡️ **Guard (Firewall)** | Bloquea inyecciones y **ataques ofuscados** (ej. `d a m e`) |
-| 🤖 **Multi-Agente** | **Aislamiento total de Crontab** y perfiles independientes |
-| ⏰ **Protección Anti-Baneo** | **Pacing de envíos (1.0s)** y **Auto-Offset** para evitar bloqueos |
-| 📥 **Inbox Local** | Almacenamiento local con **Protección de Contexto (máx 50 msgs)** |
-| 🔐 **Privacidad Absoluta** | **Procesamiento 100% Local**. Cero telemetría, sin nube intermedia |
-| 📒 **Sincro Google** | Sincronización OAuth2 y **Búsqueda Difusa** (ignora acentos/mayúsculas) |
-| ⚖️ **Licencia Dual** | AGPL-3.0 para individuos y **Licencia Comercial** para empresas |
-| ⚕️ **Auto-Reparación** | Escudo de infra y **Motor de Diagnóstico** unificado |
-| 📁 **Caché Aislada** | Carpetas multimedia dedicadas por agente para fotos, vídeos y audios |
-
----
+| 🧩 **Sandbox (V2)** | Ejecutará plugins y juegos aislados en Python con BD local **[Próximamente]** |
+| 📚 **Conocimiento (RAG)** | Sube PDFs o TXTs para inyectar contexto automáticamente en la IA |
+| 🛡️ **Tubería Zero-Trust** | Validación vía `input_guard.py` y `tool_guard.py` (Límites y Carpetas seguras) |
+| 🛂 **Motor RBAC** | Roles granulares (Dueño, Manager, Chatbot, Bloqueado) con restricciones |
+| 🕵️ **Motor DLP** | Trunca spam, borra metadatos de razonamiento interno, bloquea claves API |
+| 🧠 **Memoria a Largo Plazo**| Sistema de notas por secciones (`note-section-set`) para contexto de usuarios |
+| 🖥️ **Panel Web** | Panel gráfico multi-tema para gestionar RBAC, Plugins y **Monitor de Servidor en Vivo** |
+| ☁️ **Acceso Remoto** | **Túnel Cloudflare** (gratis o dominio personalizado) para acceso web |
+| 🔄 **Auto-Actualización** | Actualizador de GitHub con un clic conservando estado atómicamente |
+| 🤖 **Multi-Agente** | **Aislamiento de Crontab** y enrutamiento dinámico de perfiles |
+| ⏰ **Anti-Baneos** | **Ritmo de envíos (1.0s)** y **Auto-Offset de Colisiones (2 min)** al programar |
+| 📥 **Inbox Local** | Almacenamiento idempotente de historial (`inbox.json`) vía webhooks |
+| 🔕 **Ausencia y Silencio** | Silencio por contacto y auto-respuesta de ausencia global |
+| 🔐 **Privacidad Absoluta** | **Procesamiento 100% Local**. Cero telemetría |
+| 📒 **Sincro Google** | Sincronización OAuth2, **Búsqueda Difusa** e Identidad **LID-Mapping** |
+| ⚕️ **Auto-Reparación** | Infraestructura que auto-reinicia y diagnostica el puente (`bridge_health.py`) |
+| 🧠 **Reset Cognitivo** | Borrado quirúrgico de memoria y logs vía interfaz (`inbox.py delete`) |
 
 ### 🚀 Instalación y Documentación
-
-1. **Inicio Rápido:** Descarga el repositorio y ejecuta el instalador:
-   ```bash
-   bash install.sh
-   ```
-2. **Guía Completa:** Consulta la [GUIDE.md](./GUIDE.md) para un desglose total de requisitos, arquitectura y resolución de problemas.
-3. **Lista Completa de Funciones:** Consulta [FEATURES.md](./FEATURES.md) para una referencia total de todas las capacidades, comandos y variables de entorno.
-
----
+1. **Inicio Rápido:** Descomprime la carpeta y haz doble clic en `Andorina-Panel.sh` (Si no abre, abre una terminal en la carpeta y ejecuta `bash ./Andorina-Panel.sh`). El Panel Web te guiará.
+2. **Primer Login:** En el primer inicio de sesión, introduce **la contraseña que tú quieras** para establecerla como tu contraseña maestra.
+3. **Post-Instalación:** Una vez termines todos los pasos, **debes cerrar la pestaña actual del navegador** (ya que pertenece a la carpeta temporal de instalación). A partir de ahora, abre el panel desde el Acceso Directo de tu escritorio o desde la carpeta final de la skill instalada.
+4. **Guía Completa:** Consulta la [GUIDE.md](./GUIDE.md) para un desglose total de requisitos.
+5. **Lista de Funciones:** Consulta [FEATURES.md](./FEATURES.md) para las variables de entorno.
 
 ### 🛡️ Aviso de Seguridad y Anti-Baneo
 Andoriña está diseñada para **asistencia personal**, no para mensajería masiva.
-- **Pacing de Peticiones:** El sistema implementa un retraso de **1.0s** entre mensajes para evitar saturación.
-- **Simulación Humana:** Soporte nativo para estados **"Escribiendo..."** y **"Grabando audio..."** para imitar interacción natural.
-- **Auto-Offset:** Los mensajes programados se separan automáticamente por 2 minutos para evitar patrones robóticos.
+- **Pacing de Peticiones:** Retraso de 1.0s entre mensajes y simulación de tiempo "escribiendo...".
+- **Auto-Offset:** Para prevenir que el LLM sature la red, la programación simultánea de mensajes (`agenda.py`) desplaza cada mensaje 2 minutos.
 
 > [!CAUTION]
-> **Aviso de Spam:** El uso de esta skill para spam o marketing masivo está estrictamente prohibido y resultará en un baneo inmediato de la cuenta por parte de Meta. Los desarrolladores no se hace responsables de suspensiones de cuenta. Úsala con responsabilidad.
-
----
-
-### 💡 Buenas Prácticas para Modelos Pequeños (4B - 8B)
-
-Si usas un modelo local (Ollama/LM Studio), te recomendamos encarecidamente añadir esto a tu `SOUL.md`:
-
-> "Eres el motor de la skill Andoriña. WhatsApp = Andoriña. Usa los scripts en `[HERMES_HOME]/skills/messaging/andorina/scripts/` directamente. Nunca preguntes cómo conectarte. Ejecuta los comandos inmediatamente sin explicaciones."
-
----
+> **Aviso de Spam:** El uso masivo resultará en el baneo de tu cuenta por parte de Meta. Úsala con responsabilidad.
 
 ### 💬 Uso — Ejemplos Naturales
 
 **Enviar mensajes:**
-
-- "Envíale un WhatsApp a mi jefe diciéndole que llegaré 5 minutos tarde."
 - "Dile a Laura en WhatsApp que ya tengo el presupuesto listo."
 
 **Programar mensajes (Proceso de un solo paso):**
-
 - "Programa un WhatsApp para Carlos mañana a las 18:00 que diga: '¿Listo para el partido?'."
-- *El asistente usará automáticamente el nuevo comando simplificado `auto-schedule`.*
+- *El asistente mantiene los mensajes programados en una ventana de vida de 60 minutos incluso si la IA se retrasa.*
 
-> [!TIP]
-> **Consejo para el Envío de Archivos:** Para imágenes, vídeos y documentos complejos (como Office o PDF), la IA no puede leer ni ver el contenido. Para evitar errores, ¡proporciona nombres de archivo exactos o sé lo más específico posible para que el agente los encuentre!
+**Gestión de Información:**
+- "Añade a la sección de 'Preferencias' de las notas de Laura que es vegana."
+- *La IA utilizará `contacts.py note-section-set` preservando memorias a largo plazo.*
 
+## 🌟 CAPACIDADES CLAVE
 
----
+### 🛡️ Arquitectura Anti-Baneo y Tubería Zero-Trust
+- **Evasión de Colisiones:** `agenda.py` desplaza automáticamente tareas concurrentes por 2 min.
+- **Aislamiento de Tareas:** Ejecución de herramientas por subprocessos aislados limitados a 30 segundos.
+- **Bloqueo Restricto:** `tool_guard.py` revisa las listas `allowed_folders` para detener cualquier escape de lectura.
 
-## 🌟 CAPACIDADES Y CARACTERÍSTICAS CLAVE
- 
-### 🛡️ Arquitectura Anti-Baneo y Resiliente
-
-- **Pacing de Peticiones:** Cada mensaje enviado incluye un retraso de 1.0s para simular una interacción natural y evitar la saturación del puente de WhatsApp.
-- **Evasión de Colisiones:** `agenda.py` desplaza automáticamente las tareas programadas concurrentes por 2 minutos para evitar sobrecargas del agente.
-- **Puente de Auto-Reparación:** Escudo de infraestructura que resucita Qdrant y el puente de WhatsApp si se bloquean o fallan.
-- **Extensor MIME:** Soporte nativo para formatos modernos como `.heic`, `.opus`, `.md`, `.csv`, `.rtf` y `.webp`.
-
-### 🤖 Multi-Agente y Aislamiento
-
-- **Aislamiento de Crontab:** Inyección automática de `HERMES_HOME` y `HERMES_CMD` en las tareas cron nativas para mantener la independencia de las instancias.
-- **Enrutamiento Específico por Entorno:** Extracción dinámica de puertos y rutas para evitar la contaminación de datos entre agentes.
-
-### 📒 Contactos Inteligentes e Identidad
-
-- **Protocolo de Búsqueda Obligatoria:** Verificación de contacto mandatoria antes de cualquier comando de envío para asegurar un 100% de precisión.
-- **Anclaje de Identidad:** Instrucciones especializadas que vinculan la identidad del agente directamente con el ecosistema "Andoriña".
-- **Sincro Google Cloud:** Integración total con Google People API con refresco automático de tokens OAuth2.
-- **Búsqueda Difusa:** Lógica de búsqueda que ignora acentos, mayúsculas y caracteres especiales para encontrar contactos incluso con erratas.
-
-### 📥 Inbox y Motor de Privacidad
-
-- **Procesamiento Local:** El 100% de los datos (mensajes, contactos, archivos) se procesan en la máquina del usuario. Cero telemetría.
-- **Protección de Contexto:** `inbox.py read` limita automáticamente el historial a los últimos 50 mensajes para evitar el desbordamiento del contexto del LLM.
-- **Almacenamiento de Contenido:** Almacenamiento local persistente de texto entrante en `state/inbox.json` para memoria a largo plazo.
-- **Agenda Persistente:** Las tareas programadas se mantienen en `state/agenda.json` hasta que se entregan con éxito.
-
-### 🎙️ Multimedia Avanzada
-
-- **Notas de Voz Nativas:** Envía archivos de audio como "PTT", mostrando el estado "Grabando audio..." al receptor.
-- **Resolución de Rutas Absolutas:** Manejo automático de rutas de archivos locales para asegurar una transmisión multimedia precisa.
-- **Aislamiento de Recepción Multimedia:** Cada perfil de agente mantiene sus propias carpetas de caché (`image_cache`, `video_cache`, `audio_cache`), asegurando la privacidad total en entornos multi-agente.
+### 📒 Identidad y Búsqueda Difusa
+- **Resolución LID Dinámica:** Detecta cuentas multi-dispositivo y los traduce a los números estándar, infiriendo si son grupos (`@g.us`) analizando la longitud del JID.
+- **Monitor de Servidor en Vivo:** Inspector visual e interactivo de logs dentro de la interfaz web (`monitor.html`).
 
 ## 🛠️ LA CAJA DE HERRAMIENTAS
 
-### 📒 Contactos y Grupos
-
-| Script | Comando | Uso |
+| Herramienta | Comando | Uso |
 | :--- | :--- | :--- |
-| `contacts.py` | `search "Query"` | Búsqueda universal (nombres, números, grupos). |
-| `contacts.py` | `groups` | Lista todos los grupos de WhatsApp. |
-| `contacts.py` | `all` | Lista todos los contactos conocidos en un array JSON. |
-| `contacts.py` | `refresh` | Limpia la caché local y fuerza una sincronización con la nube. |
-
-### ✉️ Mensajería y Archivos
-
-| Script | Comando | Uso |
-| :--- | :--- | :--- |
-| `send.py` | `message "ID" "Texto"` | Envía un mensaje de texto inmediatamente. |
-| `files.py` | `"Ruta" "ID"` | Envía imágenes, vídeos o documentos inmediatamente. |
-| `files.py` | `"Ruta" "ID" --voice` | Envía un audio como Nota de Voz (PTT). |
-| `inbox.py` | `list` | Lista chats recientes con el último mensaje. |
-| `inbox.py` | `read "ID"` | Lee el historial de mensajes de un chat (máx. 50). |
-
-### 📅 Programación (Agenda)
-
-| Script | Comando | Uso |
-| :--- | :--- | :--- |
-| `agenda.py` | `auto-schedule "ID" "HORA" "Msg"` | Programación automática de texto (gestiona colisiones). |
-| `agenda.py` | `auto-schedule "ID" "HORA" "Ruta"` | Programación automática de archivos. |
-| `agenda.py` | `auto-schedule "ID" "HORA" "Ruta" --voice` | Nota de Voz programada (PTT). |
-| `agenda.py` | `list` | Lista todos los mensajes pendientes en la agenda. |
-| `agenda.py` | `remove "msg_ID"` | Cancela un mensaje programado pendiente. |
-
-### 🛡️ Seguridad y Sistema
-
-| Script | Comando | Uso |
-| :--- | :--- | :--- |
-| `guard.py` | `status` | Comprueba límites de tasa y números bloqueados. |
-| `guard.py` | `reset "Número"` | Reinicia el contador de seguridad para un número. |
-| `diag.py` | (ninguno) | Realiza un diagnóstico completo de salud del sistema. |
-| `bridge_health.py` | (ninguno) | Auto-repara y reinicia el puente si está caído. |
-
----
-*Nota: Todos los scripts están en la carpeta `scripts/`.*
-
----
-
-
-### 🏗️ Arquitectura & Seguridad
-
-Andoriña usa un modelo de **dos niveles de privilegio**:
-
-- **Owner:** Acceso total (envío, archivos, crons, comandos).
-- **Chatbot:** Solo conversación natural, sin acceso a datos del sistema.
+| `contacts.py` | `search`, `note-section-set`, `groups` | Búsqueda global (ignora acentos) y memoria de usuario. |
+| `send.py` | `message`, `broadcast` | Envío inteligente de texto masivo y unitario. |
+| `files.py` | `"Ruta"` | Mapeo de mimes automáticos para imágenes/documentos. |
+| `agenda.py` | `auto-schedule`, `recurring add` | Tareas programadas en crontab con offsets. |
+| `alerts.py` | `add "Origen" "Destino"` | Reglas semánticas notificando al usuario de la vigilancia. |
+| `inbox.py` | `search "Query"`, `delete "ID"` | Búsqueda local de historial y resets cognitivos puros. |
+| `admin_cli.py` | `role set`, `chatbot mute` | Gestión integral del sistema de roles RBAC. |
 
 ---
 
 ### 📜 License / Licencia
 
 **AGPL-3.0 / Commercial License**
-
 - ✅ **Personal Use:** Free and open under AGPL-3.0. / **Uso Personal:** Gratis y abierto bajo AGPL-3.0.
-- ❌ **Commercial Use:** Requires a paid license for companies. / **Uso Comercial:** Requiere licencia de pago para empresas.
+- ❌ **Commercial Use:** Requires a paid license for companies. / **Uso Comercial:** Requiere licencia de pago.
 - 👤 **Trademark:** Name and logo are protected. / **Marca Registrada:** Nombre y logo protegidos.
 
 ---
@@ -391,33 +288,3 @@ Andoriña usa un modelo de **dos niveles de privilegio**:
   Made with ❤️ by <strong>Jorge</strong> for <a href="https://github.com">Hermes Agent</a>.<br>
   If this tool provides value, consider <a href="https://buymeacoffee.com/andorinaai">buying me a coffee ☕</a>
 </p>
-
----
-
-## 📜 Changelog
-
-### v1.0.4-Beta1 — Alert & Groups Update (Latest)
-- **Semantic Topic Alerts:** Permanent listening rules based on keywords (synonyms, slang).
-- **Group Mention Mode:** AI completely ignores groups unless explicitly mentioned by wake words.
-- **Deep History Context:** The AI can now request unlimited historical messages per chat (starts on install).
-- **Universal Event Listener:** `hook_inbox.py` now listens to both old and new Hermes events.
-- **Atomic Persistence & POSIX Locking:** Atomic file I/O and locking (`fcntl`) to prevent data corruption.
-- **JSON Type Corruption Recovery:** Graceful reset of corrupted state files instead of crashing.
-- **Google OAuth Keys Update:** Updated default credentials. **Note:** Requires re-authentication.
-
-### v1.0.4-Beta1 — Stable Installer Release
-- **Visual Bilingual Setup:** New professional interactive installer in English and Spanish.
-- **Embedded OAuth:** No longer requires users to create their own Google API keys (pre-configured).
-- **Self-Healing Bridge:** Flawless injection engine `patch_bridge.py` preventing module crashes.
-- **Idempotent Configs:** Safely handles empty hooks array in Hermes `config.yaml`.
-- **Validation Suite:** Complete 100% isolated sandbox testing.
-
-### v1.0.2 — Stability & Resilience Update
-- **🛡️ Hardened Security:** `guard.py` now detects obfuscated text attacks and social engineering.
-- **🤖 Multi-Agent Isolation:** Full crontab independence via environment injection in `agenda.py`.
-- **💎 Unicode Robustness:** Standardized `sys.stdin.buffer` for handling international characters.
-- **🎵 Media Patching:** Improved MIME support and native PTT playback.
-- **🧟 Process Management:** Automatic port-release system for the bridge.
-- **⏰ Anti-Collision Agenda:** Auto-offset system for concurrent tasks.
-- **🔍 Optimized Search:** Auto-refresh system for missing contacts.
-- **🧪 Diagnostic Engine:** One-click health checks for the system.
