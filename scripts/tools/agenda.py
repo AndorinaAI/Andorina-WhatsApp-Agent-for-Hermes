@@ -67,13 +67,36 @@ def save_agenda(agenda):
     return True
 
 def locked_update_agenda(action_func):
-    """Acquires a lock, loads the agenda, runs action_func(agenda), saves if action_func returns True."""
+    """Acquires a lock, loads the agenda, runs action_func(agenda), saves if action_func returns True.
+
+    IMPORTANT: Uses direct file I/O inside the lock — NOT read_json_safe/write_json_safe.
+    Those helpers also acquire the same lock file (agenda.json.lock), which causes a
+    nested-lock timeout (filelock Timeout exception caught silently → write never happens
+    → agenda.json never created → cron fires but finds ID_NOT_FOUND).
+    By reading/writing the file directly here, we avoid the double-lock entirely.
+    """
     AGENDA_FILE.parent.mkdir(parents=True, exist_ok=True)
     lock_file = str(AGENDA_FILE) + ".lock"
-    with FileLock(lock_file, timeout=5):
-        agenda = load_agenda()
+    with FileLock(lock_file, timeout=10):
+        # Direct I/O — we already hold the lock, no need to re-lock.
+        try:
+            agenda = {}
+            if AGENDA_FILE.exists():
+                raw = AGENDA_FILE.read_text(encoding="utf-8").strip()
+                if raw:
+                    data = json.loads(raw)
+                    agenda = data if isinstance(data, dict) else {}
+        except Exception:
+            agenda = {}
+
         if action_func(agenda):
-            save_agenda(agenda)
+            try:
+                AGENDA_FILE.write_text(
+                    json.dumps(agenda, ensure_ascii=False, indent=2),
+                    encoding="utf-8"
+                )
+            except Exception as e:
+                print(f"❌ Critical Error: Could not write agenda: {e}", file=sys.stderr)
         return agenda
 
 # ─────────────── Delivery window check ───────────────────────────────────────
@@ -249,6 +272,17 @@ def cmd_send_pending(msg_id: str):
                 return True
             return False
         locked_update_agenda(do_delete)
+
+        # Try to remove the native cron job silently
+        try:
+            res = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
+            if res.returncode == 0:
+                crons = [line for line in res.stdout.splitlines() if f"ANDORINA_AGENDA:{msg_id}" not in line]
+                crons_str = "\n".join(crons) + "\n" if crons else "\n"
+                subprocess.run(["crontab", "-"], input=crons_str, text=True, check=True)
+        except Exception:
+            pass
+
         out({"status": "OK", "error_code": "NONE", "payload": {"delivered": True, "id": msg_id}})
     else:
         out({"status": "ERROR", "error_code": "FATAL", "payload": {"error": "SEND_FAILED", "id": msg_id, "note": "Message kept in agenda for retry within delivery window."}})
@@ -461,6 +495,85 @@ def cmd_recurring_remove(rec_id: str, creator_jid: str = None):
     out({"status": "OK", "error_code": "NONE", "payload": {"message": f"Cancelled recurring task: {rec_id}"}})
 
 
+def cmd_cleanup_crons():
+    """Remove stale ANDORINA_AGENDA and ANDORINA_RECURRING crontab entries.
+    Checks:
+      1. If the python3 script path does not exist on disk.
+      2. If the message ID (for AGENDA) is no longer in agenda.json.
+      3. If the recurring ID (for RECURRING) no longer exists as a JSON file.
+    """
+    try:
+        res = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
+        if res.returncode != 0:
+            out({"status": "OK", "error_code": "NONE",
+                 "payload": {"removed": 0, "message": "No crontab found."}})
+            return
+
+        # Load active agenda and recurring directory
+        agenda = load_agenda()
+        rdir = get_recurring_dir()
+
+        lines = res.stdout.splitlines()
+        cleaned, removed = [], []
+        for line in lines:
+            stripped = line.strip()
+            
+            # Check if this is an Andorina cron entry
+            is_agenda = "ANDORINA_AGENDA:" in stripped
+            is_recurring = "ANDORINA_RECURRING:" in stripped
+            
+            if not is_agenda and not is_recurring:
+                cleaned.append(line)
+                continue
+                
+            # Extract script path
+            m = re.search(r"python3 '([^']+)'", stripped)
+            if not m:
+                # Try search without single quotes in case format is slightly different
+                m = re.search(r"python3 (\S+)", stripped)
+                
+            if not m:
+                removed.append(stripped)
+                continue
+                
+            script_path = m.group(1).strip("'\"")
+            if not Path(script_path).exists():
+                removed.append(stripped)
+                continue
+                
+            # Now verify if the task still exists in the active state
+            if is_agenda:
+                m_id = None
+                idx = stripped.find("ANDORINA_AGENDA:")
+                if idx != -1:
+                    m_id = stripped[idx + len("ANDORINA_AGENDA:"):].split()[0]
+                if not m_id or m_id not in agenda:
+                    removed.append(stripped)
+                    continue
+                    
+            elif is_recurring:
+                r_id = None
+                idx = stripped.find("ANDORINA_RECURRING:")
+                if idx != -1:
+                    r_id = stripped[idx + len("ANDORINA_RECURRING:"):].split()[0]
+                if not r_id or not (rdir / f"{r_id}.json").exists():
+                    removed.append(stripped)
+                    continue
+                    
+            cleaned.append(line)
+
+        new_crontab = "\n".join(cleaned) + "\n" if cleaned else "\n"
+        subprocess.run(["crontab", "-"], input=new_crontab, text=True, check=True)
+        out({"status": "OK", "error_code": "NONE", "payload": {
+            "removed": len(removed),
+            "message": f"Removed {len(removed)} stale cron entries.",
+            "removed_entries": removed
+        }})
+    except Exception as e:
+        out({"status": "ERROR", "error_code": "INTERNAL_ERROR",
+             "payload": {"error": str(e)}})
+
+
 def parse_creator_jid():
     if "--creator-jid" in sys.argv:
         idx = sys.argv.index("--creator-jid")
@@ -483,6 +596,9 @@ if __name__ == "__main__":
 
     if cmd == "list":
         cmd_list()
+
+    elif cmd == "cleanup-crons":
+        cmd_cleanup_crons()
 
     elif cmd == "send" and len(sys.argv) > 2:
         cmd_send_pending(sys.argv[2])

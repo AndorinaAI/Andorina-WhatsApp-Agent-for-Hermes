@@ -2,8 +2,24 @@
 
 ---
 
+## [v1.5.1-Beta1] - 2026-06-07
+**🩹 Hotfix — Bridge Stability / Hotfix — Estabilidad del Puente**
+
+### 🐛 Critical Fixes
+
+- **Bridge Restart Loop (Critical):** `bridge_health.py` was checking for the string `"from: senderId"` as a patch marker — a string that `patch_bridge.py` has never written. This caused `apply_repair()` to always consider the bridge "unpatched" and restart it on every call, including from scheduled message cron jobs. The bridge was being killed every time a scheduled message fired. Fixed by aligning markers with what `patch_bridge.py` actually writes.
+- **Node.js `ReferenceError` Crash (Critical):** The `fromMe` inbox patch in `patch_bridge.py` injected code using `existsSync`, `readFileSync`, `writeFileSync`, and `path.join()` without declaring them locally, assuming they were available from bridge.js global imports. Different Hermes/Baileys versions import them differently (or as `fs.*`). This caused a silent `ReferenceError` that killed the Node.js bridge process. Fixed with inline `require('fs')` / `require('path')` — the fix is now self-contained.
+- **Stale Hook Warnings:** `setup.py` now removes obsolete hook events (`message_received`, `whatsapp:message`) from `config.yaml` on install/upgrade, eliminating the `WARNING agent.shell_hooks: unknown hook event` log spam.
+
+### 🔧 Improvements
+- `ensure_patched()` now retries 3 times (6s total) before triggering repair, avoiding false alarms from a slow bridge startup or momentary load.
+- `check_patches.py` markers updated: removed phantom `sender_id_fix` marker, `fromMe` check updated to detect the new v2 patch.
+
+---
+
 ## [v1.5.0-Beta1] - 2026-06-07
 **"The Architectural Refactor & Tool Polish Update" / "Actualización de Refactor Arquitectónico y Pulido de Herramientas"**
+
 
 > [!WARNING]
 > **🔬 BETA — Requires Testing / BETA — Requiere Testing**

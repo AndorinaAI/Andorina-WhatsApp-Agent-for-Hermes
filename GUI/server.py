@@ -362,6 +362,20 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                 self.send_error_json(401, "Unauthorized")
                 return
 
+        if path == "/api/public/banner":
+            url = "https://lostregofestival.com/lostrego/banner_andorina.txt"
+            try:
+                req = urllib.request.Request(
+                    url,
+                    headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+                )
+                with urllib.request.urlopen(req, timeout=5) as response:
+                    text = response.read().decode('utf-8', errors='ignore')
+                self.send_json({"ok": True, "text": text.strip()})
+            except Exception as e:
+                self.send_json({"ok": False, "error": str(e)}, 500)
+            return
+
         if path == "/api/auth/status":
             if not session:
                 return self.send_error_json(401, "Unauthorized")
@@ -1813,8 +1827,18 @@ ANDORINA_ROOT={agent_path / "skills" / "andorina"}
                     args.append(filepath)  # positional: checked with Path.exists()
                 args.append(message)
                 out, err, rc = run_script("tools/agenda.py", *args)
-                try: results.append(json.loads(out))
-                except: results.append({"jid": cid, "ok": rc == 0, "raw": out, "error": err})
+                try:
+                    res_dict = json.loads(out)
+                    if isinstance(res_dict, dict):
+                        if "payload" in res_dict and isinstance(res_dict["payload"], dict):
+                            res_dict.update(res_dict.pop("payload"))
+                        if res_dict.get("status") == "OK":
+                            res_dict["ok"] = True
+                        elif res_dict.get("status") in ("ERROR", "DENY"):
+                            res_dict["ok"] = False
+                    results.append(res_dict)
+                except:
+                    results.append({"jid": cid, "ok": rc == 0, "raw": out, "error": err})
 
             self.send_json({"ok": True, "results": results})
 
@@ -1835,8 +1859,18 @@ ANDORINA_ROOT={agent_path / "skills" / "andorina"}
                     args.append(filepath)
                 args.append(message)
                 out, err, rc = run_script("tools/agenda.py", *args)
-                try: results.append(json.loads(out))
-                except: results.append({"jid": cid, "ok": rc == 0, "raw": out, "error": err})
+                try:
+                    res_dict = json.loads(out)
+                    if isinstance(res_dict, dict):
+                        if "payload" in res_dict and isinstance(res_dict["payload"], dict):
+                            res_dict.update(res_dict.pop("payload"))
+                        if res_dict.get("status") == "OK":
+                            res_dict["ok"] = True
+                        elif res_dict.get("status") in ("ERROR", "DENY"):
+                            res_dict["ok"] = False
+                    results.append(res_dict)
+                except:
+                    results.append({"jid": cid, "ok": rc == 0, "raw": out, "error": err})
 
             self.send_json({"ok": True, "results": results})
 
@@ -2093,7 +2127,6 @@ ANDORINA_ROOT={agent_path / "skills" / "andorina"}
             self.send_json({"ok": True})
 
         elif path == "/api/souls/knowledge/upload":
-            import base64
             soul_name = body.get("soul_name", "")
             filename = body.get("filename", "")
             file_b64 = body.get("content_b64", "")

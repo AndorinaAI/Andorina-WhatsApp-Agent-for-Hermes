@@ -25,9 +25,8 @@ SKILL_DIR = Path(__file__).parent.absolute()
 BRIDGE_MARKERS = {
     "health_endpoint":   "app.get('/health'",
     "groups_endpoint":   "app.get('/groups'",
-    "sender_id_fix":     "senderId: msg.key.participant",
     "mime_expansion":    "reqMimetype",
-    "fromMe_inbox_fix":  "fromMe",
+    "fromMe_inbox_fix":  "ANDORINA INBOX FIX v2",
 }
 
 # ── whatsapp.py markers ──────────────────────────────────────────────────

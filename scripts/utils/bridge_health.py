@@ -132,10 +132,13 @@ def apply_repair():
         try:
             content = BRIDGE_PATH.read_text(encoding="utf-8")
             missing = []
-            if "from: senderId" not in content: missing.append("Field Mapping (from/text)")
+            # NOTE: do NOT add markers here that patch_bridge.py never writes —
+            # a stale marker causes an eternal restart loop (bridge gets killed
+            # every time ensure_patched() runs, even when fully patched).
             if "app.get('/health'" not in content: missing.append("Health Endpoint")
             if "reqMimetype" not in content: missing.append("Media Mime/PTT Override")
             if "app.get('/groups'" not in content: missing.append("Groups Endpoint")
+            if "ANDORINA INBOX FIX" not in content: missing.append("fromMe Inbox Fix")
             
             if missing:
                 print(f"🔧 Bridge Repair: Patching missing features: {', '.join(missing)}", file=sys.stderr)
@@ -157,6 +160,18 @@ def apply_repair():
                     print("✅ WhatsApp Sub-Soul patch verified.", file=sys.stderr)
         except Exception: pass
 
+    # 3. Crontab hygiene — remove stale entries from old Andoriña versions
+    # (paths that no longer exist on disk: old V1.0.4, /tmp sandbox, etc.)
+    try:
+        agenda_script = scripts_dir / "tools" / "agenda.py"
+        if agenda_script.exists():
+            subprocess.run(
+                [sys.executable, str(agenda_script), "cleanup-crons"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10
+            )
+            print("🧹 Stale crontab entries cleaned.", file=sys.stderr)
+    except Exception: pass
+
     # 3. Gateway Connectivity Check
     if not check_bridge(retries=2, check_connection=True):
         print("📱 WhatsApp session is OFFLINE.", file=sys.stderr)
@@ -166,8 +181,12 @@ def apply_repair():
     return True
 
 def ensure_patched():
-    """Silent check and repair called by other scripts"""
-    if not check_bridge(retries=1):
+    """Silent check and repair called by other scripts.
+    Uses retries=3 to avoid false alarms from a slow bridge startup —
+    we only want to restart if the bridge is genuinely down, not just
+    temporarily busy (e.g. processing a previous message).
+    """
+    if not check_bridge(retries=3, delay=2):
         apply_repair()
 
 def main():
