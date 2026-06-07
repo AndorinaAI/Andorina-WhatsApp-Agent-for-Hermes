@@ -733,3 +733,43 @@ footer {
 .footer-copyright { font-size: 0.8rem; margin-top: 0.8rem; color: var(--text-muted); }
 
 .mb-3 { margin-bottom: 1.5rem; }
+
+/* Modal */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.8); 
+    backdrop-filter: blur(5px);
+}
+.modal-content {
+    background-color: var(--bg-color);
+    margin: 5% auto; 
+    padding: 20px;
+    border: 1px solid var(--primary);
+    width: 80%; 
+    max-width: 900px;
+    border-radius: 16px;
+    position: relative;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+.close-modal {
+    color: #aaa;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close-modal:hover,
+.close-modal:focus {
+    color: var(--primary);
+    text-decoration: none;
+}

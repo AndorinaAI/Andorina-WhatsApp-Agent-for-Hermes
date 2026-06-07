@@ -3,7 +3,6 @@
 
 <head>
  <meta charset="UTF-8">
- <meta name="google-site-verification" content="DH5Fdg14KCzDiE4pGrUyN1OfmV49QzPbRgYw1Fs_ZBo" />
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
  <title>Andoriña | Autonomous WhatsApp Manager for Hermes</title>
  <meta name="description"
@@ -43,15 +42,10 @@
 
 <body>
   <div class="linux-banner">
-   🚀 Andoriña v1.0.4-Beta1 is out! Optimized for Linux.
+   🚀 Andoriña v1.5.0-Beta1 is out! Optimized for Linux.
   </div>
 
- <!-- System Status Banner -->
- <div class="system-status-banner">
-  ⚠️ NOTICE: Reliability score verification is currently disabled. Use with caution.
- </div>
-
- <div class="background-elements">
+  <div class="background-elements">
   <div class="glow-orb top-left"></div>
   <div class="glow-orb bottom-right"></div>
  </div>
@@ -78,7 +72,7 @@
      <img src="assets/linux-svg.svg" alt="Linux">
      <div class="platform-info">
       <span class="platform-label">Official Release</span>
-       <span class="platform-ver">v1.0.4-Beta1</span>
+       <span class="platform-ver">v1.5.0-Beta1</span>
      </div>
     </div>
     <h1>Turn Hermes into an autonomous <span class="text-gradient">WhatsApp manager</span></h1>
@@ -122,12 +116,16 @@
     </div>
     <div class="glass-card feature-card">
      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg></div>
-     <h3>Local Inbox</h3>
-     <p>Persistent log of received messages. Allows Hermes to read the context and respond intelligently when you're away.</p>
+     <h3>Idempotent Local Inbox</h3>
+     <p>Persistent log of messages with idempotent write guarantees. Includes a Cognitive Reset feature to selectively wipe memory without breaking sessions.</p>
     </div>
    </div>
 
-   <div id="extra-features" class="grid extra-features-grid">
+   <div id="featuresModal" class="modal">
+    <div class="modal-content glass-card">
+     <span class="close-modal">&times;</span>
+     <h2 style="text-align: center; margin-bottom: 2rem;">All Features</h2>
+     <div id="extra-features" class="grid">
     <div class="glass-card feature-card">
      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg></div>
      <h3>Audio as Voice Notes</h3>
@@ -136,19 +134,36 @@
     <div class="glass-card feature-card">
      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
      <h3>Agenda & Cron</h3>
-     <p>Smart message scheduling now powered by native Linux crontab. Scheduled messages are sent instantly and without delay.</p>
-    </div>
-    <div class="glass-card feature-card feature-card-bug">
-     <div class="icon icon-bug"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></div>
-     <h3>Reliability Score <span class="bug-badge">⚠️ Disabled (Bug)</span></h3>
-     <p>Intelligent decision engine. If contact certainty is over 80% (or your custom threshold), it sends the message automatically.</p>
+     <p>Smart message scheduling powered by Linux crontab. Features an auto-offset system to safely prevent LLM and API execution collisions.</p>
     </div>
     <div class="glass-card feature-card">
      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
-     <h3>Shield & Auto-patching</h3>
-     <p>Firewall against attacks and "Self-Healing" system that automatically re-applies your features after each Hermes update.</p>
+     <h3>Live Dashboard & Monitor</h3>
+     <p>Fully graphical Web UI to manage RBAC security roles, configure Sub-Souls, and inspect internal server execution logs in real-time.</p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+     <h3>Zero-Trust Pipeline</h3>
+     <p>Hardened architecture with input and tool guards. Strict execution timeouts, anti-prompt injection, and full RBAC owner protection.</p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+     <h3>Sub-Souls & Memory</h3>
+     <p>Assign specific custom personas to individual contacts or groups. Includes a robust local memory state to recall context without relying on external databases.</p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+     <h3>Group Chats</h3>
+     <p>Full support for interacting within WhatsApp groups. Activated only when triggered via custom, configurable wake words.</p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg></div>
+     <h3>GUI Installer & Web Panel</h3>
+     <p>Bilingual (ES/EN) visual setup from your browser. Automatically configures dependencies, credentials, and cron jobs without touching the terminal.</p>
     </div>
    </div>
+  </div>
+ </div>
 
    <div class="feature-toggle-container">
     <button id="toggle-features" aria-label="Toggle extra features" class="btn btn-secondary">See all features</button>
@@ -193,16 +208,20 @@
       <div class="progress-bar"><div class="progress-fill w-100"></div></div>
      </div>
      <div class="progress-container">
-      <div class="progress-label"><span>Windows Compatibility</span> <span>In Progress</span></div>
-      <div class="progress-bar"><div class="progress-fill in-progress"></div></div>
+      <div class="progress-label"><span>Linux Core Stability & Hardening</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
      </div>
      <div class="progress-container">
-      <div class="progress-label"><span>Mac Compatibility</span> <span>??</span></div>
-      <div class="progress-bar"><div class="progress-fill loading"></div></div>
+      <div class="progress-label"><span>Sub-Souls (Custom Personas)</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
      </div>
      <div class="progress-container">
-      <div class="progress-label"><span>Auto-detect Expired WhatsApp Session</span> <span>??</span></div>
-      <div class="progress-bar"><div class="progress-fill loading"></div></div>
+      <div class="progress-label"><span>Auto-detect Expired WhatsApp Session</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+     </div>
+     <div class="progress-container">
+      <div class="progress-label"><span>Away Mode / Auto-Responder</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
      </div>
     </div>
 
@@ -214,34 +233,9 @@
 
   <section id="roadmap" class="features">
    <h2>Future Features (Roadmap)</h2>
+   
    <div class="timeline">
-     <div class="timeline-item in-progress">
-      <div class="timeline-content">
-       <div class="timeline-header">
-        <h4 style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="timeline-icon"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg> Windows Compatibility</h4>
-        <span class="status-badge in-progress">In Progress</span>
-       </div>
-       <p>Replacing cron with an internal Python event engine to support Windows.</p>
-      </div>
-     </div>
-     <div class="timeline-item planned">
-      <div class="timeline-content">
-       <div class="timeline-header">
-        <h4 style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="timeline-icon"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg> Mac Compatibility</h4>
-        <span class="status-badge planned">Planned</span>
-       </div>
-       <p>Support for native crons and file system resolution in macOS.</p>
-      </div>
-     </div>
-     <div class="timeline-item planned">
-      <div class="timeline-content">
-       <div class="timeline-header">
-        <h4 style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> Session Detection</h4>
-        <span class="status-badge planned">Planned</span>
-       </div>
-       <p>Actively warn if the WhatsApp session in Baileys has expired.</p>
-      </div>
-     </div>
+     
      <div class="timeline-item planned">
       <div class="timeline-content">
        <div class="timeline-header">
@@ -270,6 +264,7 @@
       </div>
      </div>
    </div>
+
   </section>
 
   <section id="join" class="features pb-0">
@@ -354,7 +349,7 @@
       <a href="https://buymeacoffee.com/andorinaai" target="_blank" rel="noopener noreferrer" class="btn btn-bmc btn-wide-200">
        ☕ Buy Me a Coffee
       </a>
-      <a href="https://www.paypal.com/paypalme/j93gf" target="_blank" rel="noopener noreferrer" class="btn btn-paypal btn-wide-180">
+      <a href="https://www.paypal.com/paypalme/jorge93gf" target="_blank" rel="noopener noreferrer" class="btn btn-paypal btn-wide-180">
        💳 PayPal
       </a>
       <!-- GitHub Sponsors pending activation
@@ -374,7 +369,7 @@
  <footer>
   <p>Andoriña by Jorge. Built with ❤ for Hermes Agent.</p>
   <p class="footer-disclaimer">
-   <strong>Disclaimer & Ethical Use:</strong> This software is provided "as is". As version 1.0.4-Beta1 interacting with unofficial APIs, it may contain bugs. We are not responsible for account bans or data loss. <strong>Massive message sending (spam) is strictly prohibited.</strong>
+   <strong>Disclaimer & Ethical Use:</strong> This software is provided "as is". As version 1.5.0-Beta1 interacting with unofficial APIs, it may contain bugs. We are not responsible for account bans or data loss. <strong>Massive message sending (spam) is strictly prohibited.</strong>
   </p>
   <p class="footer-copyright">
    © 2026 All Rights Reserved. Commercial replication or sale is strictly prohibited.
@@ -396,17 +391,21 @@
    });
   });
 
-  // Toggle features
+  // Modal features
   const toggleBtn = document.getElementById('toggle-features');
-  const extraFeatures = document.getElementById('extra-features');
-  
-  if (toggleBtn) {
+  const featuresModal = document.getElementById('featuresModal');
+  const closeModal = document.querySelector('.close-modal');
+
+  if (toggleBtn && featuresModal) {
    toggleBtn.addEventListener('click', function() {
-    var isHidden = window.getComputedStyle(extraFeatures).display === 'none';
-    extraFeatures.style.display = isHidden ? 'grid' : 'none';
-    toggleBtn.textContent = isHidden ? 'Show less' : 'See all features';
-    if (isHidden) {
-     extraFeatures.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    featuresModal.style.display = 'block';
+   });
+   closeModal.addEventListener('click', function() {
+    featuresModal.style.display = 'none';
+   });
+   window.addEventListener('click', function(event) {
+    if (event.target == featuresModal) {
+     featuresModal.style.display = 'none';
     }
    });
   }
