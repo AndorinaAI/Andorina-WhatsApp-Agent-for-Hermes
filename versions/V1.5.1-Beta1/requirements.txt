@@ -1,0 +1,9 @@
+ruamel.yaml
+pymupdf
+python-docx
+python-pptx
+openpyxl
+odfpy
+filelock
+rank-bm25
+sentence-transformers
