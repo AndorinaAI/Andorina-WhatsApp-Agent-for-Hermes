@@ -4104,6 +4104,36 @@ const App = {
     if (runBtn) runBtn.disabled = false;
   },
 
+  async checkUpdateBackground() {
+    try {
+      const d = await this.get('update/check');
+      if (d && d.ok && !d.up_to_date) {
+        const badge = document.getElementById('update-badge');
+        if (badge) {
+          badge.textContent = `v${d.latest}`;
+          badge.style.display = 'inline-block';
+        }
+        const bannerTextEl = document.getElementById('andorina-banner-text');
+        const bannerEl = document.getElementById('andorina-banner');
+        if (bannerTextEl && bannerEl) {
+          const updateText = `⬆️ ¡Nueva versión de Andoriña disponible: v${d.latest}! Ve a Diagnóstico para actualizar.`;
+          let currentText = bannerTextEl.textContent || '';
+          if (!currentText.includes(updateText)) {
+            const cleanText = currentText.replace(/[\u2003\u2022\u2003]+/g, ' ').trim();
+            const textToSet = cleanText 
+              ? `${updateText} \u2003\u2022\u2003 ${cleanText}` 
+              : updateText;
+            var segment = textToSet + '\u2003\u2022\u2003' + textToSet + '\u2003\u2022\u2003';
+            bannerTextEl.textContent = segment + segment;
+            bannerEl.style.display = 'block';
+          }
+        }
+      }
+    } catch(e) {
+      console.log("Error checkUpdateBackground", e);
+    }
+  },
+
   _monitorOpen: false,
   toggleMonitor() {
     const frame = this.$('monitor-frame');
@@ -5270,6 +5300,7 @@ const App = {
     }, 15000);
 
     this.loadTunnelStatus();
+    this.checkUpdateBackground();
   },
 
   // ── Debug / Diagnostics ──

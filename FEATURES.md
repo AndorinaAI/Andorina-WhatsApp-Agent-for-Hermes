@@ -1,4 +1,4 @@
-# 🌟 Andoriña v1.5.0-Beta1 — Complete Feature Reference
+# 🌟 Andoriña v1.5.1-Beta1 — Complete Feature Reference
 ## 🇬🇧 English | 🇪🇸 Español
 
 > [!WARNING]
@@ -115,7 +115,7 @@
 - **GitHub-Based Updater (`andorina_updater.py`):** Polls the GitHub Releases API to detect new versions.
 - **Check Mode (`--check`):** Returns JSON with current version, latest version, and download URL — safe and read-only.
 - **Full Update Mode (`--update`):** Downloads the new ZIP, backs up all user data (`state/`, `.env`, `notes/`, `souls/`, `guard_rules.json`, `inbox.json`, etc.), replaces all code files, re-applies all bridge patches, and restores user data atomically.
-- **Beta-Safe Parsing:** Uses semantic regex to parse version tags like `1.5.0-Beta1` — non-numeric suffixes never break the comparison.
+- **Beta-Safe Parsing:** Uses semantic regex to parse version tags like `1.5.1-Beta1` — non-numeric suffixes never break the comparison.
 - **GUI Integration:** The Web Panel's Settings tab shows current version, latest version, and a one-click "Update" button.
 
 ### 🛂 17. Granular RBAC — Full Permission Matrix
@@ -251,7 +251,7 @@
 - **Actualizador basado en GitHub (`andorina_updater.py`):** Consulta la API de Releases de GitHub para detectar versiones nuevas.
 - **Modo Consulta (`--check`):** Devuelve JSON con la versión actual, la última y la URL de descarga — seguro y sin cambios.
 - **Modo Actualización (`--update`):** Descarga el ZIP, hace backup de todos los datos del usuario (`state/`, `.env`, `notes/`, `souls/`, `guard_rules.json`, `inbox.json`, etc.), reemplaza el código, re-aplica todos los parches del bridge y restaura los datos de forma atómica.
-- **Soporte de Etiquetas Beta:** Usa regex semántico para parsear versiones como `1.5.0-Beta1` sin errores.
+- **Soporte de Etiquetas Beta:** Usa regex semántico para parsear versiones como `1.5.1-Beta1` sin errores.
 - **Integración GUI:** La pestaña de Ajustes muestra la versión actual, la última disponible y un botón "Actualizar" con un clic.
 
 ### 🛂 17. RBAC Granular — Matriz Completa de Permisos

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🚀 Andoriña — Setup Assistant (v1.5.0-Beta1)
+🚀 Andoriña — Setup Assistant (v1.5.1-Beta1)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
@@ -57,7 +57,7 @@ LANG = "en"  # default
 STRINGS = {
     "es": {
         "lang_prompt":     "Selecciona idioma / Select language (es/en)",
-        "subtitle":        "Asistente de Instalación v1.5.0-Beta1",
+        "subtitle":        "Asistente de Instalación v1.5.1-Beta1",
         "tagline":         "Gestor Autónomo de WhatsApp para Hermes Agent",
         "profile":         "Perfil",
         "target":          "Destino",
@@ -132,7 +132,7 @@ STRINGS = {
     },
     "en": {
         "lang_prompt":     "Selecciona idioma / Select language (es/en)",
-        "subtitle":        "Setup Assistant v1.5.0-Beta1",
+        "subtitle":        "Setup Assistant v1.5.1-Beta1",
         "tagline":         "Autonomous WhatsApp Manager for Hermes Agent",
         "profile":         "Profile",
         "target":          "Target",
@@ -493,6 +493,11 @@ def main():
 
             if not isinstance(config_data.get("hooks"), dict):
                 config_data["hooks"] = {}
+
+            # Clean up obsolete hook events from older Andoriña versions that
+            # are not valid in this version of Hermes (they produce WARNING logs).
+            for dead_hook in ["message_received", "whatsapp:message", "on_message"]:
+                config_data["hooks"].pop(dead_hook, None)
 
             # Register ONLY valid Hermes hook events (pre_llm_call, pre_tool_call)
             # pointing to orchestrator_hook.py which handles both.

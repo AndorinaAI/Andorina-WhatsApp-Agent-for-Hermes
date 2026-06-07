@@ -62,7 +62,7 @@ def patch_logic(content):
 
     # 1. Health Endpoint
     if "app.get('/health'" not in content:
-        health_code = "\napp.get('/health', (req, res) => { res.json({ status: connectionState, uptime: process.uptime(), version: '1.5.0-Beta1' }); });\n"
+        health_code = "\napp.get('/health', (req, res) => { res.json({ status: connectionState, uptime: process.uptime(), version: '1.5.1-Beta1' }); });\n"
         content = re.sub(r"app\.listen\s*\(", health_code + "app.listen(", content)
         patched = True
 
@@ -143,33 +143,37 @@ app.get('/profile-pic/:jid', async (req, res) => {
         content = re.sub(r"app\.listen\s*\(", pic_code + "\napp.listen(", content)
         patched = True
 
-    # 7. fromMe Inbox Fix
-    if "ANDORINA INBOX FIX" not in content:
+    # 7. fromMe Inbox Fix (v2 — universal CJS + ESM compatible)
+    # The key insight: bridge.js from Hermes uses "type":"module" (ESM), so
+    # require() is not available. It imports existsSync/readFileSync/writeFileSync
+    # and `path` directly. We use `typeof require === 'function'` to detect CJS
+    # at runtime and fall back to the in-scope ESM bindings if not.
+    INBOX_FIX_V2_MARKER = "# ANDORINA INBOX FIX v2"
+    if INBOX_FIX_V2_MARKER not in content:
         from_me_pattern = r"(if\s*\(\s*msg\.key\.fromMe\s*\)\s*\{)"
-        from_me_fix = """\\1
-        // --- ANDORINA INBOX FIX ---
+        from_me_fix = r"""\1
+        // # ANDORINA INBOX FIX v2 — universal CJS+ESM, no external scope assumptions
         try {
             const body = msg.message?.conversation || msg.message?.extendedTextMessage?.text || "";
             if (body) {
-                const hermesHome = process.env.HERMES_HOME || path.join(process.env.HOME || '/root', '.hermes');
-                const inboxFile = path.join(hermesHome, 'skills', 'andorina', 'state', 'inbox.json');
-                let inbox = [];
+                // Works in both CommonJS (require available) and ES Modules (named imports in scope)
+                const _fsAnd = typeof require === 'function' ? require('fs') : { existsSync, readFileSync, writeFileSync };
+                const _pathAnd = typeof require === 'function' ? require('path') : path;
+                const _hmAnd = process.env.HERMES_HOME || _pathAnd.join(process.env.HOME || '/root', '.hermes');
+                const _inboxAnd = _pathAnd.join(_hmAnd, 'skills', 'andorina', 'state', 'inbox.json');
+                let _boxAnd = [];
                 try {
-                    if (existsSync(inboxFile)) {
-                        inbox = JSON.parse(readFileSync(inboxFile, 'utf8'));
+                    if (_fsAnd.existsSync(_inboxAnd)) {
+                        _boxAnd = JSON.parse(_fsAnd.readFileSync(_inboxAnd, 'utf8'));
                     }
                 } catch(e) {}
-                
-                // Deduplicate (avoid logging the same echo twice within a short time)
-                const now = Date.now();
-                const isDuplicate = inbox.some(m => {
+                const _nowAnd = Date.now();
+                const _dupAnd = _boxAnd.some(m => {
                     if (m.from !== "Me" || m.text !== body) return false;
-                    const d = new Date(m.date).getTime();
-                    return Math.abs(now - d) < 15000;
+                    return Math.abs(_nowAnd - new Date(m.date).getTime()) < 15000;
                 });
-                
-                if (!isDuplicate) {
-                    inbox.push({
+                if (!_dupAnd) {
+                    _boxAnd.push({
                         chatId: chatId,
                         chatName: chatId.split('@')[0],
                         from: "Me",
@@ -179,14 +183,21 @@ app.get('/profile-pic/:jid', async (req, res) => {
                         type: "text",
                         read: true
                     });
-                    writeFileSync(inboxFile, JSON.stringify(inbox, null, 2));
+                    _fsAnd.writeFileSync(_inboxAnd, JSON.stringify(_boxAnd, null, 2));
                 }
             }
         } catch(e) {
-            console.error("Andorina inbox fix failed:", e);
+            console.error("Andorina inbox fix v2 failed:", e);
         }
-        // --- END FIX ---
+        // --- END INBOX FIX v2 ---
 """
+        # Remove old broken fix if present so we don't double-inject
+        content = re.sub(
+            r"// --- ANDORINA INBOX FIX ---.*?// --- END FIX ---\n",
+            "",
+            content,
+            flags=re.DOTALL,
+        )
         content = re.sub(from_me_pattern, from_me_fix, content)
         patched = True
 

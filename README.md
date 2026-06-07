@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-  <em>Autonomous WhatsApp Manager for Hermes (v1.5.0-Beta1)</em><br>
-  <em>Gestor Autónomo de WhatsApp para Hermes (v1.5.0-Beta1)</em>
+  <em>Autonomous WhatsApp Manager for Hermes (v1.5.1-Beta1)</em><br>
+  <em>Gestor Autónomo de WhatsApp para Hermes (v1.5.1-Beta1)</em>
 </p>
 
 <p align="center">
@@ -27,10 +27,10 @@
 - **Follow on X:** [@andorinaAI](https://x.com/andorinaAI)
 
 > [!IMPORTANT]
-> **🚀 v1.5.0-Beta1 OFFICIAL RELEASE: INFRASTRUCTURE & UI POLISH**
+> **🚀 v1.5.1-Beta1 OFFICIAL RELEASE: INFRASTRUCTURE & UI POLISH**
 > This version introduces the comprehensive Zero-Trust Security Pipeline, advanced Agenda auto-offset features, a fully functional Live Log Monitor, and structural guarantees for RAG context and idempotent Inbox writes.
 >
-> **🚀 v1.5.0-Beta1 LANZAMIENTO OFICIAL: INFRAESTRUCTURA Y UI**
+> **🚀 v1.5.1-Beta1 LANZAMIENTO OFICIAL: INFRAESTRUCTURA Y UI**
 > Esta versión introduce una Tubería de Seguridad Zero-Trust integral, programación con auto-offset para evitar colisiones, un Monitor de Logs en vivo y escrituras idempotentes en el Inbox.
 
 ---

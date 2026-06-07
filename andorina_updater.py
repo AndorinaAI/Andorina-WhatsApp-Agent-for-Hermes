@@ -219,22 +219,27 @@ def update(download_url: str, new_version: str):
         restore_user_data(backup)
         _log("   ✅ Datos restaurados")
 
-        # 6. Re-apply patches
-        patch_script = SKILL_DIR / "patch_whatsapp.py"
-        if patch_script.exists():
-            _log("🩹 Reaplicando patches...")
-            r = subprocess.run([sys.executable, str(patch_script)], capture_output=True, text=True)
+        # 6. Re-apply patches & verify health
+        health_script = SKILL_DIR / "scripts" / "utils" / "bridge_health.py"
+        if health_script.exists():
+            _log("🩹 Ejecutando diagnóstico y reparación automática...")
+            r = subprocess.run([sys.executable, str(health_script)], capture_output=True, text=True)
             for line in (r.stdout + r.stderr).splitlines():
                 _log(f"   {line}")
         else:
-            _log("⚠️  patch_whatsapp.py no encontrado — patches no aplicados")
-
-        patch_bridge = SKILL_DIR / "patch_bridge.py"
-        if patch_bridge.exists():
-            _log("🩹 Reaplicando bridge patch...")
-            r = subprocess.run([sys.executable, str(patch_bridge)], capture_output=True, text=True)
-            for line in (r.stdout + r.stderr).splitlines():
-                _log(f"   {line}")
+            # Fallback to individual patch scripts if bridge_health.py doesn't exist
+            patch_script = SKILL_DIR / "patch_whatsapp.py"
+            if patch_script.exists():
+                _log("🩹 Reaplicando patches...")
+                r = subprocess.run([sys.executable, str(patch_script)], capture_output=True, text=True)
+                for line in (r.stdout + r.stderr).splitlines():
+                    _log(f"   {line}")
+            patch_bridge = SKILL_DIR / "patch_bridge.py"
+            if patch_bridge.exists():
+                _log("🩹 Reaplicando bridge patch...")
+                r = subprocess.run([sys.executable, str(patch_bridge)], capture_output=True, text=True)
+                for line in (r.stdout + r.stderr).splitlines():
+                    _log(f"   {line}")
 
         # 7. Soul sync
         soul_sync = SKILL_DIR / "scripts" / "security" / "soul_sync.py"
@@ -275,6 +280,16 @@ def update(download_url: str, new_version: str):
             _log("   ✅ Gateway reiniciado")
         else:
             _log("   ⚠️  No se pudo reiniciar automáticamente — reinicia manualmente")
+
+        # 9b. Restart Andoriña Panel GUI server
+        _log("🔄 Reiniciando Andoriña Panel...")
+        panel_launcher = SKILL_DIR / "Andorina-Panel.sh"
+        if panel_launcher.exists():
+            try:
+                subprocess.Popen(["bash", str(panel_launcher)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                _log("   ✅ Panel reiniciado")
+            except Exception as e:
+                _log(f"   ⚠️  No se pudo reiniciar el panel automáticamente: {e}")
 
         _log(f"\n✅ Actualización a {new_version} completada.")
 
