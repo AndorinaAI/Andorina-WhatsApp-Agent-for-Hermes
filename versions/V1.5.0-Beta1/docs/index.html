@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Andoriña | Autonomous WhatsApp Manager for Hermes</title>
+ <meta name="description"
+  content="Turn Hermes into an autonomous WhatsApp manager. Full control, automation, and smart scheduling from anywhere. Free and Open Source.">
+
+ <!-- Google Fonts -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <!-- SEO & Social Sharing -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="canonical" href="https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes/index.html" />
+  <meta name="robots" content="index, follow" />
+  <meta name="keywords" content="WhatsApp, Hermes Agent, AI Assistant, WhatsApp Automation, Send WhatsApp messages via Hermes, Send messages to WhatsApp groups, Send messages to anyone, Autonomous WhatsApp manager, Schedule WhatsApp messages, Voice notes via Hermes, Python, Linux, Local LLM, Open Source" />
+  <meta name="author" content="Jorge" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes/" />
+  <meta property="og:title" content="Andoriña | Autonomous WhatsApp Manager for Hermes" />
+  <meta property="og:description" content="Turn Hermes into an autonomous WhatsApp manager. Full control, automation, and smart scheduling from anywhere. Free and Open Source." />
+  <meta property="og:image" content="https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes/assets/logo.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes/" />
+  <meta property="twitter:title" content="Andoriña | Autonomous WhatsApp Manager for Hermes" />
+  <meta property="twitter:description" content="Turn Hermes into an autonomous WhatsApp manager. Full control, automation, and smart scheduling from anywhere. Free and Open Source." />
+  <meta property="twitter:image" content="https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes/assets/logo.png" />
+  <meta name="twitter:site" content="@andorinaAI" />
+  <meta name="twitter:creator" content="@andorinaAI" />
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="linux-banner">
+   🚀 Andoriña v1.5.0-Beta1 is out! Optimized for Linux.
+  </div>
+
+  <div class="background-elements">
+  <div class="glow-orb top-left"></div>
+  <div class="glow-orb bottom-right"></div>
+ </div>
+
+ <nav class="navbar">
+  <div class="nav-logo-container">
+   <img src="assets/logo.png" alt="Andoriña Logo" class="nav-logo-img">
+   <div class="logo">Andoriña</div>
+  </div>
+  <div class="nav-links">
+   <a href="#features">Features</a>
+   <a href="#progress">Progress</a>
+   <a href="#roadmap">Roadmap</a>
+   <a href="#join">Join Us</a>
+   <a href="#support" class="nav-btn nav-donate">Support Project</a>
+  </div>
+  <a href="index-es.html" class="language-switch">ES</a>
+ </nav>
+
+ <main>
+  <section class="hero">
+   <div class="hero-content">
+    <div class="hero-platform">
+     <img src="assets/linux-svg.svg" alt="Linux">
+     <div class="platform-info">
+      <span class="platform-label">Official Release</span>
+       <span class="platform-ver">v1.5.0-Beta1</span>
+     </div>
+    </div>
+    <h1>Turn Hermes into an autonomous <span class="text-gradient">WhatsApp manager</span></h1>
+    <p>Turn Hermes into an autonomous WhatsApp manager and take full control of your messaging. Forget typing: schedule messages, send voice notes, share PC files, and search your contacts instantly. Your WhatsApp, on total autopilot.</p>
+
+    <div class="cta-group">
+     <a href="https://github.com/AndorinaAI/" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+       <path
+        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+       </path>
+      </svg>
+      View on GitHub
+     </a>
+     <a href="#features" class="btn btn-secondary">
+      View all features
+     </a>
+    </div>
+   </div>
+
+   <div class="hero-image">
+    <div class="glass-card mockup-card">
+     <img src="assets/hero.png" alt="Andoriña Terminal Interface">
+    </div>
+   </div>
+  </section>
+
+  <section id="features" class="features">
+   <h2>State-of-the-Art Technology</h2>
+   <div class="grid">
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+     <h3>Google Contacts</h3>
+     <p>Full sync with your account. Its smart search finds whoever you're looking for even if you make typos or forget accents.</p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
+     <h3>PC Files</h3>
+     <p>Automate sending and receiving files (they download directly to your PC). Ask your agent from anywhere to find a file on your PC and send it to you via WhatsApp.<br><br>⚠️ <em>Note: The AI cannot read the content of images, videos, or Office/PDF documents. Make sure to use precise filenames for these files.</em></p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg></div>
+     <h3>Idempotent Local Inbox</h3>
+     <p>Persistent log of messages with idempotent write guarantees. Includes a Cognitive Reset feature to selectively wipe memory without breaking sessions.</p>
+    </div>
+   </div>
+
+   <div id="featuresModal" class="modal">
+    <div class="modal-content glass-card">
+     <span class="close-modal">&times;</span>
+     <h2 style="text-align: center; margin-bottom: 2rem;">All Features</h2>
+     <div id="extra-features" class="grid">
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg></div>
+     <h3>Audio as Voice Notes</h3>
+     <p>Convert any audio file (MP3, WAV, etc.) into a <strong>real Voice Note</strong> that is received with the native WhatsApp player.</p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+     <h3>Agenda & Cron</h3>
+     <p>Smart message scheduling powered by Linux crontab. Features an auto-offset system to safely prevent LLM and API execution collisions.</p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+     <h3>Live Dashboard & Monitor</h3>
+     <p>Fully graphical Web UI to manage RBAC security roles, configure Sub-Souls, and inspect internal server execution logs in real-time.</p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+     <h3>Zero-Trust Pipeline</h3>
+     <p>Hardened architecture with input and tool guards. Strict execution timeouts, anti-prompt injection, and full RBAC owner protection.</p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></div>
+     <h3>Sub-Souls & Memory</h3>
+     <p>Assign specific custom personas to individual contacts or groups. Includes a robust local memory state to recall context without relying on external databases.</p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+     <h3>Group Chats</h3>
+     <p>Full support for interacting within WhatsApp groups. Activated only when triggered via custom, configurable wake words.</p>
+    </div>
+    <div class="glass-card feature-card">
+     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg></div>
+     <h3>GUI Installer & Web Panel</h3>
+     <p>Bilingual (ES/EN) visual setup from your browser. Automatically configures dependencies, credentials, and cron jobs without touching the terminal.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+
+   <div class="feature-toggle-container">
+    <button id="toggle-features" aria-label="Toggle extra features" class="btn btn-secondary">See all features</button>
+   </div>
+  </section>
+
+  <section id="progress" class="features">
+   <h2>Development Progress</h2>
+   <div class="glass-card">
+    <div class="progress-container">
+     <div class="progress-label"><span>Core Integration (Bridge & API)</span> <span>100%</span></div>
+     <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+    </div>
+    <div class="progress-container">
+     <div class="progress-label"><span>Security Module (Guard)</span> <span>100%</span></div>
+     <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+    </div>
+    <div class="progress-container">
+     <div class="progress-label"><span>Multi-model Installation</span> <span>100%</span></div>
+     <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+    </div>
+
+    <div id="extra-progress" style="display: none;">
+     <div class="progress-container">
+      <div class="progress-label"><span>Google Contacts Integration</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+     </div>
+     <div class="progress-container">
+      <div class="progress-label"><span>Memory Optimization</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+     </div>
+     <div class="progress-container">
+      <div class="progress-label"><span>Autostart System</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+     </div>
+     <div class="progress-container">
+      <div class="progress-label"><span>Inbox Hooks</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+     </div>
+     <div class="progress-container">
+      <div class="progress-label"><span>Auto-refresh Google Token</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+     </div>
+     <div class="progress-container">
+      <div class="progress-label"><span>Linux Core Stability & Hardening</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+     </div>
+     <div class="progress-container">
+      <div class="progress-label"><span>Sub-Souls (Custom Personas)</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+     </div>
+     <div class="progress-container">
+      <div class="progress-label"><span>Auto-detect Expired WhatsApp Session</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+     </div>
+     <div class="progress-container">
+      <div class="progress-label"><span>Away Mode / Auto-Responder</span> <span>100%</span></div>
+      <div class="progress-bar"><div class="progress-fill w-100"></div></div>
+     </div>
+    </div>
+
+    <div class="feature-toggle-container" style="margin-top: 1.5rem;">
+     <button id="toggle-progress" aria-label="See full progress" class="btn btn-secondary">See full progress</button>
+    </div>
+   </div>
+  </section>
+
+  <section id="roadmap" class="features">
+   <h2>Future Features (Roadmap)</h2>
+   
+   <div class="timeline">
+     
+     <div class="timeline-item planned">
+      <div class="timeline-content">
+       <div class="timeline-header">
+        <h4 style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> Message Editing</h4>
+        <span class="status-badge planned">Planned</span>
+       </div>
+       <p>Allow editing recently sent messages via commands or autonomously by the agent.</p>
+      </div>
+     </div>
+     <div class="timeline-item planned">
+      <div class="timeline-content">
+       <div class="timeline-header">
+        <h4 style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Message Deletion</h4>
+        <span class="status-badge planned">Planned</span>
+       </div>
+       <p>Functionality to revoke and delete messages (for everyone) sent by mistake.</p>
+      </div>
+     </div>
+     <div class="timeline-item planned">
+      <div class="timeline-content">
+       <div class="timeline-header">
+        <h4 style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Web Search</h4>
+        <span class="status-badge planned">Planned</span>
+       </div>
+       <p>Automated internet search from WhatsApp by querying the agent.</p>
+      </div>
+     </div>
+   </div>
+
+  </section>
+
+  <section id="join" class="features pb-0">
+   <div class="glass-card donate-card donate-card-wide">
+    <div class="join-header">
+     <span class="fs-2rem"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
+     <h2 class="m-0">Join the Project</h2>
+    </div>
+    <p class="join-desc">
+     Andoriña is an open-source project. If you have ideas, want to report a bug, or contribute to the code, the official repository is the place to be.
+    </p>
+    <div class="beta-badge">
+     🚀 <strong>WE NEED YOU:</strong> Join our <strong>Beta Testing</strong> phase on GitHub!
+    </div>
+    <div class="donation-options flex-center-wrap">
+     <a href="https://github.com/AndorinaAI/" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-wide-280">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+      Repository
+     </a>
+     <a href="https://x.com/andorinaAI" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-wide-220">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon"><path d="M4 4l11.733 16h4.267l-11.733 -16z" /><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" /></svg>
+      Follow on X
+     </a>
+     <a href="mailto:jorgegformoso@gmail.com" class="btn btn-secondary btn-wide-220">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+      Contact Team
+     </a>
+    </div>
+   </div>
+  </section>
+
+  <section id="support" class="donate">
+   <div class="glass-card donate-card donate-card-wide-p3">
+    <!-- Content Row -->
+    <div class="support-grid-content">
+     <!-- Left: About & AI Context -->
+     <div>
+      <div class="support-col-header mb-3">
+       <div class="support-icon-blue">
+       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+       <h3 class="support-h3">Behind the Wings</h3>
+      </div>
+      <p class="support-p-main">
+       Andoriña is an independent project that I maintain in my free time. <strong>I’m not a professional developer</strong> — I rely on advanced AI tools to build, debug, and improve the skill.
+      </p>
+      <p class="support-p-sub">
+       Those tools have real costs and limits. Your support not only keeps the project free of ads but also allows me to access more powerful AI models so Andoriña can evolve faster and become even smarter.
+      </p>
+     </div>
+
+     <!-- Right: Direct Reasons -->
+     <div>
+      <div class="support-col-header mb-3">
+       <div class="support-icon-red">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+       </div>
+       <h3 class="support-h3">Why Support Matters</h3>
+      </div>
+      <div class="support-list-card">
+      <ul class="support-list">
+       <li class="support-list-item">
+        <span class="text-primary">✓</span> <span>Ongoing maintenance against WhatsApp's constant changes.</span>
+       </li>
+       <li class="support-list-item">
+        <span class="text-primary">✓</span> <span>Funding advanced AI for higher-quality code.</span>
+       </li>
+       <li class="support-list-item">
+        <span class="text-primary">✓</span> <span>Faster updates and new, powerful features.</span>
+       </li>
+       <li class="support-list-item">
+        <span class="text-primary">✓</span> <span>100% independent project, no ads or paywalls.</span>
+       </li>
+      </ul>
+     </div>
+     </div>
+    </div>
+
+    <!-- Footer Action -->
+    <div class="support-footer">
+     <div class="donation-options flex-center-wrap-mb2">
+      <a href="https://buymeacoffee.com/andorinaai" target="_blank" rel="noopener noreferrer" class="btn btn-bmc btn-wide-200">
+       ☕ Buy Me a Coffee
+      </a>
+      <a href="https://www.paypal.com/paypalme/jorge93gf" target="_blank" rel="noopener noreferrer" class="btn btn-paypal btn-wide-180">
+       💳 PayPal
+      </a>
+      <!-- GitHub Sponsors pending activation
+      <a href="https://github.com/sponsors/" target="_blank" rel="noopener noreferrer" class="btn btn-github btn-wide-200">
+       💖 GitHub Sponsors
+      </a>
+      -->
+     </div>
+     <p class="support-thanks">
+      Donations are optional, but they make a genuine difference in the long‑term health and future of Andoriña. Thank you for supporting independent development!
+     </p>
+    </div>
+   </div>
+  </section>
+ </main>
+
+ <footer>
+  <p>Andoriña by Jorge. Built with ❤ for Hermes Agent.</p>
+  <p class="footer-disclaimer">
+   <strong>Disclaimer & Ethical Use:</strong> This software is provided "as is". As version 1.5.0-Beta1 interacting with unofficial APIs, it may contain bugs. We are not responsible for account bans or data loss. <strong>Massive message sending (spam) is strictly prohibited.</strong>
+  </p>
+  <p class="footer-copyright">
+   © 2026 All Rights Reserved. Commercial replication or sale is strictly prohibited.
+  </p>
+  <div class="legal-footer">
+   <a href="legal-en.html#terms">Ethical Use Guidelines</a>
+   <a href="legal-en.html#privacy">Privacy Policy</a>
+   <a href="legal-en.html#license">License Model</a>
+  </div>
+ </footer>
+
+ <script>
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+   anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    document.querySelector(this.getAttribute('href')).scrollIntoView({
+     behavior: 'smooth'
+    });
+   });
+  });
+
+  // Modal features
+  const toggleBtn = document.getElementById('toggle-features');
+  const featuresModal = document.getElementById('featuresModal');
+  const closeModal = document.querySelector('.close-modal');
+
+  if (toggleBtn && featuresModal) {
+   toggleBtn.addEventListener('click', function() {
+    featuresModal.style.display = 'block';
+   });
+   closeModal.addEventListener('click', function() {
+    featuresModal.style.display = 'none';
+   });
+   window.addEventListener('click', function(event) {
+    if (event.target == featuresModal) {
+     featuresModal.style.display = 'none';
+    }
+   });
+  }
+
+  // Toggle progress
+  const toggleProgBtn = document.getElementById('toggle-progress');
+  const extraProgress = document.getElementById('extra-progress');
+  if (toggleProgBtn) {
+   toggleProgBtn.addEventListener('click', function() {
+    var isHidden = extraProgress.style.display === 'none';
+    extraProgress.style.display = isHidden ? 'block' : 'none';
+    toggleProgBtn.textContent = isHidden ? 'Hide progress' : 'See full progress';
+   });
+  }
+ </script>
+</body>
+
+</html>
