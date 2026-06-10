@@ -265,6 +265,22 @@ def update(download_url: str, new_version: str):
         except Exception as e:
             _log(f"   ⚠️  hooks: {e}")
 
+        # 7c. Re-aplicar optimize_soul() para que el SOUL.md reciba los cambios de esta versión
+        _log("🧠 Actualizando SOUL.md...")
+        try:
+            env_lines = {}
+            env_f = SKILL_DIR / ".env"
+            if env_f.exists():
+                for line in env_f.read_text(encoding="utf-8").splitlines():
+                    if "=" in line and not line.startswith("#"):
+                        k, _, v = line.partition("=")
+                        env_lines[k.strip()] = v.strip()
+            owner_num = env_lines.get("ADMIN_PHONE", "")
+            ok = _sl.optimize_soul(str(agent_path), owner_num)
+            _log("   ✅ SOUL.md actualizado" if ok else "   ⚠️  No se pudo actualizar SOUL.md")
+        except Exception as e:
+            _log(f"   ⚠️  soul: {e}")
+
         # 8. Write new version
         (SKILL_DIR / "VERSION").write_text(new_version, encoding="utf-8")
         SOURCE_DIR / "VERSION" and (SOURCE_DIR / "VERSION").write_text(new_version, encoding="utf-8")

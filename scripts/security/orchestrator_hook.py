@@ -436,6 +436,18 @@ def _resolve_jid(data: dict) -> str:
     return jid
 
 
+def _is_whatsapp_session(data: dict) -> bool:
+    """True only if the hook event comes from a WhatsApp session."""
+    extra = data.get("extra", {})
+    if "whatsapp:" in data.get("session_key", ""):  return True
+    if "whatsapp:" in data.get("session_id", ""):   return True
+    if extra.get("platform") == "whatsapp":          return True
+    sid = extra.get("sender_id", "")
+    if sid and ("@s.whatsapp.net" in sid or "@lid" in sid or "@g.us" in sid):
+        return True
+    return False
+
+
 def main():
     try:
         raw = sys.stdin.read()
@@ -454,7 +466,16 @@ def main():
 
         # Resolve sender identity (all fallbacks, LID→JID included) via module-level function
         jid = _resolve_jid(data)
-        
+
+        # ── Non-WhatsApp sessions (Hermes TUI/CLI): pass through without RBAC ──
+        # The local user IS the owner. RBAC only applies to incoming WhatsApp messages.
+        if not _is_whatsapp_session(data):
+            if event == "pre_llm_call":
+                print(json.dumps({}))
+            else:
+                print(json.dumps({"action": "allow"}))
+            return
+
         if event == "pre_llm_call":
             # Bug 5 fix: if JID is empty after all fallbacks, enforce max restrictions
             # instead of silently passing (which would bypass all security checks).

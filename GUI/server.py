@@ -106,7 +106,7 @@ def _detect_public_url():
     except Exception:
         pass
     # 3. Fallback to localhost (GUI server port)
-    gui_port = os.environ.get("GUI_PORT", "3001")
+    gui_port = os.environ.get("GUI_PORT", str(PORT))
     return f"http://localhost:{gui_port}", "local"
 
 def _dispatch_webhook(hook, payload_dict):
@@ -363,7 +363,11 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                 return
 
         if path == "/api/public/banner":
-            url = "https://lostregofestival.com/lostrego/banner_andorina.txt"
+            lang = qs.get("lang", "es").lower()
+            if lang == "en":
+                url = "https://lostregofestival.com/lostrego/banner_andorina_en.txt"
+            else:
+                url = "https://lostregofestival.com/lostrego/banner_andorina.txt"
             try:
                 req = urllib.request.Request(
                     url,

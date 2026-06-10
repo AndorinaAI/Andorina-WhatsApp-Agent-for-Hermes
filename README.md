@@ -7,12 +7,12 @@
 </p>
 
 <p align="center">
-  <em>Autonomous WhatsApp Manager for Hermes (v1.5.1-Beta1)</em><br>
-  <em>Gestor Autónomo de WhatsApp para Hermes (v1.5.1-Beta1)</em>
+  <em>Autonomous WhatsApp Manager for Hermes (v1.5.2-Beta1)</em><br>
+  <em>Gestor Autónomo de WhatsApp para Hermes (v1.5.2-Beta1)</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.5.0--Beta1-blueviolet?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.5.2-Beta1-blueviolet?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/status-BETA-orange?style=flat-square" alt="Status">
   <img src="https://img.shields.io/badge/platform-Linux-lightgrey?style=flat-square&logo=linux" alt="Linux">
   <img src="https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square&logo=python" alt="Python">
@@ -27,11 +27,11 @@
 - **Follow on X:** [@andorinaAI](https://x.com/andorinaAI)
 
 > [!IMPORTANT]
-> **🚀 v1.5.1-Beta1 OFFICIAL RELEASE: INFRASTRUCTURE & UI POLISH**
-> This version introduces the comprehensive Zero-Trust Security Pipeline, advanced Agenda auto-offset features, a fully functional Live Log Monitor, and structural guarantees for RAG context and idempotent Inbox writes.
+> **🔧 v1.5.2-Beta1 — BUG FIX RELEASE**
+> Fixed: TUI/CLI blocked by RBAC · Webhook port hardcoded to 3001 · Contact notes never written or read · Updater not patching SOUL.md. Improvements: banner i18n (EN/ES), banner shown on every panel load, scroll speed reduced.
 >
-> **🚀 v1.5.1-Beta1 LANZAMIENTO OFICIAL: INFRAESTRUCTURA Y UI**
-> Esta versión introduce una Tubería de Seguridad Zero-Trust integral, programación con auto-offset para evitar colisiones, un Monitor de Logs en vivo y escrituras idempotentes en el Inbox.
+> **🔧 v1.5.2-Beta1 — VERSIÓN DE CORRECCIÓN DE ERRORES**
+> Corregido: TUI/CLI bloqueado por RBAC · Puerto de webhooks fijado en 3001 · Notas de contacto sin escribir ni leer · Actualizador sin parchear el SOUL.md. Mejoras: banner i18n (EN/ES), banner visible siempre al cargar, velocidad de scroll reducida.
 
 ---
 

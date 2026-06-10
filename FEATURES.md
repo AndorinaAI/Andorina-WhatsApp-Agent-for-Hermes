@@ -1,4 +1,4 @@
-# 🌟 Andoriña v1.5.1-Beta1 — Complete Feature Reference
+# 🌟 Andoriña v1.5.2-Beta1 — Complete Feature Reference
 ## 🇬🇧 English | 🇪🇸 Español
 
 > [!WARNING]
@@ -7,6 +7,34 @@
 > Esta versión incluye una refactorización arquitectónica masiva del motor de seguridad. Aunque la instalación y las funciones principales deberían funcionar perfectamente, algunas funciones de casos límite aún no se han probado completamente.
 
 ---
+
+## 🔧 What's New in v1.5.2-Beta1 (Bug Fix Release)
+## 🔧 Novedades en v1.5.2-Beta1 (Versión de Corrección de Errores)
+
+### 🇺🇸 English
+
+| # | Bug / Feature | Files Changed |
+|:---|:---|:---|
+| 🐛 | **TUI/CLI bypass** — RBAC no longer blocks the local owner using Hermes TUI. `_is_whatsapp_session()` added to only apply security checks to real WhatsApp sessions. | `orchestrator_hook.py` |
+| 🐛 | **Webhook port 3001 → 8888** — `_detect_public_url()` now uses `str(PORT)` instead of hardcoded `"3001"`. | `GUI/server.py` |
+| 🐛 | **Contacts notes never persisted** — Added `MEMORY RULES` to `optimize_soul()` so the agent silently calls `note-add` after conversations and `note-read` at the start of each new one. | `setup_lib.py`, `SOUL.md` |
+| 🐛 | **Updater skipped SOUL.md patch** — `andorina_updater.py` now calls `optimize_soul()` (step 7c) on every update, ensuring system prompt improvements propagate to existing installs. | `andorina_updater.py` |
+| ✨ | **Banner i18n** — Banner fetches `banner_andorina_en.txt` when the UI is in English, ES file otherwise. Scroll speed reduced to 55 s. | `server.py`, `app.js`, `index.html` |
+| ✨ | **Banner on every load** — Remote announcement banner now displays on startup, not only when an update is pending. | `app.js` |
+
+### 🇪🇸 Español
+
+| # | Error / Mejora | Archivos Modificados |
+|:---|:---|:---|
+| 🐛 | **Bypass TUI/CLI** — El RBAC ya no bloquea al dueño local usando el TUI de Hermes. Añadida `_is_whatsapp_session()` para aplicar comprobaciones de seguridad solo a sesiones reales de WhatsApp. | `orchestrator_hook.py` |
+| 🐛 | **Puerto webhook 3001 → 8888** — `_detect_public_url()` ahora usa `str(PORT)` en lugar del `"3001"` hardcodeado. | `GUI/server.py` |
+| 🐛 | **Notas de contactos sin persistir** — Añadidas `MEMORY RULES` a `optimize_soul()` para que el agente llame silenciosamente a `note-add` tras conversaciones y a `note-read` al inicio de cada nueva. | `setup_lib.py`, `SOUL.md` |
+| 🐛 | **El actualizador omitía el parche del SOUL.md** — `andorina_updater.py` ahora llama a `optimize_soul()` (paso 7c) en cada actualización, asegurando que las mejoras al system prompt se propaguen a instalaciones existentes. | `andorina_updater.py` |
+| ✨ | **Banner i18n** — El banner descarga `banner_andorina_en.txt` cuando la UI está en inglés, y el archivo ES en caso contrario. Velocidad de scroll reducida a 55 s. | `server.py`, `app.js`, `index.html` |
+| ✨ | **Banner en cada carga** — El banner remoto ahora se muestra al arrancar el panel, no solo cuando hay una actualización pendiente. | `app.js` |
+
+---
+
 
 ## 🇬🇧 ENGLISH — ALL FEATURES & CAPABILITIES
 
@@ -115,7 +143,7 @@
 - **GitHub-Based Updater (`andorina_updater.py`):** Polls the GitHub Releases API to detect new versions.
 - **Check Mode (`--check`):** Returns JSON with current version, latest version, and download URL — safe and read-only.
 - **Full Update Mode (`--update`):** Downloads the new ZIP, backs up all user data (`state/`, `.env`, `notes/`, `souls/`, `guard_rules.json`, `inbox.json`, etc.), replaces all code files, re-applies all bridge patches, and restores user data atomically.
-- **Beta-Safe Parsing:** Uses semantic regex to parse version tags like `1.5.1-Beta1` — non-numeric suffixes never break the comparison.
+- **Beta-Safe Parsing:** Uses semantic regex to parse version tags like `1.5.2-Beta1` — non-numeric suffixes never break the comparison.
 - **GUI Integration:** The Web Panel's Settings tab shows current version, latest version, and a one-click "Update" button.
 
 ### 🛂 17. Granular RBAC — Full Permission Matrix
@@ -251,7 +279,7 @@
 - **Actualizador basado en GitHub (`andorina_updater.py`):** Consulta la API de Releases de GitHub para detectar versiones nuevas.
 - **Modo Consulta (`--check`):** Devuelve JSON con la versión actual, la última y la URL de descarga — seguro y sin cambios.
 - **Modo Actualización (`--update`):** Descarga el ZIP, hace backup de todos los datos del usuario (`state/`, `.env`, `notes/`, `souls/`, `guard_rules.json`, `inbox.json`, etc.), reemplaza el código, re-aplica todos los parches del bridge y restaura los datos de forma atómica.
-- **Soporte de Etiquetas Beta:** Usa regex semántico para parsear versiones como `1.5.1-Beta1` sin errores.
+- **Soporte de Etiquetas Beta:** Usa regex semántico para parsear versiones como `1.5.2-Beta1` sin errores.
 - **Integración GUI:** La pestaña de Ajustes muestra la versión actual, la última disponible y un botón "Actualizar" con un clic.
 
 ### 🛂 17. RBAC Granular — Matriz Completa de Permisos
@@ -295,4 +323,4 @@
 - Totalmente configurable en el archivo `.env` del agente (`HERMES_HOME`, `ANDORINA_CRON_OFFSET`, etc.).
 
 ---
-*Developed with ❤️ by Jorge. — Andoriña v1.5.0*
+*Developed with ❤️ by Jorge. — Andoriña v1.5.2*
