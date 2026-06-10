@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🚀 Andoriña — Setup Assistant (v1.5.1-Beta1)
+🚀 Andoriña — Setup Assistant (v1.5.2-Beta1)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
@@ -57,7 +57,7 @@ LANG = "en"  # default
 STRINGS = {
     "es": {
         "lang_prompt":     "Selecciona idioma / Select language (es/en)",
-        "subtitle":        "Asistente de Instalación v1.5.1-Beta1",
+        "subtitle":        "Asistente de Instalación v1.5.2-Beta1",
         "tagline":         "Gestor Autónomo de WhatsApp para Hermes Agent",
         "profile":         "Perfil",
         "target":          "Destino",
@@ -132,7 +132,7 @@ STRINGS = {
     },
     "en": {
         "lang_prompt":     "Selecciona idioma / Select language (es/en)",
-        "subtitle":        "Setup Assistant v1.5.1-Beta1",
+        "subtitle":        "Setup Assistant v1.5.2-Beta1",
         "tagline":         "Autonomous WhatsApp Manager for Hermes Agent",
         "profile":         "Profile",
         "target":          "Target",

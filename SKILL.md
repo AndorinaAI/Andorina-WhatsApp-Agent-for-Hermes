@@ -1,4 +1,4 @@
-# 🕊️ Andoriña — WhatsApp Autonomous Manager (v1.5.0)
+# 🕊️ Andoriña — WhatsApp Autonomous Manager (v1.5.2)
 
 > ⛔ **STOP. READ THIS BEFORE DOING ANYTHING.**
 >

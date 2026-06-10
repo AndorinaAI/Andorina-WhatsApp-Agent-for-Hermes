@@ -4914,7 +4914,7 @@ const App = {
       soul_cat_none: '— No category —',
       soul_cat_new: '➕ New category...',
 
-      // ── Missing / New keys (v1.5.0-beta1) ──
+      // ── Missing / New keys (v1.5.2-beta1) ──
       system_waiting: 'Waiting for execution...',
       contacts_notes_hint: 'Click on a contact card to view or edit their notes.',
       lbl_all_tags: 'All Tags',
@@ -5301,6 +5301,18 @@ const App = {
 
     this.loadTunnelStatus();
     this.checkUpdateBackground();
+    // Load remote announcement banner (language-aware)
+    this.get(`public/banner?lang=${this.lang}`).then(d => {
+      if (d && d.ok && d.text) {
+        const bannerTextEl = document.getElementById('andorina-banner-text');
+        const bannerEl = document.getElementById('andorina-banner');
+        if (bannerTextEl && bannerEl) {
+          const segment = d.text + '\u2003\u2022\u2003' + d.text + '\u2003\u2022\u2003';
+          bannerTextEl.textContent = segment + segment;
+          bannerEl.style.display = 'block';
+        }
+      }
+    }).catch(() => {});
   },
 
   // ── Debug / Diagnostics ──

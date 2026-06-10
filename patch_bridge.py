@@ -62,7 +62,7 @@ def patch_logic(content):
 
     # 1. Health Endpoint
     if "app.get('/health'" not in content:
-        health_code = "\napp.get('/health', (req, res) => { res.json({ status: connectionState, uptime: process.uptime(), version: '1.5.1-Beta1' }); });\n"
+        health_code = "\napp.get('/health', (req, res) => { res.json({ status: connectionState, uptime: process.uptime(), version: '1.5.2-Beta1' }); });\n"
         content = re.sub(r"app\.listen\s*\(", health_code + "app.listen(", content)
         patched = True
 
