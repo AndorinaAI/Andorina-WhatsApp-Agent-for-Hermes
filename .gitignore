@@ -25,3 +25,4 @@ mock_google*
 versions/*(Copia*)/
 .venv/
 BRANCH_Early_Release/
+*.zip
