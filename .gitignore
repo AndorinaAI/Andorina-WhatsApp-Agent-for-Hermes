@@ -24,3 +24,4 @@ mock_google*
 6*
 versions/*(Copia*)/
 .venv/
+BRANCH_Early_Release/
