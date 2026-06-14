@@ -22,7 +22,9 @@ mock_google*
 (+34)*
 34/
 6*
-versions/*(Copia*)/
-.venv/
+
+# Local development / upload dirs
 BRANCH_Early_Release/
+
+# Zips distributed via GitHub Releases only
 *.zip

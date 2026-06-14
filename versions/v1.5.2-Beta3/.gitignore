@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# Logs and local data
+*.log
+feedback/
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local state and tests
+state/
+bin/
+test_sandbox*
+mega_sandbox*
+mock_google*
+.install_log
+(+34)*
+34/
+6*
+versions/*(Copia*)/
+.venv/
