@@ -30,22 +30,29 @@ def find_whatsapp_py():
 
 
 # ── Markers ──────────────────────────────────────────────────────────────────
-METHOD_MARKER = "_resolve_lid_to_phone"
+METHOD_MARKER = "def _resolve_lid_to_phone"
 INJECT_MARKER = "# Sub-Soul injection via native Hermes channel_prompt path."
 INBOX_MARKER  = "# ── Andoriña Inbox Writer ──"
 
 # ── 1. _resolve_lid_to_phone method ──────────────────────────────────────────
+# Primary anchor: end of _coerce_float_extra body → injects the new method
+#   AFTER the complete helper, not inside it.
+# Fallback anchor: _check_managed_bridge_exit signature.
+# Note: _is_group_allowed was removed in Hermes v0.16.0 — do NOT use it.
 METHOD_ANCHOR = '''\
-    def _is_group_allowed(self, chat_id: str) -> bool:
-        """Check whether a group chat should be processed."""
-        if self._group_policy == "disabled":
-            return False
-        if self._group_policy == "allowlist":
-            return chat_id in self._group_allow_from
-        # "open" — all groups allowed
-        return True'''
+        if not math.isfinite(parsed) or parsed < 0:
+            return float(default)
+        return parsed
 
-METHOD_REPLACEMENT = METHOD_ANCHOR + '''
+    async def connect(self) -> bool:'''
+
+METHOD_ANCHOR_FALLBACK = '''\
+    async def _check_managed_bridge_exit(self) -> Optional[str]:'''
+
+METHOD_REPLACEMENT = '''\
+        if not math.isfinite(parsed) or parsed < 0:
+            return float(default)
+        return parsed
 
     def _resolve_lid_to_phone(self, jid: str) -> str:
         """Translate a WhatsApp multi-device LID JID to a phone-number JID.
@@ -75,7 +82,9 @@ METHOD_REPLACEMENT = METHOD_ANCHOR + '''
                     return f"{str(phone).strip()}@s.whatsapp.net"
         except Exception:
             pass
-        return jid  # fallback: return as-is if no mapping found'''
+        return jid  # fallback: return as-is if no mapping found
+
+    async def connect(self) -> bool:'''
 
 # ── 2. Sub-Soul injection block ───────────────────────────────────────────────
 OLD_INJECT_BLOCK = '''\
@@ -172,16 +181,22 @@ INBOX_BLOCK = '''\
 
                         _merged = False
                         if _inbox and _entry["type"] == "text":
+                            # Don't merge if bot already replied since last user message
+                            _bot_replied = any(
+                                _m.get("from") == "Me" and _m.get("chatId") == _entry["chatId"]
+                                for _m in _inbox[max(0, len(_inbox)-5):]
+                            )
                             _last = _inbox[-1]
-                            if (_last.get("chatId") == _entry["chatId"]
+                            if (not _bot_replied
+                                    and _last.get("chatId") == _entry["chatId"]
                                     and _last.get("from") == _entry["from"]
                                     and _last.get("type") == "text"):
                                 try:
                                     from datetime import datetime as _dt
                                     _last_dt = _dt.strptime(_last["date"], "%Y-%m-%dT%H:%M:%S")
                                     _curr_dt = _dt.strptime(_entry["date"], "%Y-%m-%dT%H:%M:%S")
-                                    if (_curr_dt - _last_dt).total_seconds() < 300:
-                                        _last["text"] += "\\n" + _entry["text"]
+                                    if (_curr_dt - _last_dt).total_seconds() < 60:
+                                        _last["text"] += "\\n[follows] " + _entry["text"]
                                         _last["date"] = _entry["date"]
                                         _last["read"] = False
                                         _merged = True
@@ -276,15 +291,56 @@ def patch(dry_run=False):
 
     # ── 1. Add _resolve_lid_to_phone method if missing ───────────────────────
     if METHOD_MARKER not in content:
-        if METHOD_ANCHOR not in content:
-            print("⚠️  Could not find _is_group_allowed anchor — skipping method injection")
-        else:
+        # Try primary anchor first, then fallback
+        anchor_used = None
+        replacement_used = None
+        if METHOD_ANCHOR in content:
+            anchor_used = METHOD_ANCHOR
+            replacement_used = METHOD_REPLACEMENT
+        elif METHOD_ANCHOR_FALLBACK in content:
+            anchor_used = METHOD_ANCHOR_FALLBACK
+            replacement_used = METHOD_ANCHOR_FALLBACK + '''
+
+    def _resolve_lid_to_phone(self, jid: str) -> str:
+        """Translate a WhatsApp multi-device LID JID to a phone-number JID.
+
+        WhatsApp's multi-device protocol identifies users with a numeric LID
+        (Linked Identity Device) rather than their phone number, so incoming
+        messages arrive with e.g. '212725569433687@lid' instead of
+        '34681680435@s.whatsapp.net'.  The Node bridge saves reverse-mapping
+        files (lid-mapping-{lid}_reverse.json) in the session directory;
+        this method reads those files to resolve the phone number so that
+        per-user channel_prompts (sub-souls) can be matched correctly.
+
+        Falls back to returning the original JID unchanged when:
+          - The JID does not end in '@lid'.
+          - No mapping file exists for this LID.
+          - The mapping file cannot be read or parsed.
+        """
+        import json as _json
+        if not jid.endswith("@lid"):
+            return jid
+        lid_number = jid[:-4]  # strip '@lid'
+        mapping_file = self._session_path / f"lid-mapping-{lid_number}_reverse.json"
+        try:
+            if mapping_file.exists():
+                phone = _json.loads(mapping_file.read_text(encoding="utf-8"))
+                if phone:
+                    return f"{str(phone).strip()}@s.whatsapp.net"
+        except Exception:
+            pass
+        return jid  # fallback: return as-is if no mapping found'''
+
+        if anchor_used:
             if dry_run:
                 print("[dry-run] Would inject _resolve_lid_to_phone method")
             else:
-                content = content.replace(METHOD_ANCHOR, METHOD_REPLACEMENT, 1)
+                content = content.replace(anchor_used, replacement_used, 1)
                 changed = True
                 print("✓ _resolve_lid_to_phone method injected")
+        else:
+            print("⚠️  Could not find a suitable anchor to inject _resolve_lid_to_phone."
+                  " Hermes may have refactored whatsapp.py — check patch_whatsapp.py anchors.")
     else:
         print("✓ _resolve_lid_to_phone already present")
 

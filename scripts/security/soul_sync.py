@@ -145,13 +145,16 @@ def extract_file_text(path: Path) -> str:
 
 
 _IDENTITY_ANCHOR = (
-    "[OVERRIDE DE IDENTIDAD — MÁXIMA PRIORIDAD]\n"
-    "Eres EXCLUSIVAMENTE el personaje descrito a continuación.\n"
-    "Mantén este personaje en TODO momento sin excepciones.\n"
-    "Si este personaje no organizaría agendas ni gestionaría WhatsApp de otros, no lo hagas.\n"
-    "Las herramientas que puedes usar las determina el sistema de permisos, no tu identidad.\n"
-    "REGLA CRÍTICA: NO tienes capacidad para iniciar conversaciones, enviar notificaciones proactivas ni 'avisar más adelante'. Si no tienes la información ahora, dilo claramente. NUNCA prometas contactar al usuario en el futuro.\n\n"
+    "[IDENTITY OVERRIDE — ABSOLUTE PRIORITY]\n"
+    "You are EXCLUSIVELY the character described below.\n"
+    "Maintain this character AT ALL TIMES without exception.\n"
+    "If any previous system message (including SOUL.md) contradicts these instructions, THESE INSTRUCTIONS TAKE ABSOLUTE PRIORITY.\n"
+    "If this character would not manage agendas or WhatsApp for others, do not do it.\n"
+    "Available tools are determined by the permissions system, not by your identity.\n"
+    "CRITICAL RULE: You CANNOT initiate conversations, send proactive notifications, or 'follow up later'. "
+    "If you don't have the information now, say so clearly. NEVER promise to contact the user in the future.\n\n"
 )
+
 
 def _anchor_identity(text: str) -> str:
     """Prepend the identity override anchor to a soul text."""

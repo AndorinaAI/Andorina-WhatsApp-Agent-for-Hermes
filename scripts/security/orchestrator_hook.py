@@ -409,6 +409,8 @@ def _resolve_jid(data: dict) -> str:
     if jid and "@lid" in jid:
         lid_num = jid.split("@")[0]
         hermes_dir = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
+
+        # 6a. lid-mapping-*_reverse.json (fast path)
         reverse_file = hermes_dir / "whatsapp" / "session" / f"lid-mapping-{lid_num}_reverse.json"
         if reverse_file.exists():
             try:
@@ -417,21 +419,31 @@ def _resolve_jid(data: dict) -> str:
                     jid = f"{val}@s.whatsapp.net" if "@" not in val else val
             except Exception:
                 pass
+
+        # 6b. contacts_cache.json — match by 'lid' field OR by chatId digits
         if "@lid" in jid:
-            # Fallback: contacts_cache.json
             cache_file = hermes_dir / "skills" / "andorina" / "state" / "contacts_cache.json"
             if cache_file.exists():
                 try:
                     data_cache = json.loads(cache_file.read_text(encoding="utf-8"))
                     for contact in data_cache.get("contacts", []):
+                        # Primary: explicit 'lid' field on the contact
+                        c_lid = str(contact.get("lid", "")).split("@")[0]
+                        if c_lid and c_lid == lid_num:
+                            resolved = contact.get("chatId") or contact.get("id", "")
+                            if resolved and "@s.whatsapp.net" in resolved:
+                                jid = resolved
+                                break
+                        # Secondary: chatId digits match the LID number
                         c_id = contact.get("chatId", "") or contact.get("id", "")
                         if "@s.whatsapp.net" in c_id and c_id.split("@")[0] == lid_num:
                             jid = c_id
                             break
                 except Exception:
                     pass
+
         if "@lid" in jid:
-            print(f"[orchestrator_hook] ⚠️ LID sin resolver: {jid} — soul/RAG por defecto", file=sys.stderr)
+            print(f"[orchestrator_hook] ⚠️  Unresolved LID: {jid} — defaulting to soul/RAG", file=sys.stderr)
 
     return jid
 
@@ -774,16 +786,33 @@ def main():
                     print(json.dumps(out))
                     return
                 else:
-                    # Comportamiento normal (sin plugin)
+                    # Standard behavior (no plugin)
                     snap = build_snapshot(jid, env)
                     context_parts = []
+
+                    # 3b: Mode/permissions first — highest priority for the model
                     if snap.get("context_only"):
                         context_parts.append(snap["context_only"])
+
+                    # 3c: Soul reminder for long conversations (> 8 turns)
+                    if plugin_name:
+                        _conv_history = extra.get("conversation_history", [])
+                        if isinstance(_conv_history, list) and len(_conv_history) > 8:
+                            try:
+                                from security.soul_sync import load_soul_text
+                                _jid_entry_reminder = rules.get("jids", {}).get(jid_num, {})
+                                _soul_txt = load_soul_text(jid_num, _jid_entry_reminder)
+                                if _soul_txt:
+                                    _reminder = _soul_txt[:250].strip()
+                                    context_parts.insert(0, f"### SOUL REMINDER (active persona):\n{_reminder}\n[Stay in character as defined above at all times]")
+                            except Exception:
+                                pass
+
                     if kb_context_block:
                         context_parts.append(kb_context_block)
                     if sanitization_warning:
                         context_parts.append(f"### SYSTEM OVERRIDE:\n{sanitization_warning}")
-                    
+
                     out = {}
                     if context_parts:
                         out["context"] = "\n\n".join(context_parts)
