@@ -1805,8 +1805,13 @@ const App = {
     if (urlBanner && urlBannerText) {
       if (urlSource === 'local') {
         urlBanner.className = 'webhook-url-banner webhook-url-banner--error';
-        urlBannerText.innerHTML = `
-          <strong>⛔ Los webhooks no están disponibles</strong><br>
+        urlBannerText.innerHTML = this.lang === 'en'
+          ? `<strong>⛔ Webhooks not available</strong><br>
+          The panel is only accessible from this machine (<code>localhost</code>).
+          External services cannot reach it.<br>
+          <span style="opacity:0.8;">To enable webhooks: start a tunnel (System → Tunnel) or set
+          <code>ANDORINA_WEBHOOK_URL=https://your-public-url</code> in Settings.</span>`
+          : `<strong>⛔ Los webhooks no están disponibles</strong><br>
           El panel solo es accesible desde esta máquina (<code>localhost</code>).
           Los servicios externos no pueden enviar notificaciones aquí.<br>
           <span style="opacity:0.8;">Para activar webhooks: inicia un túnel (Sistema → Túnel) o añade
@@ -1815,12 +1820,13 @@ const App = {
         if (formSection) formSection.style.display = 'none';
       } else if (urlSource === 'cloudflare-quick') {
         urlBanner.className = 'webhook-url-banner webhook-url-banner--warning';
-        urlBannerText.innerHTML = `
-          <strong>⚠️ URL temporal activa</strong> — <code>${this._webhookBaseUrl}</code><br>
-          Esta URL <strong>cambia con cada reinicio del túnel</strong>. Los servicios que la tengan registrada
-          dejarán de recibir notificaciones.<br>
-          <span style="opacity:0.8;">Para URL permanente: guarda <code>ANDORINA_WEBHOOK_URL=${this._webhookBaseUrl}</code>
-          en Configuración, o usa un Cloudflare Named Tunnel.</span>`;
+        urlBannerText.innerHTML = this.lang === 'en'
+          ? `<strong>⚠️ Temporary URL active</strong> — <code>${this._webhookBaseUrl}</code><br>
+          This URL <strong>changes every time the tunnel restarts</strong>. Any services using it will stop receiving notifications.<br>
+          <span style="opacity:0.8;">The only way to get a permanent URL is a <strong>Cloudflare Named Tunnel</strong> (System → Tunnel → Custom token). Setting <code>ANDORINA_WEBHOOK_URL</code> only overrides auto-detection — it does not keep the URL stable between restarts.</span>`
+          : `<strong>⚠️ URL temporal activa</strong> — <code>${this._webhookBaseUrl}</code><br>
+          Esta URL <strong>cambia con cada reinicio del túnel</strong>. Los servicios que la tengan registrada dejarán de recibir notificaciones.<br>
+          <span style="opacity:0.8;">La única forma de tener una URL permanente es un <strong>Cloudflare Named Tunnel</strong> (Sistema → Túnel → Token personalizado). Guardar <code>ANDORINA_WEBHOOK_URL</code> en Configuración solo sobreescribe la autodetección, no estabiliza la URL entre reinicios.</span>`;
         urlBanner.style.display = 'block';
         if (formSection) formSection.style.display = '';
       } else {
