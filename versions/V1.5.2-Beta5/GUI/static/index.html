@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andoriña — Panel de Control</title>
+    <meta name="description" content="Panel de administración para Andoriña WhatsApp Skill">
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=1.0.9">
+    <style>
+        @keyframes bannerScroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        #andorina-banner {
+            display: none;
+            position: relative;
+            background: linear-gradient(90deg, 
+                rgba(0, 156, 198, 0.08) 0%, 
+                rgba(0, 156, 198, 0.03) 50%, 
+                rgba(0, 156, 198, 0.08) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius, 12px);
+            padding: 0.4rem 2rem 0.4rem 0;
+            overflow: hidden;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+        #andorina-banner-track {
+            display: inline-flex;
+            white-space: nowrap;
+            animation: bannerScroll 55s linear infinite;
+        }
+        #andorina-banner-track span {
+            font-size: 0.82rem;
+            color: var(--accent, #009cc6);
+            letter-spacing: 0.03em;
+            font-family: var(--font-display, 'Outfit', sans-serif);
+            font-weight: 500;
+            padding: 0 4rem;
+        }
+        #andorina-banner-close {
+            position: absolute;
+            right: 0.75rem; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none;
+            color: var(--text-muted);
+            font-size: 1rem; cursor: pointer;
+            padding: 0.2rem;
+            line-height: 1;
+            z-index: 5;
+            transition: color var(--transition);
+        }
+        #andorina-banner-close:hover {
+            color: var(--danger);
+        }
+    </style>
+</head>
+
+    <div id="toasts"></div>
+
+    <!-- Login Screen -->
+    <div id="login-view"
+        style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:var(--bg-primary); z-index:9999; align-items:center; justify-content:center; flex-direction:column; padding:2rem;">
+        <div
+            style="position:relative; background:var(--surface, var(--bg-card)); padding:2rem 3rem; border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow-lg); width:100%; max-width:400px; text-align:center;">
+            <button class="btn-icon" onclick="App.toggleLang()" id="login-lang-btn" title="ES/EN"
+                style="position: absolute; top: 1rem; right: 1rem; font-size: 1.2rem; border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: var(--radius-sm); background: var(--bg-input);">🇬🇧</button>
+            <img src="logo.png" alt="Andoriña"
+                style="width:80px; margin-bottom:1rem; border-radius:50%; box-shadow:0 0 20px rgba(0, 204, 153, 0.2);">
+            <h1
+                style="margin:0 0 0.5rem 0; font-family:var(--font-display); background:-webkit-linear-gradient(45deg, var(--accent), var(--accent-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+                Andoriña</h1>
+            <p class="text-muted" style="margin-bottom:2rem; font-size:0.9rem;" data-i18n="login_desc">Acceso al Panel
+                de Control</p>
+
+            <form id="login-form" onsubmit="event.preventDefault(); App.login();">
+                <div class="form-group" style="text-align:left;">
+                    <label data-i18n="login_jid">Teléfono (JID)</label>
+                    <input type="text" id="login-jid" data-i18n-placeholder="login_jid_placeholder"
+                        placeholder="Ej: 34600123456" class="form-control input" required>
+                </div>
+                <div class="form-group" style="text-align:left; margin-bottom:1.5rem;">
+                    <label data-i18n="login_pwd">Contraseña</label>
+                    <input type="password" id="login-pwd" data-i18n-placeholder="login_pwd_placeholder"
+                        placeholder="Tu contraseña" class="form-control input">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" data-i18n="login_btn">Ingresar</button>
+            </form>
+            <div id="login-error" style="color:var(--danger); font-size:0.85rem; margin-top:1rem; display:none;"></div>
+            <div id="login-setup-msg" style="color:var(--accent); font-size:0.85rem; margin-top:1rem; display:none;"
+                data-i18n="login_setup_msg">Como dueño, introduce una nueva contraseña para configurarla.</div>
+            <div id="login-first-hint"
+                style="color:var(--text-muted); font-size:0.78rem; margin-top:0.75rem; padding:0.6rem 0.8rem; border-radius:6px; background:var(--bg-input); border:1px solid var(--border);"
+                data-i18n="login_first_hint">💡 <b>Primera vez:</b> Escribe tu número y <b>elige la contraseña que
+                    quieras</b>. Se guardará automáticamente.<br><b>First time:</b> Enter your number and <b>choose any
+                    password</b>. It will be saved automatically.</div>
+
+
+            <div
+                style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                <div style="margin-bottom: 0.5rem;" data-i18n="credits_made_by">Hecho con ❤️ por Jorge</div>
+                <div style="display: flex; justify-content: center; gap: 0.8rem; margin-bottom: 1rem;">
+                    <a href="https://github.com/AndorinaAI/" target="_blank"
+                        style="color: var(--accent); text-decoration: none;">GitHub</a>
+                    <a href="https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes/" target="_blank"
+                        style="color: var(--accent); text-decoration: none;" data-i18n="credits_web">Web Oficial</a>
+                    <a href="mailto:andorinacoding@gmail.com"
+                        style="color: var(--accent); text-decoration: none;">Email</a>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <a href="https://buymeacoffee.com/andorinaai" target="_blank" class="btn btn-sm"
+                        style="background: #FFDD00; color: #000000; border: none; font-weight: bold;">☕ Buy me a
+                        Coffee</a>
+                    <a href="https://www.paypal.com/paypalme/jorge93gf" target="_blank" class="btn btn-sm"
+                        style="background: #00457C; color: white; border: none; font-weight: bold;">💳 PayPal</a>
+                </div>
+            </div>
+
+            <!-- 🔧 DEBUG PANEL - auto-run diagnostic (visible only when login screen shows) -->
+            <details id="debug-panel"
+                style="margin-top:1.5rem; text-align:left; border-top:1px solid #333; padding-top:1rem;">
+                <summary style="cursor:pointer; font-size:0.75rem; color:#666; user-select:none;">🔧 Diagnostic Info
+                    (for support)</summary>
+                <div id="debug-output"
+                    style="margin-top:0.5rem; background:#0a0a0a; border:1px solid #333; border-radius:6px; padding:0.75rem; font-family:monospace; font-size:0.71rem; color:#0f9; max-height:220px; overflow-y:auto; white-space:pre-wrap; word-break:break-all;">
+                    Running...</div>
+                <button onclick="App.copyDebug()"
+                    style="margin-top:0.4rem; font-size:0.72rem; padding:0.25rem 0.6rem; border:1px solid #555; background:#222; color:#ccc; border-radius:4px; cursor:pointer;">📋
+                    Copy to clipboard</button>
+            </details>
+        </div>
+    </div>
+
+    <button id="global-reload-btn" class="btn btn-sm btn-ghost" onclick="location.reload(true)" title="Recargar Panel"
+        style="position: fixed; top: 15px; right: 20px; z-index: 1000; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: right 0.3s ease;">
+        <span data-i18n="btn_reload_panel">↻ Recargar Panel</span>
+    </button>
+
+    <!-- Mobile Header -->
+    <header id="mobile-header">
+        <button class="btn-icon"
+            onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open')"
+            style="font-size: 1.25rem;">
+            ☰
+        </button>
+        <div class="mobile-brand">
+            <img src="logo.png" alt="Andoriña"
+                style="width: 28px; height: 28px; object-fit: contain; border-radius: 6px;">
+            <span
+                style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">Andoriña</span>
+        </div>
+        <div style="display:flex; gap:0.2rem;">
+            <button class="btn-icon" onclick="App.logout()" title="Logout">🚪</button>
+            <button class="btn-icon" onclick="location.reload(true)" title="Recargar Panel">↻</button>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="sidebar-brand">
+            <img src="logo.png" alt="Andoriña" class="brand-logo">
+            <div class="brand-info">
+                <span class="brand-text">Andoriña</span>
+                <span class="brand-version">v1.5.2-β4</span>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- Principal -->
+            <button class="nav-item active" data-page="dashboard">
+                <span class="nav-icon">📊</span><span class="nav-label" data-i18n="nav_dashboard">Dashboard</span>
+            </button>
+            <button class="nav-item" data-page="contacts">
+                <span class="nav-icon">📇</span><span class="nav-label" data-i18n="nav_contacts">Contactos</span>
+            </button>
+            <button class="nav-item" data-page="inbox">
+                <span class="nav-icon">📥</span><span class="nav-label" data-i18n="nav_inbox">Bandeja</span>
+            </button>
+            <button class="nav-item" data-page="send">
+                <span class="nav-icon">✉️</span><span class="nav-label" data-i18n="nav_send">Enviar</span>
+            </button>
+            <button class="nav-item" data-page="webhooks">
+                <span class="nav-icon">🔗</span><span class="nav-label">Webhook Alerts</span>
+            </button>
+
+            <!-- Asistente & Automatización -->
+            <div class="nav-divider"></div>
+            <span class="nav-section-label" data-i18n="nav_sec_bot">Asistente</span>
+            <button class="nav-item" data-page="chatbot">
+                <span class="nav-icon">🤖</span><span class="nav-label" data-i18n="nav_sec_chatbot">Chatbot</span>
+            </button>
+            <button class="nav-item" data-page="souls">
+                <span class="nav-icon">🧬</span><span class="nav-label" data-i18n="nav_sec_souls">Sub-Souls</span>
+            </button>
+            <button class="nav-item" data-page="agenda">
+                <span class="nav-icon">📅</span><span class="nav-label" data-i18n="nav_agenda">Agenda</span>
+            </button>
+            <button class="nav-item" data-page="alerts">
+                <span class="nav-icon">🔔</span><span class="nav-label" data-i18n="nav_alerts">Alertas</span>
+            </button>
+            <button class="nav-item" data-page="away">
+                <span class="nav-icon">💤</span><span class="nav-label" data-i18n="nav_sec_away">Auto-responder</span>
+            </button>
+
+            <!-- Seguridad -->
+            <div class="nav-divider"></div>
+            <span class="nav-section-label" data-i18n="nav_sec_security">Seguridad</span>
+            <button class="nav-item" data-page="rbac">
+                <span class="nav-icon">🛡️</span><span class="nav-label" data-i18n="nav_rbac">Roles y Permisos</span>
+            </button>
+
+            <!-- Sistema -->
+            <div class="nav-divider"></div>
+            <span class="nav-section-label" data-i18n="nav_sec_system">Sistema</span>
+            <button class="nav-item" data-page="status">
+                <span class="nav-icon">🟢</span><span class="nav-label" data-i18n="nav_status">Estado</span>
+            </button>
+            <button class="nav-item" data-page="env">
+                <span class="nav-icon">⚙️</span><span class="nav-label" data-i18n="nav_env">Configuración</span>
+            </button>
+            <button class="nav-item" data-page="system">
+                <span class="nav-icon">🩺</span><span class="nav-label" data-i18n="nav_system">Diagnóstico</span>
+                <span class="badge" id="update-badge" style="display:none; margin-left:auto; background:#ff4d4d; color:white; border-radius:10px; padding:2px 6px; font-size:0.65rem; font-weight:bold;"></span>
+            </button>
+            <button class="nav-item" data-page="plugins" style="opacity: 0.5; pointer-events: none;">
+                <span class="nav-icon">🧩</span><span class="nav-label" data-i18n="nav_sec_plugins">Juegos /
+                    Plugins</span>
+            </button>
+            <button class="nav-item" data-page="docs" style="opacity: 0.5; pointer-events: none;">
+                <span class="nav-icon">📖</span><span class="nav-label" data-i18n="nav_sec_docs">Dev Docs</span>
+            </button>
+            <button class="nav-item" data-page="logs">
+                <span class="nav-icon">📋</span><span class="nav-label" data-i18n="nav_sec_logs">Log</span>
+            </button>
+            <button class="nav-item" data-page="install">
+                <span class="nav-icon">📦</span><span class="nav-label" data-i18n="nav_install">Instalación</span>
+            </button>
+
+            <div
+                style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-bottom: 2rem;">
+                <div style="margin-bottom: 0.5rem;" data-i18n="credits_made_by">Hecho con ❤️ por Jorge</div>
+                <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <a href="https://github.com/AndorinaAI/" target="_blank"
+                        style="color: var(--text-muted); text-decoration: none;">GitHub</a> •
+                    <a href="https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes/" target="_blank"
+                        style="color: var(--text-muted); text-decoration: none;" data-i18n="credits_web">Web Oficial</a>
+                    •
+                    <a href="mailto:andorinacoding@gmail.com"
+                        style="color: var(--text-muted); text-decoration: none;">Email</a>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.4rem; padding: 0 0.5rem;">
+                    <a href="https://buymeacoffee.com/andorinaai" target="_blank" class="btn btn-sm"
+                        style="background: #FFDD00; color: #000000; border: none; font-weight: bold; font-size: 0.75rem;">☕
+                        Buy me a Coffee</a>
+                    <a href="https://www.paypal.com/paypalme/jorge93gf" target="_blank" class="btn btn-sm"
+                        style="background: #00457C; color: white; border: none; font-weight: bold; font-size: 0.75rem;">💳
+                        PayPal</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="btn-icon" onclick="App.toggleTheme()" title="Light/Dark">🌗</button>
+            <button class="btn-icon" onclick="App.toggleLang()" id="lang-btn" title="ES/EN">🇬🇧</button>
+            <button class="btn-icon" onclick="App.logout()" title="Logout">🚪</button>
+            <button class="btn-icon" onclick="App.toggleMonitor()" title="Monitor">📺</button>
+            <div class="status-dots">
+                <span class="dot" id="dot-bridge" title="Bridge"></span>
+                <span class="dot" id="dot-wa" title="WhatsApp"></span>
+                <span class="dot" id="dot-memory" title="Memory"></span>
+            </div>
+        </div>
+    </nav>
+    <div id="sidebar-overlay"
+        onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('open')"></div>
+
+    <!-- Main Content -->
+    <main id="main">
+        <!-- 📢 Live Announcement Banner (text fetched from remote URL) -->
+        <div id="andorina-banner" title="Haz clic para cerrar">
+            <div id="andorina-banner-track"><span id="andorina-banner-text"></span></div>
+            <button id="andorina-banner-close" onclick="event.stopPropagation();document.getElementById('andorina-banner').style.display='none';" aria-label="Cerrar banner">✕</button>
+        </div>
+
+        <!-- DASHBOARD -->
+        <section class="page active" id="page-dashboard">
+            <div class="page-header">
+                <h1 data-i18n="dash_title">Dashboard</h1>
+                <div class="header-actions"></div>
+            </div>
+            <div class="grid-4" id="dash-cards">
+                <div class="stat-card">
+                    <div class="stat-icon">📱</div>
+                    <div class="stat-info"><span class="stat-label">WhatsApp</span><span class="stat-value"
+                            id="dash-wa">—</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🧠</div>
+                    <div class="stat-info"><span class="stat-label">Memory</span><span class="stat-value"
+                            id="dash-memory">—</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📨</div>
+                    <div class="stat-info"><span class="stat-label" data-i18n="dash_msgs">Mensajes</span><span
+                            class="stat-value" id="dash-msgs">—</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-info"><span class="stat-label" data-i18n="dash_sched">Programados</span><span
+                            class="stat-value" id="dash-sched">—</span></div>
+                </div>
+            </div>
+
+            <h3 class="mt-lg mb-sm" data-i18n="dash_quick_access">Accesos Rápidos</h3>
+            <div class="grid-4" id="dash-quick">
+                <div class="card action-card" onclick="App.navigate('send')" style="cursor:pointer"><span
+                        class="action-icon">✉️</span>
+                    <h4 data-i18n="dash_qa_msg">Mensaje / Broadcast</h4>
+                </div>
+                <div class="card action-card" onclick="App.navigate('contacts')" style="cursor:pointer"><span
+                        class="action-icon">📇</span>
+                    <h4 data-i18n="dash_qa_contacts">Contactos / Grupos</h4>
+                </div>
+                <div class="card action-card" onclick="App.navigate('agenda')" style="cursor:pointer"><span
+                        class="action-icon">📅</span>
+                    <h4 data-i18n="dash_qa_agenda">Agenda</h4>
+                </div>
+                <div class="card action-card" onclick="App.navigate('alerts')" style="cursor:pointer"><span
+                        class="action-icon">🔔</span>
+                    <h4 data-i18n="dash_qa_alerts">Alertas Semánticas</h4>
+                </div>
+                <div class="card action-card" onclick="App.navigate('rbac')" style="cursor:pointer"><span
+                        class="action-icon">🛡️</span>
+                    <h4 data-i18n="dash_qa_rbac">Roles y Permisos</h4>
+                </div>
+                <div class="card action-card" onclick="App.navigate('souls')" style="cursor:pointer"><span
+                        class="action-icon">🧬</span>
+                    <h4 data-i18n="dash_qa_souls">Sub-souls</h4>
+                </div>
+                <div class="card action-card" onclick="App.navigate('away')" style="cursor:pointer"><span
+                        class="action-icon">💤</span>
+                    <h4 data-i18n="dash_qa_away">Auto-Responder</h4>
+                </div>
+                <div class="card action-card" onclick="App.navigate('env')" style="cursor:pointer"><span
+                        class="action-icon">⚙️</span>
+                    <h4 data-i18n="dash_qa_settings">Configuración</h4>
+                </div>
+            </div>
+
+            <div id="hindsight-warning" style="display:none; margin-bottom:1rem; padding:0.85rem 1.1rem; background:rgba(255,180,0,0.1); border:1px solid rgba(255,180,0,0.35); border-radius:10px; display:none; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                <span style="font-size:1.2rem">🧠</span>
+                <span style="flex:1; min-width:200px"><strong>Long-term memory is offline.</strong> Hindsight (PostgreSQL) is not running — the bot won't recall past conversations across sessions.</span>
+                <span class="hind-installed">
+                    <button class="btn btn-sm btn-primary" onclick="App.startHindsight()">▶ Start Memory</button>
+                </span>
+                <span class="hind-not-installed" style="display:none">
+                    <code style="font-size:0.8rem">hermes memory setup</code>
+                </span>
+            </div>
+
+            <div class="grid-2 mt-lg">
+                <div class="card">
+                    <h3 data-i18n="dash_sys_status">Estado del Sistema</h3>
+                    <div id="dash-status-list" class="status-list"></div>
+                </div>
+                <div class="card">
+                    <h3 data-i18n="dash_activity">Actividad Reciente</h3>
+                    <div id="dash-recent" class="status-list">
+                        <p class="text-muted">...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATUS -->
+        <section class="page" id="page-status">
+            <div class="page-header">
+                <h1 data-i18n="status_title">Estado del Sistema</h1>
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-primary" onclick="App.runDiag()" data-i18n="btn_run_diag">🩺 Ejecutar
+                        Diagnóstico Completo</button>
+
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>🌉 Bridge HTTP</h3>
+                    <div id="st-bridge" class="status-list"></div>
+                </div>
+                <div class="card">
+                    <h3>📱 WhatsApp</h3>
+                    <div id="st-wa" class="status-list"></div>
+                </div>
+                <div class="card">
+                    <h3>🧠 Memory Engine</h3>
+                    <div id="st-memory" class="status-list"></div>
+                </div>
+                <div class="card">
+                    <h3>📧 Google Contacts</h3>
+                    <div id="st-google" class="status-list"></div>
+                </div>
+            </div>
+            <div class="card mt-lg">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <h3 data-i18n="status_raw" style="margin:0;">Salida en tiempo real del diagnóstico</h3>
+                    <div class="status-dots"><span class="dot active" style="animation: heartbeat 1.5s infinite;"
+                            id="diag-live-dot"></span></div>
+                </div>
+                <pre id="status-raw" class="code-block"
+                    style="min-height:300px; max-height:500px; overflow-y:auto; background:#000;"
+                    data-i18n="status_waiting">Esperando ejecución de diagnóstico...</pre>
+            </div>
+        </section>
+
+        <!-- CONTACTS -->
+        <section class="page show-list" id="page-contacts">
+            <div class="page-header">
+                <h1 data-i18n="contacts_title">Contactos y Grupos</h1>
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-primary" onclick="App.refreshContacts()"><span
+                            data-i18n="contacts_sync">Resincronizar contactos de Google</span></button>
+                </div>
+            </div>
+
+            <!-- Mobile Sub-tabs -->
+            <div class="mobile-subtabs">
+                <button class="btn btn-sm btn-ghost active" onclick="App.switchContactsMobileTab('list')">Contactos /
+                    Grupos</button>
+                <button class="btn btn-sm btn-ghost" onclick="App.switchContactsMobileTab('notes')">Notas del
+                    Contacto</button>
+            </div>
+
+            <div class="grid-sidebar mt-md">
+                <!-- Sidebar: Notes Panel -->
+                <div class="card" id="contacts-notes-panel" style="align-self: start; position: sticky; top: 20px;">
+                    <h3 data-i18n="contacts_notes">Notas del Contacto</h3>
+                    <div class="form-group mt-sm" style="display:none;">
+                        <input type="hidden" id="note-jid">
+                    </div>
+                    <div id="notes-empty-state" class="text-muted"
+                        style="text-align:center; padding: 2rem 0; font-size: 0.9rem;">
+                        <span data-i18n="contacts_notes_hint">Haz clic en una tarjeta de contacto para ver o editar sus
+                            notas.</span>
+                    </div>
+                    <div class="form-group mt-md" id="note-editor-group" style="display:none;">
+                        <div id="note-sections-container"
+                            style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <!-- Rellenado por app.js -->
+                        </div>
+
+                        <div style="display:flex; gap:0.5rem; margin-bottom: 1rem; align-items: stretch;">
+                            <input type="text" id="note-new-section-title" class="input"
+                                data-i18n-placeholder="note_new_section" placeholder="Nueva sección (ej: Gustos)"
+                                style="flex:1">
+                            <button class="btn btn-secondary" onclick="App.addNoteSection()"
+                                data-i18n="btn_add_section">+ Añadir Sección</button>
+                        </div>
+
+                        <details style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 0.5rem;">
+                            <summary
+                                style="cursor:pointer; color: var(--text-muted); font-size: 0.9em; font-weight: 500;"
+                                data-i18n="note_raw_edit">Ver/Editar Markdown Raw (Avanzado)</summary>
+                            <textarea id="note-display" class="textarea mt-sm" rows="8"
+                                style="font-family:monospace; resize:vertical;"></textarea>
+                            <div style="display:flex; gap:0.5rem; justify-content: space-between; margin-top: 0.5rem;">
+                                <button class="btn btn-primary btn-full" onclick="App.saveNotes()"><span
+                                        data-i18n="btn_save_notes">Guardar Todo</span></button>
+                                <button class="btn btn-danger" onclick="App.clearNotes()" title="Borrar Notas"
+                                    style="padding: 0.6rem 1rem;">🗑️</button>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- Main Content: Contacts Grid -->
+                <div class="main-content">
+                    <div class="card" style="padding: 1.5rem; margin-bottom: 2rem;">
+                        <div class="search-bar" style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <input type="text" id="contact-search" data-i18n-placeholder="search_contact_placeholder"
+                                placeholder="🔍 Buscar contacto o grupo por nombre o JID..." class="input"
+                                style="flex:1; min-width: 200px;"
+                                onkeydown="if(event.key==='Enter')App.searchContacts()" autocomplete="off">
+                            <select id="contact-tag-filter" class="input" style="width: 150px;"
+                                onchange="App.searchContacts()">
+                                <option value="" data-i18n="lbl_all_tags">Todas las Etiquetas</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="App.searchContacts()"
+                                data-i18n="btn_search">Buscar</button>
+                        </div>
+                        <div id="batch-actions-bar"
+                            style="display:none; margin-top: 1rem; padding: 0.5rem; background: var(--bg-card-hover); border-radius: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                            <span id="batch-selected-count" class="text-primary font-bold">0 seleccionados</span>
+                            <div style="display:flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <input type="text" id="batch-tag-input" class="input" placeholder="Nueva etiqueta..."
+                                    style="width: 120px; flex: 1; min-width: 100px;">
+                                <button class="btn btn-secondary btn-sm" style="flex: 1; min-width: 140px;"
+                                    onclick="App.assignBatchTag()">🏷️ Añadir a todos</button>
+                                <button class="btn btn-ghost btn-sm" style="flex: 1; min-width: 100px;"
+                                    onclick="App.clearBatchSelection()">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="picker-tabs mb-sm" id="contacts-page-tabs"
+                        style="display:flex; border-bottom:1px solid var(--border);">
+                        <button class="btn btn-ghost"
+                            style="border-radius:0; border-bottom:2px solid var(--accent); color:var(--text-primary); flex:1;"
+                            onclick="App.switchContactsTab('contacts')"
+                            data-i18n="contacts_tab_contacts">Contactos</button>
+                        <button class="btn btn-ghost"
+                            style="border-radius:0; border-bottom:2px solid transparent; color:var(--text-muted); flex:1;"
+                            onclick="App.switchContactsTab('groups')" data-i18n="contacts_tab_groups">Grupos</button>
+                    </div>
+                    <div id="contacts-results"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INBOX -->
+        <section class="page show-chats" id="page-inbox">
+            <div class="page-header">
+                <h1 data-i18n="inbox_title">Bandeja de Entrada</h1>
+                <p
+                    style="font-size: 0.8rem; color: var(--text-muted); max-width: 600px; margin-top: 0.5rem; line-height: 1.4;">
+                    ℹ️ <span data-i18n="inbox_read_warning">El estado "leído" es solo del panel. Marcar un mensaje como
+                        leído aquí no afecta a los ticks azules de WhatsApp.</span>
+                </p>
+                <div class="header-actions" style="margin-top: 1rem;">
+                    <button class="btn btn-sm btn-ghost" onclick="App.markAllRead()" data-i18n="btn_mark_all_read">✓
+                        Marcar todo leído</button>
+                </div>
+            </div>
+
+            <!-- Mobile Sub-tabs -->
+            <div class="mobile-subtabs">
+                <button class="btn btn-sm btn-ghost active" onclick="App.switchInboxMobileTab('chats')">Chats</button>
+                <button class="btn btn-sm btn-ghost" onclick="App.switchInboxMobileTab('messages')">Mensajes</button>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="inbox-search-q" data-i18n-placeholder="search_history"
+                    placeholder="Buscar en historial..." class="input-search"
+                    onkeydown="if(event.key==='Enter')App.searchInbox()" autocomplete="off">
+                <button class="btn btn-primary" onclick="App.searchInbox()" data-i18n="btn_search">Buscar</button>
+            </div>
+            <div class="grid-sidebar mt-md">
+                <div class="card" id="inbox-chat-list">
+                    <h3>Chats</h3>
+                    <div id="inbox-chats">
+                        <p class="text-muted">...</p>
+                    </div>
+                </div>
+                <div class="card" id="inbox-messages-panel">
+                    <h3 id="inbox-chat-title" data-i18n="inbox_select">Selecciona un chat</h3>
+                    <div id="inbox-messages" class="messages-container"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="page show-direct" id="page-send">
+            <div class="page-header">
+                <h1 data-i18n="send_title">Enviar Mensaje</h1>
+            </div>
+
+            <!-- Mobile Sub-tabs -->
+            <div class="mobile-subtabs">
+                <button class="btn btn-sm btn-ghost active" onclick="App.switchSendMobileTab('direct')">Mensaje
+                    Directo</button>
+                <button class="btn btn-sm btn-ghost" onclick="App.switchSendMobileTab('broadcast')">Broadcast</button>
+            </div>
+            <div class="grid-2">
+                <div class="card" id="send-direct-card">
+                    <h3>✉️ <span data-i18n="send_direct">Mensaje Directo</span></h3>
+                    <div class="form-group"><label data-i18n="lbl_recipient">Destinatario</label>
+                        <div id="send-picker" class="picker-container"></div>
+                    </div>
+                    <input type="hidden" id="send-chatid">
+                    <div class="form-group"><label data-i18n="send_msg">Mensaje</label><textarea id="send-text"
+                            class="textarea" rows="4" data-i18n-placeholder="type_message" placeholder="..."></textarea>
+                        <div class="mt-sm" id="send-direct-file-wrapper"><label class="text-muted"
+                                style="display:block;margin-bottom:4px" data-i18n="lbl_attachment">📎 Archivo Adjunto
+                                (opcional)</label>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
+                                <button class="btn btn-sm btn-ghost" onclick="App.chooseFile('send')"
+                                    data-i18n="btn_choose_file">Elegir archivo</button>
+                                <button id="send-file-clear" class="btn btn-sm btn-ghost"
+                                    style="display:none; color: var(--danger);" onclick="App.clearFile('send')"
+                                    title="Eliminar adjunto">❌</button>
+                                <span id="send-file-name" class="text-muted" style="font-size:0.8rem;"
+                                    data-i18n="no_file_selected">Ningún archivo seleccionado</span>
+                                <input type="file" id="send-file" style="display:none"
+                                    onchange="App.onFileSelected('send')">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" onclick="App.sendMessage()">📤 <span
+                                data-i18n="btn_send">Enviar</span></button>
+                        <button class="btn btn-ghost" onclick="App.sendAndSchedule()" data-i18n="btn_sched_send">📅
+                            Programar envío</button>
+                    </div>
+                </div>
+                <div class="card" id="send-broadcast-card">
+                    <h3>📢 Broadcast</h3>
+                    <div class="form-group"><label data-i18n="send_recipients">Destinatarios</label>
+                        <div id="broadcast-picker" class="picker-container"></div>
+                    </div>
+                    <input type="hidden" id="broadcast-jids">
+                    <div class="form-group"><label data-i18n="send_msg">Mensaje</label><textarea id="broadcast-text"
+                            class="textarea" rows="3" data-i18n-placeholder="type_message" placeholder="..."></textarea>
+                        <div class="mt-sm" id="send-broadcast-file-wrapper"><label class="text-muted"
+                                style="display:block;margin-bottom:4px" data-i18n="lbl_attachment">📎 Archivo Adjunto
+                                (opcional)</label>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
+                                <button class="btn btn-sm btn-ghost" onclick="App.chooseFile('broadcast')"
+                                    data-i18n="btn_choose_file">Elegir archivo</button>
+                                <button id="broadcast-file-clear" class="btn btn-sm btn-ghost"
+                                    style="display:none; color: var(--danger);" onclick="App.clearFile('broadcast')"
+                                    title="Eliminar adjunto">❌</button>
+                                <span id="broadcast-file-name" class="text-muted" style="font-size:0.8rem;"
+                                    data-i18n="no_file_selected">Ningún archivo seleccionado</span>
+                                <input type="file" id="broadcast-file" style="display:none"
+                                    onchange="App.onFileSelected('broadcast')">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" onclick="App.sendBroadcast()" data-i18n="btn_broadcast">📢
+                            Broadcast</button>
+                        <button class="btn btn-ghost" onclick="App.broadcastAndSchedule()"
+                            data-i18n="btn_sched_broadcast">Programar Broadcast</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WEBHOOK ALERTS -->
+        <section class="page" id="page-webhooks">
+            <div class="page-header">
+                <h1 data-i18n="webhooks_title">🔗 Webhook Alerts</h1>
+                <p class="text-muted" data-i18n="webhooks_subtitle">Recibe un WhatsApp automático cuando pase algo en tu
+                    tienda o web</p>
+            </div>
+
+            <!-- ❓ Explanation box -->
+            <div class="wh-info-box">
+                <h3>❓ <span data-i18n="webhooks_how_title">¿Cómo funciona esto?</span></h3>
+                <ol>
+                    <li data-i18n="webhooks_how_1">Creas un <strong>aviso</strong> aquí abajo (tarda 30 segundos).</li>
+                    <li data-i18n="webhooks_how_2">Te damos una <strong>URL única</strong>. Esa URL es tu "dirección"
+                        para recibir avisos.</li>
+                    <li data-i18n="webhooks_how_3">La pegas en tu tienda (WooCommerce, Shopify...) o en tu formulario
+                        web.</li>
+                    <li data-i18n="webhooks_how_4">Cada vez que haya un nuevo pedido, formulario, etc., <strong>te llega
+                            un WhatsApp automático</strong>.</li>
+                </ol>
+            </div>
+
+
+            <!-- URL Stability Banner -->
+            <div id="webhook-url-banner" style="display:none;" class="webhook-url-banner">
+              <span id="webhook-url-banner-text"></span>
+            </div>
+
+            <!-- Wizard form -->
+            <div id="webhook-form-section">
+            <div class="card" id="webhook-add-card">
+                <h3 id="webhook-form-title" data-i18n="webhooks_new">➕ Crear un aviso nuevo</h3>
+
+                <!-- Step 1 -->
+                <div class="wh-step">
+                    <div class="wh-step-num">1</div>
+                    <div class="wh-step-body">
+                        <label data-i18n="webhooks_step1_lbl">¿Cómo quieres llamar a este aviso?</label>
+                        <input type="text" id="webhook-name" class="input" data-i18n-placeholder="webhooks_ph_name"
+                            placeholder="Ej: Pedidos de mi tienda online">
+                    </div>
+                </div>
+
+                <!-- Step 2: Preset cards -->
+                <div class="wh-step">
+                    <div class="wh-step-num">2</div>
+                    <div class="wh-step-body">
+                        <label data-i18n="webhooks_step2_lbl">Elige una plantilla de mensaje</label>
+                        <p class="text-muted" style="font-size:0.78rem; margin-bottom:0.6rem;"
+                            data-i18n="webhooks_step2_hint">
+                            Son el formato del WhatsApp que recibirás según el servicio. Puedes editarla en ⚙️ Opciones
+                            avanzadas.
+                        </p>
+                        <div class="wh-preset-grid" id="webhook-preset-grid">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview bubble -->
+                <div id="webhook-preview-section" style="display:none; margin-bottom:1.5rem; padding-left:2.5rem;">
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;"
+                        data-i18n="webhooks_preview_lbl">📱 Así te llegará el mensaje en WhatsApp:</p>
+                    <div class="wa-preview-wrap">
+                        <div class="wa-bubble">
+                            <span id="webhook-preview-text"></span>
+                            <div class="wa-bubble-time">ahora ✓✓</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Target -->
+                <div class="wh-step">
+                    <div class="wh-step-num">3</div>
+                    <div class="wh-step-body">
+                        <label data-i18n="webhooks_step3_lbl">¿A quién le avisamos?</label>
+                        <div id="webhook-target-picker" class="picker-container"></div>
+                        <input type="hidden" id="webhook-targets">
+                        <div id="wh-target-badges" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;"></div>
+                    </div>
+                </div>
+
+                <!-- Advanced collapsible -->
+                <details class="wh-advanced" id="webhook-advanced">
+                    <summary data-i18n="webhooks_advanced_lbl">⚙️ Opciones avanzadas</summary>
+                    <div style="margin-top:1rem; display:flex; flex-direction:column; gap:1.25rem;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>🔒 <span data-i18n="webhooks_lbl_secret">Clave secreta</span> <span
+                                    class="text-muted" style="font-weight:400;"
+                                    data-i18n="webhooks_optional">(opcional)</span></label>
+                            <p class="text-muted" style="font-size:0.78rem;" data-i18n="webhooks_secret_desc">Es como
+                                una contraseña privada entre tu tienda y este bot. Si WooCommerce te pide una, pégala
+                                aquí. Si no sabes de qué va, déjalo vacío — funciona igual.</p>
+                            <input type="text" id="webhook-secret" class="input"
+                                data-i18n-placeholder="webhooks_ph_secret" placeholder="Dejar vacío si no estás seguro">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>✏️ <span data-i18n="webhooks_lbl_template">Personalizar el texto del
+                                    mensaje</span></label>
+                            <p class="text-muted" style="font-size:0.78rem;" data-i18n="webhooks_template_desc">Cambia
+                                el texto que recibirás en WhatsApp. Usa <code>{{campo}}</code> para incluir datos del
+                                aviso (ej: <code>{{total}}</code>, <code>{{billing.email}}</code>).</p>
+                            <textarea id="webhook-template" class="textarea" rows="4"
+                                data-i18n-placeholder="webhooks_ph_template"
+                                placeholder="🔔 *{{_name}}*&#10;{{_summary}}"></textarea>
+                            <button class="btn btn-sm btn-ghost" style="margin-top:0.4rem;"
+                                onclick="App._refreshWebhookPreview()" data-i18n="webhooks_btn_preview">👁
+                                Previsualizar</button>
+                        </div>
+                    </div>
+                </details>
+
+                <input type="hidden" id="webhook-edit-id">
+                <input type="hidden" id="webhook-selected-preset">
+
+                <div class="form-actions mt-lg">
+                    <button id="webhook-submit-btn" class="btn btn-primary" onclick="App.saveWebhook()"
+                        data-i18n="webhooks_btn_create">🔗 Crear aviso</button>
+                    <button class="btn btn-ghost" onclick="App.cancelWebhookEdit()"
+                        data-i18n="btn_cancel">Cancelar</button>
+                </div>
+            </div>
+
+            </div><!-- /webhook-form-section -->
+
+            <!-- Active list -->
+            <div class="card mt-lg">
+                <div class="card-header">
+                    <h3 data-i18n="webhooks_active">📋 Avisos activos</h3>
+                </div>
+                <div id="webhooks-list">
+                    <p class="text-muted">...</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="page" id="page-agenda">
+            <div class="page-header">
+                <h1 data-i18n="agenda_title">Agenda</h1>
+            </div>
+            <div class="card" id="agenda-add-card">
+                <h3><span data-i18n="agenda_schedule">Programar Mensaje</span></h3>
+                <div class="grid-3">
+                    <div class="form-group"><label data-i18n="lbl_recipient">Destinatario</label>
+                        <div id="agenda-picker" class="picker-container"></div><input type="hidden" id="agenda-chatid">
+                    </div>
+                    <div class="form-group"><label data-i18n="agenda_time">Fecha y Hora / Recurrencia</label>
+                        <div id="agenda-datetime" style="margin-bottom:0.5rem"></div>
+                        <select id="agenda-recurrence" name="agenda-recurrence" class="input">
+                            <option value="" data-i18n="recur_once">Una sola vez</option>
+                            <option value="daily" data-i18n="recur_daily">Diario (a la misma hora)</option>
+                            <option value="weekly" data-i18n="recur_weekly">Semanal (mismo día y hora)</option>
+                            <option value="monthly" data-i18n="recur_monthly">Mensual (mismo día y hora)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label data-i18n="send_msg">Mensaje</label><textarea id="agenda-msg"
+                            class="textarea" rows="4" data-i18n-placeholder="type_message" placeholder="..."></textarea>
+                        <div class="mt-sm" id="agenda-file-wrapper"><label class="text-muted"
+                                style="display:block;margin-bottom:4px" data-i18n="lbl_attachment">📎 Archivo Adjunto
+                                (opcional)</label>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
+                                <button class="btn btn-sm btn-ghost" onclick="App.chooseFile('agenda')"
+                                    data-i18n="btn_choose_file">Elegir archivo</button>
+                                <button id="agenda-file-clear" class="btn btn-sm btn-ghost"
+                                    style="display:none; color: var(--danger);" onclick="App.clearFile('agenda')"
+                                    title="Eliminar adjunto">❌</button>
+                                <span id="agenda-file-name" class="text-muted" style="font-size:0.8rem;"
+                                    data-i18n="no_file_selected">Ningún archivo seleccionado</span>
+                                <input type="file" id="agenda-file" style="display:none"
+                                    onchange="App.onFileSelected('agenda')">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-sm" onclick="App.scheduleMsg()"><span
+                        data-i18n="btn_schedule">Programar</span></button>
+            </div>
+            <div class="grid-2 mt-lg">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>⏳ <span data-i18n="agenda_pending">Pendientes</span></h3>
+                    </div>
+                    <div id="agenda-list">
+                        <p class="text-muted">...</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🔁 <span data-i18n="agenda_recurring">Recurrentes</span></h3>
+                    </div>
+                    <div id="recurring-list">
+                        <p class="text-muted">...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="page" id="page-alerts">
+            <div class="page-header">
+                <h1 data-i18n="alerts_title">Alertas y Reenvío</h1>
+            </div>
+            <div class="card" id="alert-add-card">
+                <h3><span data-i18n="alerts_new">Nueva Alerta</span></h3>
+                <div class="grid-3">
+                    <div class="form-group"><label data-i18n="alerts_source">Origen</label>
+                        <div id="alert-source-picker" class="picker-container"></div><input type="hidden"
+                            id="alert-source">
+                    </div>
+                    <div class="form-group"><label data-i18n="alerts_target">Destino</label>
+                        <div id="alert-target-picker" class="picker-container"></div><input type="hidden"
+                            id="alert-target">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="lbl_keywords">Keywords</label>
+                        <textarea id="alert-keywords" class="textarea" rows="2"
+                            data-i18n-placeholder="alert_keywords_placeholder"
+                            placeholder="Opcional. Deja vacío para reenviar todo."></textarea>
+                        <div style="margin-top:0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                            <div id="alert-keyword-groups" style="display:flex; gap:0.5rem; flex-wrap:wrap;"></div>
+                            <button class="btn btn-sm btn-ghost" style="padding:0.2rem 0.5rem; font-size:0.75rem;"
+                                onclick="App.saveKeywordGroup()" data-i18n="btn_save_group">Guardar como
+                                Grupo</button>
+                            <button class="btn btn-sm btn-ghost" style="padding:0.2rem 0.5rem; font-size:0.75rem;"
+                                onclick="App.$('alert-keywords').value=''" data-i18n="btn_clear">Limpiar</button>
+                        </div>
+                    </div>
+                </div>
+                <button id="alert-submit-btn" class="btn btn-primary mt-sm" onclick="App.addAlert()"><span
+                        data-i18n="btn_create">Crear</span></button>
+            </div>
+            <div class="card mt-lg">
+                <div class="card-header">
+                    <h3><span data-i18n="alerts_active">Alertas Activas</span></h3>
+                </div>
+                <div id="alerts-list">
+                    <p class="text-muted">...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RBAC -->
+        <section class="page" id="page-rbac">
+            <div class="page-header">
+                <h1 data-i18n="rbac_title">Roles y Permisos (RBAC)</h1>
+                <div class="header-actions"></div>
+            </div>
+
+            <div class="grid-2 mt-md">
+                <div class="card">
+                    <div class="card-header" style="margin-bottom:1rem;">
+                        <h3 data-i18n="rbac_system_roles">Roles del Sistema</h3>
+                        <button class="btn btn-sm btn-primary" onclick="App.openCreateRole()"
+                            data-i18n="rbac_new_role">Nuevo Rol</button>
+                    </div>
+                    <div id="rbac-roles-list">
+                        <p class="text-muted">...</p>
+                    </div>
+                    <h4 class="mt-lg mb-sm" data-i18n="rbac_available_perms">Permisos Disponibles</h4>
+                    <div id="rbac-perms-list" class="tags-grid"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"
+                        style="margin-bottom:1rem; flex-direction:column; align-items:stretch; gap:0.5rem;">
+                        <h3 data-i18n="rbac_assigned_users">Usuarios Asignados</h3>
+                        <input type="text" id="rbac-assigned-search" class="input"
+                            data-i18n-placeholder="rbac_search_users" placeholder="🔍 Buscar usuario..."
+                            oninput="App.filterRBACList('rbac-jids-list', this.value)" autocomplete="off">
+                    </div>
+                    <div id="rbac-jids-list" style="max-height: 250px; overflow-y: auto;">
+                        <p class="text-muted">...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2 mt-lg">
+                <div class="card">
+                    <h3 style="margin-bottom: 0.5rem;" data-i18n="rbac_config_contact">Configurar Contacto / Grupo
+                        Específico</h3>
+                    <p class="text-muted mb-md" data-i18n="rbac_config_desc">Selecciona un contacto o grupo para
+                        configurar sus permisos, rol y personalidad.</p>
+
+                    <div class="form-group" style="max-width: 100%;">
+                        <label data-i18n="rbac_search_contact">Buscador de Contacto/Grupo</label>
+                        <div id="rbac-picker" class="picker-container"></div>
+                        <input type="hidden" id="rbac-jid" autocomplete="off">
+                    </div>
+
+                    <div id="rbac-edit-panel"
+                        style="display:none; border-top:1px solid var(--border); padding-top:1.5rem; margin-top:1.5rem;">
+                        <div class="grid-2">
+                            <div class="form-group"><label data-i18n="rbac_base_role">Rol Base</label>
+                                <select id="rbac-role" name="rbac-role" class="input" autocomplete="off">
+                                    <option value="owner" data-i18n="rbac_opt_owner">Owner (Acceso total)</option>
+                                    <option value="manager" data-i18n="rbac_opt_manager">Manager (Gestión parcial)
+                                    </option>
+                                    <option value="chatbot" selected="selected" data-i18n="rbac_opt_chatbot">Chatbot
+                                        (Solo conversar)</option>
+                                    <option value="blocked" data-i18n="rbac_opt_blocked">Blocked (Sin acceso)</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label data-i18n="rbac_personality">Personalidad (Sub-Soul /
+                                    Juego)</label>
+                                <select id="rbac-soul" name="rbac-soul" class="input" autocomplete="off">
+                                    <option value="" data-i18n="rbac_opt_default_soul">— Soul por defecto —</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid-2 mt-md">
+                            <div class="form-group">
+                                <label data-i18n="rbac_wake_word_label">Palabra de activación exclusiva (Wake
+                                    Word)</label>
+                                <input type="text" id="rbac-wake-word" class="input"
+                                    data-i18n-placeholder="rbac_wake_word_placeholder"
+                                    placeholder="Ej: !juego, /bot, o déjalo vacío">
+                                <p class="text-muted" style="font-size:0.75rem;" data-i18n="rbac_wake_word_desc">Si se
+                                    define, el bot solo responderá si el mensaje empieza EXACTAMENTE por esta palabra
+                                    (Ideal para simular múltiples personajes o menciones personalizadas como '@Zack').
+                                </p>
+                            </div>
+                            <div class="form-group">
+                                <label data-i18n="rbac_wake_mode_label">Modo de Respuesta</label>
+                                <div style="display:flex; gap:1rem; margin-top:0.5rem; flex-wrap:wrap">
+                                    <label style="display:flex; align-items:center; gap:0.25rem;"><input type="radio"
+                                            name="rbac_wake_mode" value="always" checked> <span
+                                            data-i18n="rbac_wake_mode_always"
+                                            title="Responde de forma natural a cualquier mensaje">Siempre</span></label>
+                                    <label style="display:flex; align-items:center; gap:0.25rem;"><input type="radio"
+                                            name="rbac_wake_mode" value="prefix"> <span
+                                            data-i18n="rbac_wake_mode_prefix"
+                                            title="Solo responde si el mensaje empieza por un comando de sistema (ej: /help o !ping)">Solo
+                                            con prefijo</span></label>
+                                    <label style="display:flex; align-items:center; gap:0.25rem;"><input type="radio"
+                                            name="rbac_wake_mode" value="mention"> <span
+                                            data-i18n="rbac_wake_mode_mention"
+                                            title="Solo responde si le citas directamente o le etiquetas con su @numero real">Solo
+                                            con mención</span></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-md"><label data-i18n="rbac_exceptions">Excepciones de Carpetas
+                                Permitidas <span class="text-muted" data-i18n="rbac_exceptions_desc">(Solo para este
+                                    contacto/grupo, ignora las del
+                                    rol)</span></label>
+                            <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem">
+                                <button class="btn btn-sm btn-primary" onclick="App.openFolderBrowser()"
+                                    data-i18n="rbac_explore">Explorar y Añadir</button>
+                            </div>
+                            <div id="rbac-folders-list" class="tags-grid"
+                                style="min-height:40px;border:1px solid var(--border);border-radius:4px;padding:0.5rem">
+                            </div>
+                            <input type="hidden" id="rbac-folders" autocomplete="off">
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group"><label data-i18n="rbac_restrict_tags">Restringir por
+                                    Tags</label><input type="text" id="rbac-tags" class="input" autocomplete="off"
+                                    data-i18n-placeholder="rbac_tags_placeholder"
+                                    placeholder="ej: clientes, proveedores">
+                                <p class="text-muted" style="font-size:0.75rem; margin-top:0.25rem;"
+                                    data-i18n="rbac_tags_desc">Si defines etiquetas aquí, cuando este usuario pida al
+                                    bot buscar en la agenda, el bot solo podrá ver los contactos que tengan esa etiqueta
+                                    (aislando el resto de tu agenda).</p>
+                            </div>
+                            <div class="form-group"><label data-i18n="rbac_panel_pwd">Contraseña Acceso al Panel</label>
+                                <input type="password" id="rbac-password" class="input" autocomplete="new-password"
+                                    data-i18n-placeholder="rbac_pwd_placeholder"
+                                    placeholder="Dejar en blanco para no cambiar">
+                                <p class="text-muted" style="font-size:0.75rem;" data-i18n="rbac_pwd_desc">Permite que
+                                    este usuario inicie sesión en el panel (su rol define qué ve).</p>
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label data-i18n="rbac_restrict_chats">Restringir por Chats (Limita dónde puede usar el
+                                    bot)</label>
+                                <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem;">
+                                    <label
+                                        style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; background:var(--bg-input); padding:0.5rem; border-radius:var(--radius-sm);">
+                                        <input type="checkbox" id="rbac-chats-self" onchange="App.toggleSelfChat()">
+                                        <span style="font-size:0.9rem;" data-i18n="rbac_chats_private"><b>Solo
+                                                Privado</b> (Solo te responderá si le hablas por mensaje directo a
+                                            él)</span>
+                                    </label>
+                                    <div style="display:flex; gap:0.5rem;">
+                                        <input type="text" id="rbac-chats" class="input" style="flex:1;"
+                                            autocomplete="off" data-i18n-placeholder="rbac_chats_placeholder"
+                                            placeholder="JIDs permitidos..." onchange="App.updateSelfCheckbox()">
+                                        <button class="btn btn-primary" onclick="App.openChatsBrowser('rbac-chats')"
+                                            title="Seleccionar Grupos o Contactos"
+                                            data-i18n="btn_select_chats">Seleccionar</button>
+                                    </div>
+                                    <p class="text-muted" style="font-size:0.75rem;" data-i18n="rbac_chats_desc">Si
+                                        dejas esto vacío, el bot le atenderá en todos los grupos. Si añades el ID de un
+                                        grupo aquí, el bot lo ignorará en privado y en otros grupos, limitándole solo al
+                                        sitio indicado.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions mt-lg" style="justify-content: flex-end;">
+                            <button class="btn btn-danger" onclick="App.removeRoleConfig(App._rbacSelected)"
+                                data-i18n="rbac_delete_exception">Eliminar Excepción (Usar Rol Global)</button>
+                            <button class="btn btn-primary" onclick="App.saveJIDConfig()"
+                                data-i18n="rbac_save_config">💾
+                                Guardar Configuración</button>
+                        </div>
+                    </div> <!-- END rbac-edit-panel -->
+                </div> <!-- END Configurar Contacto Card -->
+                <div class="card">
+                    <div class="card-header"
+                        style="margin-bottom:1rem; flex-direction:column; align-items:stretch; gap:0.5rem;">
+                        <h3 data-i18n="rbac_panel_access_title">Gestor de Acceso al Panel</h3>
+                        <input type="text" id="rbac-panel-search" class="input"
+                            data-i18n-placeholder="rbac_search_panel_users" placeholder="🔍 Buscar usuario del panel..."
+                            oninput="App.filterRBACList('rbac-panel-users-list', this.value)" autocomplete="off">
+                    </div>
+                    <p class="text-muted mb-md" style="font-size: 0.85rem;" data-i18n="rbac_panel_access_desc">Usuarios
+                        externos con contraseña configurada que tienen permitido iniciar sesión en esta interfaz web.
+                    </p>
+                    <div id="rbac-panel-users-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <p class="text-muted" data-i18n="rbac_loading">Cargando...</p>
+                    </div>
+                </div>
+            </div> <!-- END grid-2 -->
+        </section>
+
+        <!-- SOULS -->
+        <section class="page" id="page-souls">
+            <div class="page-header">
+                <h1 data-i18n="souls_title">Sub-Souls (Personalidades)</h1>
+            </div>
+            <p class="text-muted mb-sm" data-i18n="souls_desc">Cada Sub-Soul define la personalidad del bot para un
+                contacto o grupo. La soul <code>_default</code> se usa si no hay ninguna asignada.</p>
+            <div class="grid-sidebar">
+                <!-- Left: souls list -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 data-i18n="souls_existing">📂 Souls Existentes</h3>
+                            <button class="btn btn-sm btn-primary" onclick="App.newSoulPanel()" data-i18n="souls_new">➕
+                                Nueva</button>
+                        </div>
+                        <div id="souls-list">
+                            <p class="text-muted">...</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right: detail panel -->
+                <div>
+                    <div class="card" id="soul-detail-panel" style="display:none">
+                        <div id="soul-detail-header"
+                            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                            <div style="display:flex;align-items:center;gap:0.5rem">
+                                <h3 id="soul-detail-title" style="margin:0">—</h3>
+                                <button class="btn btn-sm btn-ghost" onclick="App.renameSoulDetail()"
+                                    title="Renombrar / Mover de carpeta" style="padding:0.2rem 0.4rem">✏️</button>
+                            </div>
+                            <div style="display:flex;gap:0.5rem">
+                                <button class="btn btn-sm btn-primary" onclick="App.saveSoulDetail()"
+                                    data-i18n="souls_save">💾 <span data-i18n="btn_save">Guardar</span></button>
+                                <button class="btn btn-sm btn-danger" id="soul-detail-delete"
+                                    onclick="App.deleteSoulDetail()">🗑️ <span
+                                        data-i18n="btn_delete">Eliminar</span></button>
+                            </div>
+                        </div>
+                        <!-- Tabs -->
+                        <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1rem">
+                            <button id="sdtab-prompt" class="btn btn-ghost"
+                                style="border-radius:0;border-bottom:2px solid var(--accent);font-size:0.85rem"
+                                onclick="App.switchSoulTab('prompt')">📝 <span
+                                    data-i18n="souls_tab_prompt">Personalidad</span></button>
+                            <button id="sdtab-knowledge" class="btn btn-ghost"
+                                style="border-radius:0;border-bottom:2px solid transparent;font-size:0.85rem;display:none"
+                                onclick="App.switchSoulTab('knowledge')">📚 <span
+                                    data-i18n="souls_tab_knowledge">Conocimiento</span></button>
+                            <button id="sdtab-users" class="btn btn-ghost"
+                                style="border-radius:0;border-bottom:2px solid transparent;font-size:0.85rem"
+                                onclick="App.switchSoulTab('users')">👥 <span
+                                    data-i18n="souls_tab_users">Usuarios</span></button>
+                        </div>
+                        <!-- Tab: Prompt -->
+                        <div id="sdpanel-prompt">
+                            <textarea id="soul-detail-content" class="textarea code" rows="12"
+                                data-i18n-placeholder="soul_detail_placeholder"
+                                placeholder="# Personalidad..."></textarea>
+                        </div>
+                        <!-- Tab: Knowledge -->
+                        <div id="sdpanel-knowledge" style="display:none">
+                            <div class="form-group">
+                                <label data-i18n="souls_upload_file">Subir archivo (txt, pdf, csv...)</label>
+                                <input type="file" id="soul-kb-file" class="input" accept=".txt,.md,.csv,.pdf,.json"
+                                    style="padding:0.3rem">
+                                <button class="btn btn-sm btn-primary mt-sm"
+                                    onclick="App.uploadKnowledgeFile(App._soulDetailName)">⬆️ <span
+                                        data-i18n="btn_upload">Subir</span></button>
+                            </div>
+                            <div id="soul-kb-list" style="margin-top:0.5rem"></div>
+                        </div>
+                        <!-- Tab: Users -->
+                        <div id="sdpanel-users" style="display:none">
+                            <p class="text-muted mb-sm" style="font-size:0.85rem" data-i18n="souls_users_desc">Contactos
+                                con esta soul asignada. Usa el panel de abajo para añadir más.</p>
+                            <div id="soul-users-list"></div>
+                            <div style="border-top:1px solid var(--border);margin-top:1rem;padding-top:1rem">
+                                <h4 style="margin-bottom:0.5rem" data-i18n="souls_assign_title">🔗 Asignar a
+                                    Contacto/Grupo</h4>
+                                <div id="soul-assign-picker" class="picker-container"></div>
+                                <input type="hidden" id="soul-assign-jid">
+                                <button class="btn btn-primary mt-sm" onclick="App.assignSoulToJidFromDetail()"
+                                    data-i18n="souls_btn_assign">🔗 Asignar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Empty state -->
+                    <div class="card" id="soul-detail-empty">
+                        <p class="text-muted" style="text-align:center;padding:2rem" data-i18n="souls_select_hint">←
+                            Selecciona una soul para editarla</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- DEV DOCS -->
+        <section class="page" id="page-docs">
+            <div class="page-header">
+                <h1 data-i18n="docs_title">Developer Docs (API Reference)</h1>
+            </div>
+            <div class="card" style="text-align: center; padding: 4rem 2rem;">
+                <h2 style="color: var(--text-muted); margin-bottom: 1rem;" data-i18n="wip_title">🚧 EN DESARROLLO 🚧
+                </h2>
+                <p class="text-muted" data-i18n="wip_desc">Esta sección estará disponible en futuras actualizaciones.
+                </p>
+            </div>
+        </section>
+
+        <!-- PLUGINS -->
+        <section class="page" id="page-plugins">
+            <div class="page-header">
+                <h1 data-i18n="plugins_title">Juegos y Plugins (Sandboxes)</h1>
+            </div>
+            <div class="card" style="text-align: center; padding: 4rem 2rem;">
+                <h2 style="color: var(--text-muted); margin-bottom: 1rem;" data-i18n="wip_title">🚧 EN DESARROLLO 🚧
+                </h2>
+                <p class="text-muted" data-i18n="wip_desc">Esta sección estará disponible en futuras actualizaciones.
+                </p>
+            </div>
+        </section>
+
+        <!-- Modals for Plugin Wizards -->
+        <div id="modal-plugin-wizard"
+            style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
+            <div
+                style="background:var(--surface); padding:2rem; border-radius:var(--radius); border:1px solid var(--border); width:90%; max-width:800px; max-height:90vh; overflow-y:auto;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                    <h2 id="plugin-wizard-title" style="margin:0;">Crear Plugin</h2>
+                    <button class="btn-icon" onclick="App.closePluginWizard()"
+                        style="font-size:1.5rem;">&times;</button>
+                </div>
+                <div id="plugin-wizard-content"></div>
+            </div>
+        </div>
+
+        <!-- CHATBOT -->
+        <section class="page" id="page-chatbot">
+            <div class="page-header">
+                <h1 data-i18n="chatbot_title">Control del Chatbot</h1>
+                <div class="header-actions"></div>
+            </div>
+            <div class="grid-2 mt-md">
+                <div class="card"
+                    style="border: 2px solid var(--border-focus); background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));">
+                    <h3 style="color: var(--accent); margin-bottom:1rem;" data-i18n="chatbot_global">Estado Global
+                        del Chatbot</h3>
+                    <p class="text-muted mb-md" data-i18n="chatbot_desc">Controla si la IA responde a los mensajes o si
+                        está apagada por completo.</p>
+                    <div class="toggle-section" id="chatbot-toggle-area"
+                        style="padding: 1rem; background: var(--bg-input); border-radius: var(--radius-sm);">
+                        <p class="text-muted">...</p>
+                    </div>
+
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:0.5rem;" data-i18n="chatbot_mute">🔇 Silenciar Contacto o Grupo Específico
+                    </h3>
+                    <p class="text-muted mb-md" data-i18n="chatbot_mute_desc">El chatbot ignorará por completo las
+                        conversaciones silenciadas, aunque esté encendido globalmente.</p>
+                    <div class="form-group"><label data-i18n="chatbot_search">Buscar Destinatario</label>
+                        <div id="mute-picker" class="picker-container"></div><input type="hidden" id="mute-jid">
+                    </div>
+                    <div class="form-actions mt-md">
+                        <button class="btn btn-primary" style="flex:1;" onclick="App.muteJID()"
+                            data-i18n="chatbot_btn_mute">🔇 Silenciar</button>
+                        <button class="btn btn-ghost" style="flex:1;" onclick="App.unmuteJID()"
+                            data-i18n="chatbot_btn_unmute">🔊 Des-silenciar</button>
+                    </div>
+
+                    <h3 class="mt-lg mb-sm" data-i18n="chatbot_muted">Lista de Silenciados</h3>
+                    <div id="muted-list" class="tags-grid"
+                        style="min-height:50px; background:var(--bg-input); padding:1rem; border-radius:var(--radius-sm);">
+                        <p class="text-muted">—</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AWAY -->
+        <section class="page" id="page-away">
+            <div class="page-header">
+                <h1 data-i18n="away_title">💤 Autorespuesta (Away)</h1>
+                <div class="header-actions"></div>
+            </div>
+            <div class="grid-2 mt-md">
+                <div class="card"
+                    style="border: 2px solid var(--border-focus); background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));">
+                    <h3 style="color: var(--accent); margin-bottom:1rem;" data-i18n="away_global">Away Global</h3>
+                    <p class="text-muted mb-md" data-i18n="away_global_desc">Se enviará a todos los contactos (que no
+                        tengan mensaje personalizado) si te escriben por primera vez.</p>
+                    <div class="toggle-section" id="away-toggle-area"
+                        style="padding: 1rem; background: var(--bg-input); border-radius: var(--radius-sm);">
+                        <p class="text-muted">...</p>
+                    </div>
+                    <div class="form-group mt-md"><label data-i18n="away_msg_label">Mensaje de ausencia global</label>
+                        <textarea id="away-msg" class="textarea" rows="3" data-i18n-placeholder="away_msg_placeholder"
+                            placeholder="Estoy fuera, responderé cuando pueda 🏖️"></textarea>
+                    </div>
+                    <div class="form-actions mt-sm">
+                        <button class="btn btn-primary" onclick="App.setAway()" data-i18n="away_btn_save_global">💤
+                            Guardar y Activar Global</button>
+                        <button class="btn btn-danger" onclick="App.disableAway()" data-i18n="away_btn_disable_all">🔕
+                            Desactivar Todo</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:0.5rem;" data-i18n="away_custom">Away Personalizado por Contacto / Grupo
+                    </h3>
+                    <p class="text-muted mb-md" data-i18n="away_custom_desc">Establece un mensaje único para un contacto
+                        específico. Prioridad sobre el global.</p>
+                    <div class="form-group"><label data-i18n="away_recipient">Destinatario</label>
+                        <div id="away-picker" class="picker-container"></div><input type="hidden" id="away-jid">
+                    </div>
+                    <div class="form-group"><label data-i18n="away_custom_msg_label">Mensaje de ausencia para este
+                            destinatario</label>
+                        <textarea id="away-custom-msg" class="textarea" rows="2"
+                            data-i18n-placeholder="away_custom_msg_placeholder"
+                            placeholder="Ej: Hola, al grupo le contestaré mañana..."></textarea>
+                    </div>
+                    <div class="form-actions mt-sm">
+                        <button class="btn btn-primary" onclick="App.setAwayForJid()"
+                            data-i18n="away_btn_save_custom">Guardar Personalizado</button>
+                        <button class="btn btn-danger" onclick="App.clearAwayForJid()" data-i18n="btn_delete">🗑️
+                            Eliminar</button>
+                    </div>
+                    <div class="mt-lg">
+                        <h4 data-i18n="away_active_custom">Aways Personalizados Activos</h4>
+                        <div id="away-custom-list" class="tags-grid"
+                            style="min-height:50px; background:var(--bg-input); padding:1rem; border-radius:var(--radius-sm); margin-top:0.5rem;">
+                            <p class="text-muted">—</p>
+                        </div>
+                    </div>
+                    <div class="mt-lg">
+                        <h4 data-i18n="away_cooldowns">⏱️ Cooldowns Activos (Filtro Anti-Spam)</h4>
+                        <div id="away-cooldowns"
+                            style="background:var(--bg-input); padding:1rem; border-radius:var(--radius-sm); margin-top:0.5rem; max-height:150px; overflow-y:auto;">
+                            <p class="text-muted">—</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ENV -->
+        <section class="page" id="page-env">
+            <div class="page-header">
+                <h1 data-i18n="env_title">Configuración (.env)</h1>
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-primary" onclick="App.openAddEnv()" data-i18n="btn_add_var">Añadir
+                        Variable</button>
+
+                </div>
+            </div>
+            <div class="card">
+                <p class="text-muted mb-sm" id="env-path"></p>
+                <div id="env-editor"></div>
+                <button class="btn btn-primary mt-md" onclick="App.saveEnv()"><span data-i18n="btn_save">Guardar
+                        Cambios</span></button>
+            </div>
+
+            <div class="card mt-lg"
+                style="border: 1px solid var(--border-focus); background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));">
+                <h3 style="color: var(--accent); margin-bottom:1rem;" data-i18n="mem_limits_title">Límites de Memoria
+                    Automática (Core)</h3>
+                <div class="text-muted mb-md" style="font-size: 0.9rem; line-height: 1.4;">
+                    <p style="margin-bottom:0.5rem;" data-i18n="mem_limits_desc1"><strong>Límite de Usuario
+                            (USER.md):</strong> Expediente individual. Lo que la IA aprende de la persona específica con
+                        la que está hablando (ej: "Se llama Juan, le gusta el color azul, compró un portátil").</p>
+                    <p data-i18n="mem_limits_desc2"><strong>Límite Global (MEMORY.md):</strong> Conocimiento general. Lo
+                        que la IA aprende sobre sí misma o su entorno global (ej: "Nuestra tienda cierra a las 20:00",
+                        "Hoy es festivo"). Es un conocimiento compartido para todos.</p>
+                    <p style="margin-top:0.5rem; color:var(--text-primary); font-size:0.85rem; padding-top:0.5rem; border-top:1px solid var(--border);"
+                        data-i18n="mem_limits_desc3">💡 Aumentar estos límites (ej. a 4000) permite a la IA recordar
+                        expedientes masivos sin borrar datos viejos, pero consume más tokens de la API.</p>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group" style="align-self: start;">
+                        <label data-i18n="mem_user_limit">Límite de Usuario (user_char_limit)</label>
+                        <input type="number" id="mem-user-limit" class="input" min="500" step="100">
+                        <div class="text-muted" data-i18n="mem_user_limit_helper"
+                            style="margin-top:0.5rem; font-size:0.8rem; line-height:1.4;">
+                            <strong>Valores de Referencia:</strong>
+                            <ul style="padding-left:1.2rem; margin-top:0.2rem;">
+                                <li><b>1000 - 1500 (Recomendado):</b> Nombres, gustos y detalles simples.</li>
+                                <li><b>2000 - 3000 (CRM Básico):</b> Historial de pedidos, preferencias de clientes,
+                                    estado de negociaciones.</li>
+                                <li><b>4000 - 5000 (Intensivo):</b> Fichas médicas, historiales técnicos de soporte,
+                                    actas detalladas.</li>
+                                <li><b>6000+ (Experto):</b> Para asistentes personales hiper-personalizados. (⚠️ Alto
+                                    consumo).</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group" style="align-self: start;">
+                        <label data-i18n="mem_global_limit">Límite Global (memory_char_limit)</label>
+                        <input type="number" id="mem-global-limit" class="input" min="1000" step="100">
+                        <div class="text-muted" data-i18n="mem_global_limit_helper"
+                            style="margin-top:0.5rem; font-size:0.8rem; line-height:1.4;">
+                            <strong>Valores de Referencia:</strong>
+                            <ul style="padding-left:1.2rem; margin-top:0.2rem;">
+                                <li><b>2000 - 2500 (Recomendado):</b> Estado del bot, reglas básicas, fechas y horas.
+                                </li>
+                                <li><b>3000 - 4500 (Empresa):</b> Horarios, normativas completas, avisos globales de la
+                                    tienda.</li>
+                                <li><b>5000+ (Corporativo):</b> Manuales operativos enteros aprendidos orgánicamente.
+                                    (⚠️ Alto consumo).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-sm" onclick="App.saveConfigLimits()"><span
+                        data-i18n="btn_save_restart">💾 Guardar y Reiniciar Motor</span></button>
+            </div>
+        </section>
+
+        <!-- SYSTEM -->
+        <section class="page" id="page-system">
+            <div class="page-header">
+                <h1 data-i18n="system_title">Diagnóstico y Sistema</h1>
+            </div>
+
+            <div class="card mb-lg">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <h3 data-i18n="system_output" style="margin:0;">Salida de Comandos y Diagnóstico</h3>
+                </div>
+                <pre id="system-output" class="code-block"
+                    style="min-height:300px; max-height:500px; overflow-y:auto; background:#000;"
+                    data-i18n="system_waiting">Esperando ejecución...</pre>
+            </div>
+
+            <h3 style="margin-bottom: 1rem; color: var(--text-muted);" data-i18n="sys_base_services">Servicios Base</h3>
+            <div class="grid-3">
+                <div class="card action-card"><span class="action-icon">🩺</span>
+                    <h3 data-i18n="system_diag">Diagnóstico</h3>
+                    <p data-i18n="system_diag_desc">Verifica todos los servicios</p>
+                    <div style="margin-top: auto; width: 100%; padding-top: 1rem;">
+                        <button class="btn btn-primary btn-full" onclick="App.runDiag()"
+                            data-i18n="btn_execute">Ejecutar</button>
+                    </div>
+                </div>
+                <div class="card action-card"><span class="action-icon">⬆️</span>
+                    <h3 data-i18n="update_title">Actualización</h3>
+                    <p data-i18n="update_desc" style="margin-bottom:0.5rem">Busca nuevas versiones disponibles.</p>
+                    <div id="update-status-box"
+                        style="display:none; margin-bottom:0.5rem; font-size:0.8rem; background:var(--bg-input); padding:0.5rem; border-radius:var(--radius-sm);">
+                        <span id="update-status-text"></span>
+                    </div>
+                    <div
+                        style="margin-top: auto; width: 100%; padding-top: 0.5rem; display:flex; flex-direction:column; gap:0.5rem;">
+                        <button class="btn btn-primary btn-full" onclick="App.checkUpdate()" id="btn-check-update"
+                            data-i18n="btn_check_update">Comprobar versión</button>
+                        <button class="btn btn-success btn-full" onclick="App.runUpdate()" id="btn-run-update"
+                            style="display:none;" data-i18n="btn_run_update">Actualizar ahora</button>
+                    </div>
+                </div>
+                <div class="card action-card"><span class="action-icon">🖥️</span>
+                    <h3 data-i18n="system_restart_server">Reset Servidor</h3>
+                    <p data-i18n="system_restart_server_desc">Solo reinicia el panel web</p>
+                    <div style="margin-top: auto; width: 100%; padding-top: 1rem;">
+                        <button class="btn btn-warning btn-full" onclick="App.restartServer()"
+                            data-i18n="btn_restart_server">Reset Panel</button>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: var(--text-muted);" data-i18n="sys_adv_tools">
+                Herramientas Avanzadas y Peligrosas</h3>
+            <div class="grid-3" id="advanced-tools-grid">
+
+                <div class="card action-card"><span class="action-icon" style="color:var(--danger)">🔄</span>
+                    <h3 data-i18n="system_restart">Reiniciar Todo</h3>
+                    <p data-i18n="system_restart_desc">Reinicia GUI y Bridge</p>
+                    <div style="margin-top: auto; width: 100%; padding-top: 1rem;">
+                        <button class="btn btn-danger btn-full" onclick="App.restartAll()"
+                            data-i18n="btn_restart">Reiniciar Todo</button>
+                    </div>
+                </div>
+
+                <div class="card action-card"><span class="action-icon" style="color:var(--warning)">⚕️</span>
+                    <h3 data-i18n="system_repair">Auto-Reparar</h3>
+                    <p data-i18n="system_repair_desc">Repara bridge y endpoints</p>
+                    <div style="margin-top: auto; width: 100%; padding-top: 1rem;">
+                        <button class="btn btn-warning btn-full" onclick="App.runRepair()"
+                            data-i18n="btn_repair">Reparar Motor</button>
+                    </div>
+                </div>
+
+                <div class="card action-card"><span class="action-icon" style="color:var(--danger)">🧹</span>
+                    <h3 data-i18n="system_wipe">Limpiar Logs</h3>
+                    <p data-i18n="system_wipe_desc">Elimina inbox e historial</p>
+                    <div style="margin-top: auto; width: 100%; padding-top: 1rem;">
+                        <button class="btn btn-danger btn-full" onclick="App.wipeLogs()" data-i18n="btn_clear">Borrar
+                            Historial</button>
+                    </div>
+                </div>
+
+                <!-- Patch Guard -->
+                <div class="card action-card" id="patch-guard-card">
+                    <span class="action-icon" style="color: var(--accent);">🛡️</span>
+                    <h3 data-i18n="patches_title">Patch Guard</h3>
+                    <p data-i18n="patches_desc" style="margin-bottom:0.5rem">Verifica inyecciones críticas de Andoriña.
+                    </p>
+
+                    <div id="patch-status-grid"
+                        style="display:flex; flex-wrap:wrap; gap:0.25rem; margin-bottom:0.5rem; justify-content:center;">
+                    </div>
+                    <div id="patch-repair-output" style="display:none; margin-bottom:0.5rem;">
+                        <pre id="patch-repair-log" class="code-block"
+                            style="max-height:100px; font-size:0.7rem; padding:0.2rem;"></pre>
+                        <button class="btn btn-warning btn-full btn-sm mt-sm" onclick="App.repairPatches()"
+                            id="btn-repair-patches" data-i18n="btn_repair_patches">Reparar automáticamente</button>
+                    </div>
+
+                    <div style="margin-top: auto; width: 100%; padding-top: 0.5rem;">
+                        <button class="btn btn-primary btn-full" onclick="App.checkPatches()" id="btn-check-patches"
+                            data-i18n="btn_check_patches">Comprobar inyecciones</button>
+                    </div>
+                </div>
+
+                <!-- Acceso Remoto Seguro (Cloudflare) -->
+                <div class="card action-card" id="tunnel-card">
+                    <span class="action-icon" style="color: var(--accent);">🌐</span>
+                    <h3 data-i18n="tunnel_title">Acceso Remoto</h3>
+                    <p data-i18n="tunnel_temp_desc" style="margin-bottom:0.5rem">Túnel temporal gratuito a internet.</p>
+
+                    <div id="tunnel-status-box"
+                        style="display:none; margin-bottom:0.5rem; font-size:0.8rem; background:var(--bg-input); padding:0.5rem; border-radius:var(--radius-sm);">
+                        <p
+                            style="margin:0; margin-bottom:0.5rem; font-family:monospace; word-break: break-all; overflow-wrap: break-word; white-space: normal;">
+                            <a href="#" id="tunnel-url" target="_blank" style="color:var(--accent);"
+                                data-i18n="tunnel_loading">Cargando URL...</a></p>
+                        <div style="display:flex; gap:0.25rem;">
+                            <button class="btn btn-sm btn-outline" style="flex:1" onclick="App.stopTunnel()"
+                                data-i18n="btn_stop">Detener</button>
+                            <button class="btn btn-sm btn-outline" style="flex:1" onclick="App.toggleQuickTunnel()"
+                                data-i18n="btn_restart">Reset</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: auto; width: 100%; padding-top: 0.5rem;">
+                        <button class="btn btn-primary btn-full" id="btn-quick-tunnel" onclick="App.toggleQuickTunnel()"
+                            data-i18n="tunnel_temp_btn">Iniciar Túnel</button>
+                    </div>
+                </div>
+
+                <!-- Dominio Personalizado -->
+                <div class="card action-card" id="tunnel-custom-card">
+                    <span class="action-icon" style="color: var(--accent);">🔗</span>
+                    <h3 data-i18n="tunnel_custom_title">Dominio Fijo</h3>
+                    <p data-i18n="tunnel_custom_desc">Usa tu propio Token CF.</p>
+                    <div
+                        style="display:flex; flex-direction:column; gap:0.5rem; margin-top: auto; width: 100%; padding-top: 1rem;">
+                        <input type="password" id="cf-tunnel-token" class="input" placeholder="eyJhIjoi...">
+                        <button class="btn btn-primary btn-full" onclick="App.startCustomTunnel()"
+                            data-i18n="tunnel_custom_btn">Conectar Token</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- LOGS -->
+        <section class="page" id="page-logs">
+            <div class="page-header">
+                <h1 data-i18n="logs_title">Activity Log</h1>
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-danger" onclick="App.clearLogs()"
+                        data-i18n="btn_clear">Limpiar</button>
+                </div>
+            </div>
+            <div class="card">
+                <div id="logs-list" class="code-block" style="max-height:600px">...</div>
+            </div>
+        </section>
+
+        <!-- INSTALL -->
+        <section class="page" id="page-install">
+            <div class="page-header">
+                <h1 data-i18n="install_wizard_title">Asistente de Instalación</h1>
+                <p class="text-muted" data-i18n="install_wizard_desc">Instala y configura Andoriña en un entorno local o
+                    de servidor sin usar la consola.</p>
+            </div>
+
+            <!-- Banner Sin Acceso Directo -->
+            <div id="install-shortcut-banner" class="card"
+                style="display:none; background: rgba(255,152,0,0.1); border-left: 4px solid var(--warning); margin-bottom: 1rem;">
+                <h4 style="color: var(--warning);" data-i18n="install_banner_title">Sin acceso directo instalado</h4>
+                <p class="mt-sm" data-i18n="install_banner_desc">Para abrir el panel en el futuro sin usar la terminal,
+                    instala el acceso directo en el paso correspondiente. Mientras tanto, para abrir el panel:</p>
+                <pre class="code-block mt-sm" style="background: rgba(0,0,0,0.2);" data-i18n="install_banner_code">cd /ruta/actual/de/la/carpeta
+python3 GUI/server.py
+→ Luego abre http://localhost:8888</pre>
+                <button class="btn btn-sm btn-warning mt-sm" onclick="App.installPanelShortcut()"
+                    data-i18n="install_banner_btn">📌 Instalar Acceso Directo Ahora</button>
+            </div>
+
+            <!-- Banner Safe to Delete -->
+            <div id="install-safe-banner" class="card"
+                style="display:none; background: rgba(46,204,113,0.1); border-left: 4px solid var(--success); margin-bottom: 1rem;">
+                <h4 style="color: var(--success);" data-i18n="install_safe_title">✅ Panel Instalado Permanentemente</h4>
+                <p class="mt-sm" data-i18n="install_safe_desc">El panel y el asistente se han copiado con éxito a tu
+                    carpeta oculta de Hermes. Ya puedes cerrar esta ventana y <b>borrar la carpeta de descargas
+                        original</b> de Andoriña. Para volver a abrir este panel en el futuro, utiliza el acceso directo
+                    que se ha creado en el menú de aplicaciones de tu sistema.</p>
+            </div>
+
+            <!-- Estado Global de Instalación -->
+            <div class="card">
+                <h3 data-i18n="install_system_state">Estado del Sistema</h3>
+                <div id="install-status-grid" style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.75rem;">
+                    <!-- Rellenado por app.js -->
+                </div>
+            </div>
+
+            <div class="grid-2 mt-lg">
+                <!-- Pasos de Instalación -->
+                <div>
+                    <h3 data-i18n="install_steps_title">Pasos de Instalación</h3>
+                    <div id="install-stepper" style="display:flex; flex-direction:column; gap:1rem; margin-top:1rem;">
+                        <!-- Rellenado por app.js -->
+                    </div>
+                </div>
+
+                <!-- Terminal -->
+                <div style="display:flex; flex-direction:column;">
+                    <h3 data-i18n="install_term_title">Consola en Vivo</h3>
+                    <div class="card"
+                        style="flex:1; display:flex; flex-direction:column; padding:0.5rem; background:#050505;">
+                        <div id="install-terminal" class="code-block"
+                            style="flex:1; min-height:400px; max-height:600px; overflow-y:auto; font-family:monospace; background:transparent; border:none; color:#a3a3a3; padding:0.5rem;">
+                            <div class="log-entry"><span class="log-ts">System</span> <span
+                                    class="log-level info">INFO</span> <span data-i18n="install_term_waiting">Esperando
+                                    acciones...</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instrucciones Manuales -->
+            <div class="card mt-lg" style="margin-bottom: 3rem;">
+                <details>
+                    <summary style="cursor: pointer; font-weight: bold; padding: 0.5rem 0;"
+                        data-i18n="install_manual_title">Ver Instrucciones de Instalación Manual (Fallback)</summary>
+                    <div class="mt-sm">
+                        <p class="text-muted mb-sm" data-i18n="install_manual_desc">Si algún paso falla desde la
+                            interfaz gráfica, puedes ejecutar estos comandos en tu terminal.</p>
+
+                        <h5 data-i18n="install_manual_deps_title">Dependencias</h5>
+                        <pre class="code-block mb-sm"
+                            data-i18n="install_manual_deps_code">pip install --user requests pyyaml python-dotenv google-auth google-auth-oauthlib google-api-python-client
+# Si el anterior falla en Ubuntu/Debian moderno:
+pip install --user --break-system-packages requests pyyaml python-dotenv google-auth google-auth-oauthlib google-api-python-client</pre>
+
+                        <h5 data-i18n="install_manual_term_title">Instalación interactiva desde terminal</h5>
+                        <pre class="code-block mb-sm" data-i18n="install_manual_term_code">cd /ruta/de/la/carpeta/descargada
+python3 setup.py
+# O con el script de shell:
+bash install.sh</pre>
+
+                        <h5 data-i18n="install_manual_google_title">Vincular Google Contacts a mano</h5>
+                        <pre class="code-block mb-sm" data-i18n="install_manual_google_code">cd /ruta/de/la/carpeta
+python3 scripts/auth.py</pre>
+
+                        <h5 data-i18n="install_manual_deploy_title">Desplegar solo los scripts a mano</h5>
+                        <pre class="code-block" data-i18n="install_manual_deploy_code">cp -r scripts/ ~/.hermes/skills/andorina/scripts/
+cp SKILL.md ~/.hermes/skills/andorina/SKILL.md</pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Monitor Panel -->
+    <iframe src="monitor.html" id="monitor-frame"
+        style="position: fixed; right: 0; top: 0; bottom: 0; width: 400px; max-width: 100vw; height: 100vh; border: none; z-index: 90; transform: translateX(100%); transition: transform 0.3s ease; box-shadow: -4px 0 15px rgba(0,0,0,0.2);"></iframe>
+
+    <!-- Modal -->
+    <div id="modal-overlay" class="modal-overlay hidden" onclick="App.closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modal-title">Modal</h3><button class="modal-close" onclick="App.closeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="app.js?v=45"></script>
+    <script>
+    // 📢 Live Announcement Banner — fetches text from same-origin proxy
+    (function initBanner() {
+        const banner  = document.getElementById('andorina-banner');
+        const textEl  = document.getElementById('andorina-banner-text');
+        if (!banner || !textEl) return;
+
+        fetch('/api/public/banner')
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(res) {
+                if (!res || !res.ok || !res.text) return;
+                var txt = res.text.trim();
+                if (!txt) return; // hide if empty
+                // Duplicate text so the seamless loop works at 50% keyframe
+                var segment = txt + '\u2003\u2022\u2003' + txt + '\u2003\u2022\u2003';
+                textEl.textContent = segment + segment;
+                banner.style.display = 'block';
+                // Click-to-dismiss
+                banner.addEventListener('click', function() {
+                    banner.style.display = 'none';
+                });
+            })
+            .catch(function() {}); // silent fail — no network, no banner
+    })();
+    </script>
+</body>
+
+</html>

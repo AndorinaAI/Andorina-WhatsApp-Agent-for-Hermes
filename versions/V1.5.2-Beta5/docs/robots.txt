@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes/sitemap.xml
