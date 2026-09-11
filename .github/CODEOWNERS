@@ -1,0 +1,11 @@
+# CODEOWNERS
+# These files require approval from the repository OWNER (@AndorinaAI)
+# before any pull request touching them can be merged.
+
+# Legal and licensing — ONLY the owner can approve changes to these
+/CLA.md                          @AndorinaAI
+/LICENSE.md                      @AndorinaAI
+/TRADEMARK.md                    @AndorinaAI
+
+# GitHub configuration — workflows and branch rules cannot be changed by others
+/.github/                        @AndorinaAI

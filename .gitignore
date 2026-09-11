@@ -26,5 +26,10 @@ mock_google*
 # Local development / upload dirs
 BRANCH_Early_Release/
 
+# Work in progress — not ready for the repo yet
+# When V1.6 is ready, copy the relevant files out and commit them directly
+Stabilize_core/
+versions/
+
 # Zips distributed via GitHub Releases only
 *.zip
