@@ -10,6 +10,18 @@ sys.path.append(str(Path(__file__).parent.parent))
 from security.sec_types import ToolContract
 from security.tool_guard import validate_tool_call
 
+def _make_contract(status: str, error_code: str, payload: dict) -> ToolContract:
+    """Helper para construir un ToolContract sin repetir las 4 claves de traza vacías."""
+    return {
+        "status":          status,
+        "error_code":      error_code,
+        "payload":         payload,
+        "trace_id":        "",
+        "tool_call_id":    "",
+        "tool_chain_id":   "",
+        "parent_trace_id": None,
+    }
+
 def execute_tool(command_line: str, role_config: dict = None, user_jid: str = None) -> ToolContract:
     """Executes a tool within a constrained subprocess environment."""
     
@@ -21,7 +33,7 @@ def execute_tool(command_line: str, role_config: dict = None, user_jid: str = No
     try:
         parts = shlex.split(command_line)
     except Exception as e:
-        return {"status": "ERROR", "error_code": "INTERNAL_ERROR", "payload": {"error": str(e)}, "trace_id": "", "tool_call_id": "", "tool_chain_id": "", "parent_trace_id": None}
+        return _make_contract("ERROR", "INTERNAL_ERROR", {"error": str(e)})
 
     # 2. Setup isolated environment
     safe_env = {
@@ -64,21 +76,22 @@ def execute_tool(command_line: str, role_config: dict = None, user_jid: str = No
             # Translate legacy sys.exit / {"ok": False} into V3.6 Contract
             if "status" not in output_data:
                 if output_data.get("ok") is False:
-                    return {"status": "DENY", "error_code": "FATAL", "payload": output_data, "trace_id": "", "tool_call_id": "", "tool_chain_id": "", "parent_trace_id": None}
-                return {"status": "OK", "error_code": "NONE", "payload": output_data, "trace_id": "", "tool_call_id": "", "tool_chain_id": "", "parent_trace_id": None}
+                    return _make_contract("DENY", "FATAL", output_data)
+                return _make_contract("OK", "NONE", output_data)
                 
             return output_data
             
         except json.JSONDecodeError:
             # If it's not JSON, it might be a raw print or a crash
             if proc.returncode != 0:
-                return {"status": "ERROR", "error_code": "FATAL", "payload": {"stderr": proc.stderr}, "trace_id": "", "tool_call_id": "", "tool_chain_id": "", "parent_trace_id": None}
-            return {"status": "OK", "error_code": "NONE", "payload": {"text": proc.stdout.strip()}, "trace_id": "", "tool_call_id": "", "tool_chain_id": "", "parent_trace_id": None}
+                return _make_contract("ERROR", "FATAL", {"stderr": proc.stderr})
+            return _make_contract("OK", "NONE", {"text": proc.stdout.strip()})
             
     except subprocess.TimeoutExpired:
-        return {"status": "ERROR", "error_code": "TIMEOUT", "payload": {"error": "Execution exceeded 30 seconds"}, "trace_id": "", "tool_call_id": "", "tool_chain_id": "", "parent_trace_id": None}
+        return _make_contract("ERROR", "TIMEOUT", {"error": "Execution exceeded 30 seconds"})
     except Exception as e:
-        return {"status": "ERROR", "error_code": "INTERNAL_ERROR", "payload": {"error": str(e)}, "trace_id": "", "tool_call_id": "", "tool_chain_id": "", "parent_trace_id": None}
+        return _make_contract("ERROR", "INTERNAL_ERROR", {"error": str(e)})
+
 
 if __name__ == "__main__":
     import argparse

@@ -1,6 +1,15 @@
 /* Andoriña GUI — App Logic */
 const App = {
   _installMode: false,  // True while install wizard is active — blocks 401→login redirects
+
+  // ── V1.6: XSS sanitization helper ────────────────────────
+  escapeHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  },
+
   // ── Helpers ──
   async api(method, path, body) {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
@@ -469,12 +478,12 @@ const App = {
     const qRaw = this.val('contact-search');
     const selectedTag = this.val('contact-tag-filter').toLowerCase();
     const contacts = await this.ensureContacts();
-    
+
     // Ensure tags are loaded
     if (!this._allTagsData) {
       const d = await this.get('tags/all');
       this._allTagsData = d.tags || {};
-      
+
       // Populate dropdown
       const uniqueTags = new Set();
       Object.values(this._allTagsData).forEach(tags => tags.forEach(t => uniqueTags.add(t.toLowerCase())));
@@ -487,9 +496,9 @@ const App = {
         });
       }
     }
-    
+
     let f = contacts;
-    
+
     if (selectedTag) {
       f = f.filter(c => {
         const num = c.jid.split('@')[0];
@@ -525,7 +534,7 @@ const App = {
     });
     this.renderContactsGrid(f);
   },
-  
+
   updateBatchSelection() {
     const checkboxes = document.querySelectorAll('.contact-batch-checkbox:checked');
     const count = checkboxes.length;
@@ -539,23 +548,23 @@ const App = {
       }
     }
   },
-  
+
   clearBatchSelection() {
     document.querySelectorAll('.contact-batch-checkbox').forEach(cb => cb.checked = false);
     this.updateBatchSelection();
   },
-  
+
   async assignBatchTag() {
     const input = this.$('batch-tag-input');
     const tag = input.value.trim();
     if (!tag) return this.toast('Escribe una etiqueta', 'error');
-    
+
     const checkboxes = document.querySelectorAll('.contact-batch-checkbox:checked');
     const jids = Array.from(checkboxes).map(cb => cb.value);
     if (!jids.length) return;
-    
+
     this.toast(`Asignando etiqueta a ${jids.length} contactos...`, 'info');
-    
+
     for (const jid of jids) {
       const num = jid.split('@')[0];
       const d = await this.get('tags/get/' + jid);
@@ -564,8 +573,8 @@ const App = {
         tags.push(tag);
         await this.post('tags/set', { jid, tags });
         if (this._allTagsData) {
-            if (!this._allTagsData[num]) this._allTagsData[num] = [];
-            if (!this._allTagsData[num].includes(tag)) this._allTagsData[num].push(tag);
+          if (!this._allTagsData[num]) this._allTagsData[num] = [];
+          if (!this._allTagsData[num].includes(tag)) this._allTagsData[num].push(tag);
         }
       }
     }
@@ -575,26 +584,26 @@ const App = {
     // Refresh dropdown if new tag
     const select = this.$('contact-tag-filter');
     if (select && !Array.from(select.options).some(o => o.value === tag.toLowerCase())) {
-        const opt = document.createElement('option');
-        opt.value = tag.toLowerCase(); opt.textContent = tag.toLowerCase();
-        select.appendChild(opt);
+      const opt = document.createElement('option');
+      opt.value = tag.toLowerCase(); opt.textContent = tag.toLowerCase();
+      select.appendChild(opt);
     }
   },
-  
+
   openContactNotesAndTags(jid) {
     const numOnly = jid.split('@')[0];
-    
+
     if (window.innerWidth <= 768) {
-        // En móvil abrimos modal o vamos a la pestaña
-        this.switchContactsMobileTab('notes');
+      // En móvil abrimos modal o vamos a la pestaña
+      this.switchContactsMobileTab('notes');
     }
-    
+
     this.$('note-jid').value = numOnly;
     const emptyState = this.$('notes-empty-state');
     const editorGroup = this.$('note-editor-group');
     if (emptyState) emptyState.style.display = 'none';
     if (editorGroup) editorGroup.style.display = 'block';
-    
+
     this.readNotes();
     this.showContactTags(jid); // We reuse the modal for tags? 
     // Wait, the tags are in a modal. Let's just open the tags modal and load notes in background.
@@ -701,19 +710,19 @@ const App = {
     this.openModal(name, `<p class="text-muted mb-sm" style="word-break:break-all;">${jid}</p>
       <div class="status-list">${btns}${extra}</div>`);
   },
-  
+
   async showContactTags(jid) {
     this.openModal('🏷️ ' + this.t('btn_manage_tags', 'Gestionar Etiquetas'), `<div style="padding:2rem;text-align:center;">Cargando...</div>`);
     const d = await this.get('tags/get/' + jid);
     let tags = d.tags || [];
-    
+
     this._renderTagsModal = () => {
-      const tagsHtml = tags.length ? tags.map((t, i) => 
+      const tagsHtml = tags.length ? tags.map((t, i) =>
         `<span class="tag tag-accent" style="display:inline-flex; align-items:center; gap:5px; margin:2px;">
            ${t} <button class="btn btn-ghost" style="padding:0; min-height:0; width:16px; height:16px; font-size:10px;" onclick="App._removeTag(${i})">✕</button>
          </span>`
       ).join('') : `<p class="text-muted" style="margin-bottom:1rem;">No hay etiquetas.</p>`;
-      
+
       const html = `
         <div style="margin-bottom: 1rem;">
           ${tagsHtml}
@@ -726,15 +735,15 @@ const App = {
           <button class="btn btn-success btn-full" onclick="App._saveTags()">💾 Guardar Etiquetas</button>
         </div>
       `;
-      
+
       const container = document.getElementById('tags-modal-container');
       if (container) container.innerHTML = html;
       else this.openModal('🏷️ ' + this.t('btn_manage_tags', 'Gestionar Etiquetas'), `<div id="tags-modal-container">${html}</div>`);
-      
+
       // Auto-focus input if we just re-rendered inside modal
-      setTimeout(() => { const i = document.getElementById('new-tag-input'); if(i) i.focus(); }, 50);
+      setTimeout(() => { const i = document.getElementById('new-tag-input'); if (i) i.focus(); }, 50);
     };
-    
+
     this._addTag = () => {
       const input = document.getElementById('new-tag-input');
       if (!input) return;
@@ -744,25 +753,25 @@ const App = {
         this._renderTagsModal();
       }
     };
-    
+
     this._removeTag = (idx) => {
       tags.splice(idx, 1);
       this._renderTagsModal();
     };
 
     this._saveTags = async () => {
-        this.toast('Guardando etiquetas...', 'info');
-        const res = await this.post('tags/set', { jid, tags });
-        if (res.ok) {
-            this.toast('Etiquetas guardadas ✅', 'success');
-            // Refresh contacts to update UI filters
-            this.searchContacts();
-            this.closeModal();
-        } else {
-            this.toast('Error al guardar — ¿reiniciaste el servidor?', 'error');
-        }
+      this.toast('Guardando etiquetas...', 'info');
+      const res = await this.post('tags/set', { jid, tags });
+      if (res.ok) {
+        this.toast('Etiquetas guardadas ✅', 'success');
+        // Refresh contacts to update UI filters
+        this.searchContacts();
+        this.closeModal();
+      } else {
+        this.toast('Error al guardar — ¿reiniciaste el servidor?', 'error');
+      }
     };
-    
+
     this._renderTagsModal();
   },
   async refreshContacts() {
@@ -1004,19 +1013,19 @@ const App = {
       const uniqueNames = new Set();
       const finalSenders = [];
       messages.forEach(m => {
-          if (!m.from || m.from === chatId || m.from === 'Me' || m.from === 'Bot' || m.senderName === 'Bot (Hermes)') return;
-          const rawJid = m.from.split('@')[0];
-          const lidNorm = m.from.includes('@lid') ? rawJid : null;
-          const mappedName = map[m.from] || map[rawJid] 
-              || (lidNorm && Object.entries(map).find(([k]) => k.split('@')[0] === rawJid)?.[1])
-              || rawJid;
-          
-          if (!uniqueNames.has(mappedName)) {
-              uniqueNames.add(mappedName);
-              finalSenders.push({ jid: m.from, name: mappedName });
-          }
+        if (!m.from || m.from === chatId || m.from === 'Me' || m.from === 'Bot' || m.senderName === 'Bot (Hermes)') return;
+        const rawJid = m.from.split('@')[0];
+        const lidNorm = m.from.includes('@lid') ? rawJid : null;
+        const mappedName = map[m.from] || map[rawJid]
+          || (lidNorm && Object.entries(map).find(([k]) => k.split('@')[0] === rawJid)?.[1])
+          || rawJid;
+
+        if (!uniqueNames.has(mappedName)) {
+          uniqueNames.add(mappedName);
+          finalSenders.push({ jid: m.from, name: mappedName });
+        }
       });
-      
+
       if (finalSenders.length > 0) {
         participantsHTML = `<div style="font-size:0.75rem; padding:0.5rem; background:var(--bg-secondary); border-bottom: 1px solid var(--border); margin-bottom:1rem; border-radius:var(--radius-sm); position:sticky; top:0; z-index:10; box-shadow:0 4px 6px -1px rgba(0,0,0,0.5);">
                 <strong style="display:block;margin-bottom:0.2rem;color:var(--text-muted)">${this.t('inbox_active_participants', 'Participantes activos')}:</strong>
@@ -1032,7 +1041,7 @@ const App = {
 
     // Función para generar un color único por usuario
     if (!this.getColorForJid) {
-      this.getColorForJid = function(jid) {
+      this.getColorForJid = function (jid) {
         if (!jid) return 'var(--accent)';
         let hash = 0;
         for (let i = 0; i < jid.length; i++) hash = jid.charCodeAt(i) + ((hash << 5) - hash);
@@ -1051,9 +1060,9 @@ const App = {
       let senderName = map[senderJid] || map[rawJid]
         || (lidNorm && Object.entries(map).find(([k]) => k.split('@')[0] === rawJid)?.[1])
         || senderJid.split('@')[0];
-        
+
       if (isMe) {
-          senderName = isBot ? '🤖 Bot' : '👤 Yo';
+        senderName = isBot ? '🤖 Bot' : '👤 Yo';
       }
 
       const bubbleClass = isMe ? 'msg-out' : 'msg-in';
@@ -1078,8 +1087,8 @@ const App = {
           <div style="display:flex; gap:0.5rem; max-width:85%; flex-direction:${direction};">
               ${avatarHtml}
               <div class="msg-bubble ${bubbleClass}" style="max-width:100%; padding:0.6rem 0.8rem; margin:0; ${radiusCorner}; position:relative; ${botClass}">
-                  ${!isMe ? `<div class="msg-sender" style="cursor:pointer; margin-bottom:0.2rem; font-size:0.75rem; color:${this.getColorForJid(senderJid)};" onclick="App.showContactActions('${senderJid}')">${senderName}</div>` : `<div class="msg-sender" style="margin-bottom:0.2rem; font-size:0.7rem; color:${isBot?'var(--accent)':'var(--text-muted)'}; text-align:right;">${senderName}</div>`}
-                  <div style="word-break: break-word;">${m.text || '[media]'}</div>
+                  ${!isMe ? `<div class="msg-sender" style="cursor:pointer; margin-bottom:0.2rem; font-size:0.75rem; color:${this.getColorForJid(senderJid)};" onclick="App.showContactActions('${senderJid}')">${senderName}</div>` : `<div class="msg-sender" style="margin-bottom:0.2rem; font-size:0.7rem; color:${isBot ? 'var(--accent)' : 'var(--text-muted)'}; text-align:right;">${senderName}</div>`}
+                  <div style="word-break: break-word;">${this.escapeHTML(m.text || '[media]')}</div>
                   <div class="msg-meta" style="display:flex; justify-content:space-between; align-items:center; font-size:0.65rem; opacity:0.8; margin-top:0.3rem;">
                     <span>${m.date ? new Date(m.date).toLocaleString() : ''}</span>
                     <div class="msg-actions" style="display:flex; gap:6px;">
@@ -1862,9 +1871,9 @@ const App = {
           <button class="btn btn-sm btn-ghost" style="padding:0.2rem 0.5rem;" onclick="navigator.clipboard.writeText('${url}').then(()=>App.toast(App.t('toast_copied','✅ Copiada'),'success'))">📋</button>
         </div>
         <div class="wh-card-meta">
-          🎯 ${this.t('webhooks_lbl_targets','Destinos')}: ${(h.targets||[]).join(', ')||'—'} &nbsp;·&nbsp;
-          📊 ${this.t('webhooks_lbl_triggers','Disparos')}: ${h.trigger_count||0} &nbsp;·&nbsp;
-          ⏰ ${this.t('webhooks_lbl_last','Último')}: ${lastTrig}
+          🎯 ${this.t('webhooks_lbl_targets', 'Destinos')}: ${(h.targets || []).join(', ') || '—'} &nbsp;·&nbsp;
+          📊 ${this.t('webhooks_lbl_triggers', 'Disparos')}: ${h.trigger_count || 0} &nbsp;·&nbsp;
+          ⏰ ${this.t('webhooks_lbl_last', 'Último')}: ${lastTrig}
         </div>
       </div>`;
     }).join('');
@@ -2282,7 +2291,7 @@ const App = {
     const defaultRole = rules.global_default_role || 'chatbot';
     const defaultSoul = rules.global_default_soul || '';
     const embedModel = rules.knowledge_embed_model || '';
-    
+
     let defaultHtml = `
       <div class="status-row mb-sm" style="border-bottom:1px solid var(--border);padding-bottom:0.5rem; display:flex; flex-wrap:wrap; gap:1rem;">
         <div style="display:flex; align-items:center; gap:0.5rem;">
@@ -2371,15 +2380,15 @@ const App = {
   },
   editJID(jid) {
     this.$('rbac-jid').value = jid;
-    
+
     // Visually update the picker
     const pickerEl = document.getElementById('rbac-picker');
     if (pickerEl) {
       pickerEl.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(i => i.checked = false);
-      
+
       const baseJid = jid.split('@')[0];
       let radio = document.querySelector(`input[name="rbac-picker-pick"][value^="${baseJid}@"]`);
-      
+
       if (!radio) {
         const isGroup = jid.includes('@g.us');
         const container = document.querySelector(`#rbac-picker .${isGroup ? 'picker-groups-container' : 'picker-contacts-container'}`);
@@ -2401,10 +2410,10 @@ const App = {
         const tabIdx = isGroup ? 2 : 1;
         const tabBtn = document.querySelector(`#rbac-picker .picker-tabs button:nth-child(${tabIdx})`);
         if (tabBtn) App._switchPickerTab('rbac-picker', isGroup ? 'groups' : 'contacts', tabBtn);
-        
+
         const searchInput = document.querySelector('#rbac-picker input.picker-filter');
         App._filterPicker('rbac-picker', searchInput ? searchInput.value : '');
-        
+
         const listContainer = document.querySelector('#rbac-picker-list');
         if (listContainer) listContainer.scrollTop = 0;
       }
@@ -2696,7 +2705,7 @@ const App = {
     const cmdRulesRaw = (this.$('new-role-cmd-rules')?.value || '').trim();
     if (cmdRulesRaw) {
       try { cmdRules = JSON.parse(cmdRulesRaw); }
-      catch(e) { return this.toast(this.t('toast_cmd_rules_invalid', '❌ command_rules: JSON inválido — ' + e.message), 'error'); }
+      catch (e) { return this.toast(this.t('toast_cmd_rules_invalid', '❌ command_rules: JSON inválido — ' + e.message), 'error'); }
     }
 
     const d = await this.get('guard/rules');
@@ -2776,12 +2785,12 @@ const App = {
     const m1 = soul.content.match(/\[icon:\s*(.+?)\]/i);
     if (m1) return m1[1];
     const lines = soul.content.split('\n');
-    for (let i=0; i<Math.min(5, lines.length); i++) {
-        const l = lines[i].trim();
-        if (l.startsWith('#')) {
-            const match = l.match(/^#+\s*([\uD800-\uDBFF][\uDC00-\uDFFF]|\p{Emoji_Presentation})/u);
-            if (match) return match[1];
-        }
+    for (let i = 0; i < Math.min(5, lines.length); i++) {
+      const l = lines[i].trim();
+      if (l.startsWith('#')) {
+        const match = l.match(/^#+\s*([\uD800-\uDBFF][\uDC00-\uDFFF]|\p{Emoji_Presentation})/u);
+        if (match) return match[1];
+      }
     }
     return soul.is_sandbox ? '📦' : '🧬';
   },
@@ -2957,7 +2966,7 @@ const App = {
       }
       // Parse defaultName into category + base name parts
       const _parts = defaultName.split('/');
-      const defaultCat  = _parts.length > 1 ? _parts[0] : '';
+      const defaultCat = _parts.length > 1 ? _parts[0] : '';
       const defaultBase = _parts.length > 1 ? _parts.slice(1).join('/') : defaultName;
 
       const catOptions = [
@@ -3646,6 +3655,15 @@ const App = {
   async loadInstall() {
     const d = await this.get('install/status');
     if (!d.ok) { this.toast(this.t('toast_error_cargando_estado_de_instalaci_n', 'Error cargando estado de instalación'), 'error'); return; }
+
+    // Load environment info (Docker/headless/desktop detection)
+    try {
+      const envResp = await this.get('install/environment');
+      if (envResp.ok && envResp.environment) {
+        d.environment = envResp.environment;
+      }
+    } catch (e) { /* non-fatal */ }
+
     this._installStatus = d;
     this.renderInstallStatus(d);
     this.renderInstallStepper(d);
@@ -3742,7 +3760,45 @@ const App = {
 
     const badge = (cond, t, f) => `<span class="status-badge ${cond ? 'badge-ok' : 'badge-err'}">${cond ? t : f}</span>`;
 
+    // Environment info (Docker / headless / desktop)
+    const env = s.environment || {};
+    const mode = env.mode || 'unknown';
+    const modeIcons = { docker: '🐳', headless: '🖥️', desktop: '🖥️' };
+    const modeLabels = {
+      docker: 'Docker Container',
+      headless: 'VPS / Headless',
+      desktop: 'Desktop',
+      unknown: 'Unknown',
+    };
+    const isDocker = mode === 'docker';
+    const isHeadless = mode === 'headless';
+
+    // Build environment bar
+    let envBar = '';
+    if (mode !== 'unknown') {
+      envBar = `<div class="status-row" style="background:var(--bg-input); border-radius:var(--radius-sm); padding:0.5rem 0.75rem; margin-bottom:0.5rem;">
+        <span>${modeIcons[mode] || '💻'} <strong>${this.t('install_env_label', 'Entorno')}:</strong> ${modeLabels[mode] || mode}</span>
+        ${isDocker ? '<span class="status-badge badge-info" style="font-size:10px;">🐳 Docker</span>' : ''}
+        ${isHeadless ? '<span class="status-badge badge-info" style="font-size:10px;">🖥️ Headless</span>' : ''}
+        ${env.has_display ? '<span class="status-badge badge-ok" style="font-size:10px;">🖥️ GUI</span>' : ''}
+      </div>`;
+    }
+
+    // Docker/headless warnings
+    let envWarnings = '';
+    if (isDocker) {
+      envWarnings = `<div class="status-row" style="background:rgba(255,165,0,0.1); border-left:3px solid orange; border-radius:var(--radius-sm); padding:0.5rem 0.75rem; margin-bottom:0.5rem;">
+        <span>🐳 <strong>Docker:</strong> ${this.t('install_env_docker_note', 'Autostart no disponible. El bridge debe iniciarse manualmente.')}</span>
+      </div>`;
+    } else if (isHeadless) {
+      envWarnings = `<div class="status-row" style="background:rgba(255,165,0,0.1); border-left:3px solid orange; border-radius:var(--radius-sm); padding:0.5rem 0.75rem; margin-bottom:0.5rem;">
+        <span>🖥️ <strong>Headless:</strong> ${this.t('install_env_headless_note', 'Sin navegador. Google Contacts se vinculará desde otro dispositivo.')}</span>
+      </div>`;
+    }
+
     grid.innerHTML = `
+      ${envBar}
+      ${envWarnings}
       <div class="status-row"><span>📦 Skill Code</span>${badge(s.installed, 'OK', this.t('install_status_missing', 'Falta'))}</div>
       <div class="status-row"><span>⚙️ .env</span>${badge(s.env_configured, 'OK', this.t('install_status_missing', 'Falta'))}</div>
       <div class="status-row"><span>🔌 Hooks</span>${badge(s.hooks_registered, 'OK', this.t('install_status_missing', 'Falta'))}</div>
@@ -4198,8 +4254,8 @@ const App = {
           let currentText = bannerTextEl.textContent || '';
           if (!currentText.includes(updateText)) {
             const cleanText = currentText.replace(/[\u2003\u2022\u2003]+/g, ' ').trim();
-            const textToSet = cleanText 
-              ? `${updateText} \u2003\u2022\u2003 ${cleanText}` 
+            const textToSet = cleanText
+              ? `${updateText} \u2003\u2022\u2003 ${cleanText}`
               : updateText;
             var segment = textToSet + '\u2003\u2022\u2003' + textToSet + '\u2003\u2022\u2003';
             bannerTextEl.textContent = segment + segment;
@@ -4207,7 +4263,7 @@ const App = {
           }
         }
       }
-    } catch(e) {
+    } catch (e) {
       console.log("Error checkUpdateBackground", e);
     }
   },
@@ -5390,7 +5446,7 @@ const App = {
           bannerEl.style.display = 'block';
         }
       }
-    }).catch(() => {});
+    }).catch(() => { });
   },
 
   // ── Debug / Diagnostics ──
@@ -5426,7 +5482,7 @@ const App = {
       lines.push(`  env_configured  : ${j.env_configured}`);
       const shouldWizard = j.ok && (!j.installed || !j.hooks_registered || !j.env_configured);
       lines.push(`  → Show wizard?  : ${shouldWizard}`);
-    } catch(e) {
+    } catch (e) {
       lines.push(`  FETCH ERROR: ${e.message}`);
     }
     lines.push(``);

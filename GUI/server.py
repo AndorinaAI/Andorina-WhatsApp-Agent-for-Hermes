@@ -55,6 +55,13 @@ PROJECT_DIR = GUI_DIR.parent
 
 SCRIPTS_DIR = PROJECT_DIR / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))  # Allow importing from scripts/utils
+# P4: Normalización canónica de JIDs (elimina bloques inline re.sub([^\d]))
+try:
+    from utils.jids import clean_number as _clean_number, jid_match as _jid_match
+except ImportError:
+    def _clean_number(n): return re.sub(r"[^\d]", "", n.split("@")[0] if "@" in n else n)
+    def _jid_match(s, c): s=_clean_number(s); c=_clean_number(c); return bool(s and c and (s==c or c.endswith(s) or s.endswith(c)))
+
 # Import canonical permissions list from rbac.py (single source of truth)
 try:
     from security.rbac import AVAILABLE_PERMISSIONS as _RBAC_PERMISSIONS
@@ -176,6 +183,7 @@ SOULS_DIR.mkdir(parents=True, exist_ok=True)
 # ── Auth & Sessions ───────────────────────────────────────────
 SESSION_FILE = STATE_DIR / "sessions.json"
 SESSIONS = {}
+SESSION_LOCK = threading.Lock()  # B1: protege SESSIONS en contexto multihilo
 FAILED_ATTEMPTS = {}
 try:
     if SESSION_FILE.exists():
@@ -184,13 +192,20 @@ except Exception:
     pass
 
 def save_sessions():
+    """Guarda sesiones activas de forma atómica. No adquiere SESSION_LOCK
+    (el caller ya debe tenerlo)."""
     try:
-        # Cleanup expired sessions before saving
         now = time.time()
         active_sessions = {k: v for k, v in SESSIONS.items() if v["expires"] > now}
-        SESSION_FILE.write_text(json.dumps(active_sessions), encoding="utf-8")
+        SESSIONS.clear()
+        SESSIONS.update(active_sessions)
+        # B2: escritura atómica — tmp → replace (evita corrupción si el proceso muere)
+        tmp = SESSION_FILE.with_suffix(".tmp")
+        tmp.write_text(json.dumps(active_sessions), encoding="utf-8")
+        tmp.replace(SESSION_FILE)
     except Exception as e:
         log_event("error", "Failed to save sessions", str(e))
+
 
 SESSION_EXPIRY = 24 * 3600
 
@@ -199,21 +214,22 @@ def hash_password(jid, password):
 
 def check_auth(headers, required_perm=None):
     """Verifica si la petición tiene un token válido y los permisos necesarios. Retorna (bool, dict)."""
-    # Si estamos en localhost y no hay auth configurada aún, podríamos relajarlo, pero forzaremos auth.
     auth_header = headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
         return False, None
     token = auth_header.split(' ')[1]
     
-    session = SESSIONS.get(token)
-    if not session: return False, None
-    if time.time() > session['expires']:
-        del SESSIONS[token]
+    with SESSION_LOCK:
+        session = SESSIONS.get(token)
+        if not session: return False, None
+        if time.time() > session['expires']:
+            del SESSIONS[token]
+            save_sessions()
+            return False, None
+            
+        # V1.6: Renovar sesión dentro del lock para evitar race condition
+        session['expires'] = time.time() + SESSION_EXPIRY
         save_sessions()
-        return False, None
-        
-    # Renovar sesión
-    session['expires'] = time.time() + SESSION_EXPIRY
     
     # Refresh permissions dynamically
     try:
@@ -234,7 +250,7 @@ def check_auth(headers, required_perm=None):
         admin_phone = env_vars.get("ADMIN_PHONE", "").strip()
         if admin_phone:
             owner_jids.append(admin_phone)
-        is_owner = any(jid_clean.endswith(re.sub(r"[^\d]", "", j)) for j in owner_jids if j)
+        is_owner = any(_jid_match(jid_clean, j) for j in owner_jids if j)
         
         if is_owner:
             role = "owner"
@@ -243,8 +259,9 @@ def check_auth(headers, required_perm=None):
             role = entry.get("role", rules.get("global_default_role", "chatbot"))
             perms = rules.get("roles", {}).get(role, {}).get("permissions", [])
         
-        session["role"] = role
-        session["permissions"] = perms
+        with SESSION_LOCK:
+            session["role"] = role
+            session["permissions"] = perms
     except Exception:
         pass
 
@@ -325,7 +342,9 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
     def send_json(self, data, code=200):
         # V3.6 GUI Adapter
+        # V1.6: trabajar sobre copia para no mutar el dict del caller
         if isinstance(data, dict):
+            data = dict(data)
             if "payload" in data and isinstance(data["payload"], dict):
                 data.update(data.pop("payload"))
             if data.get("status") == "OK":
@@ -373,6 +392,7 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         if not path.startswith("/api/"):
             self.serve_static(path); return
 
+        session = None  # V1.6: inicializar antes del bloque condicional
         public_routes = ["/api/install/status", "/api/install/detect", "/api/install/stream"]
         if path not in public_routes and not path.startswith("/api/public"):
             is_auth, session = check_auth(self.headers)
@@ -463,6 +483,11 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                 except Exception:
                     agents = []
 
+                try:
+                    env_info = setup_lib.detect_environment() if setup_lib else {}
+                except Exception:
+                    env_info = {"mode": "unknown", "is_docker": False, "is_headless": False}
+
                 self.send_json({
                     "ok": True,
                     "installed": installed,
@@ -479,7 +504,8 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                     "panel_shortcut_installed": panel_shortcut_installed,
                     "agents": agents,
                     "display_server": setup_lib.detect_display_server() if setup_lib else "headless",
-                    "python_env": setup_lib.detect_python_env() if setup_lib else {}
+                    "python_env": setup_lib.detect_python_env() if setup_lib else {},
+                    "environment": env_info
                 })
             except Exception as e:
                 log_event("error", f"install/status failed: {e}")
@@ -489,6 +515,20 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
 
         elif path == "/api/install/detect":
             self.send_json({"ok": True, "agents": setup_lib.detect_agents() if setup_lib else []})
+            return
+
+        elif path == "/api/install/environment":
+            try:
+                env_info = setup_lib.detect_environment() if setup_lib else {}
+            except AttributeError:
+                # Fallback for older setup_lib without detect_environment
+                env_info = {
+                    "mode": "unknown",
+                    "is_docker": False,
+                    "is_headless": False,
+                    "has_display": bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")),
+                }
+            self.send_json({"ok": True, "environment": env_info})
             return
 
         elif path == "/api/install/stream":
@@ -1246,12 +1286,8 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                     owner_jids.append(k)
             
             # Limpiar número (strip +, spaces, dashes)
-            jid_clean = re.sub(r"[^\d]", "", jid)
-            is_owner = any(
-                jid_clean.endswith(re.sub(r"[^\d]", "", j)) or
-                re.sub(r"[^\d]", "", j).endswith(jid_clean)
-                for j in owner_jids if j
-            )
+            jid_clean = _clean_number(jid)
+            is_owner = any(_jid_match(jid_clean, j) for j in owner_jids if j)
             
             # Check existing rule entry
             entry = rules.get("jids", {}).get(jid_clean, {})
@@ -1298,12 +1334,13 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
             role = "owner" if is_owner else entry.get("role", rules.get("global_default_role", "chatbot"))
             perms = rules.get("roles", {}).get(role, {}).get("permissions", [])
             
-            SESSIONS[token] = {
-                "jid": jid_clean,
-                "role": role,
-                "permissions": perms,
-                "expires": time.time() + SESSION_EXPIRY
-            }
+            with SESSION_LOCK:
+                SESSIONS[token] = {
+                    "jid": jid_clean,
+                    "role": role,
+                    "permissions": perms,
+                    "expires": time.time() + SESSION_EXPIRY
+                }
             save_sessions()
             
             return self.send_json({"ok": True, "token": token, "role": role, "permissions": perms})
@@ -2320,7 +2357,7 @@ ANDORINA_ROOT={agent_path / "skills" / "andorina"}
             raw_jid = body.get("jid", "")
             if not raw_jid:
                 self.send_error_json(400, "Missing jid"); return
-            jid = raw_jid.split("@")[0].replace("+", "").replace(" ", "")
+            jid = _clean_number(raw_jid)
             rules = read_json(STATE_DIR / "guard_rules.json") or {}
             jids = rules.setdefault("jids", {})
             entry = jids.setdefault(jid, {})
@@ -2690,6 +2727,12 @@ X-Andorina-Source={launcher_sh.absolute()}
 
     def do_DELETE(self):
         path = urllib.parse.urlparse(self.path).path
+
+        # V1.6 fix: autenticación obligatoria en todas las rutas DELETE
+        is_auth, session = check_auth(self.headers)
+        if not is_auth:
+            self.send_error_json(401, "Unauthorized")
+            return
 
         if path.startswith("/api/agenda/remove/"):
             msg_id = path.split("/api/agenda/remove/")[1]

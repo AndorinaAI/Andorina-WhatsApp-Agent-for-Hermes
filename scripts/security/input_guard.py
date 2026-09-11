@@ -47,10 +47,8 @@ DANGEROUS_PATTERNS = [
     r"\||\>|\>\>|\<|\&",
 ]
 
-def clean_number(n):
-    return re.sub(r"[^\d]", "", n)
-
 from security.rbac import is_owner
+from utils.jids import clean_number
 
 def anon(number):
     return hashlib.sha256(number.encode('utf-8')).hexdigest()[:16]
@@ -108,6 +106,11 @@ def _log_deny(reason: str, msg: str):
 
 def validate_input(number, message, msg_type="text"):
     """Validates an incoming message (Rate limiting, lengths, injections)"""
+    # V1.6-Beta1: proteger contra None
+    if number is None:
+        number = ""
+    if message is None:
+        message = ""
     env = load_env()
     state = prune_state(load_state())
 

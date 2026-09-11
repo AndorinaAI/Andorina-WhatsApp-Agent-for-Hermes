@@ -12,7 +12,6 @@ import urllib.request
 import urllib.parse
 import re
 import time
-import unicodedata
 from pathlib import Path
 
 # Config
@@ -20,6 +19,7 @@ HERMES_HOME = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
 
 # Import centralized env loading from common module
 sys.path.append(str(Path(__file__).parent.parent))
+from utils.jids import extract_number, normalize_text, clean_number as _clean_number, normalize_jid
 import common
 from common import ENV_PATH, load_env as _base_load_env
 
@@ -27,6 +27,16 @@ SCRIPTS_DIR = Path(__file__).parent.parent.absolute()
 CACHE_FILE = SCRIPTS_DIR.parent / "state" / "contacts_cache.json"
 NOTES_DIR = SCRIPTS_DIR.parent / "state" / "notes"
 CACHE_TTL = 3600 * 24 # 24 hours
+
+# V1.6-Beta1: Helper para separar notas por contexto (grupo vs DM)
+def _notes_path(num: str, in_group: str = "") -> Path:
+    """Devuelve la ruta del archivo de notas según el contexto.
+    Si in_group es un JID de grupo (@g.us), usa archivo separado."""
+    if in_group and "@g.us" in in_group:
+        group_bare = in_group.split("@")[0]
+        return NOTES_DIR / f"{num}__in__{group_bare}.md"
+    return NOTES_DIR / f"{num}.md"
+
 
 # contacts.py needs env-var overrides on top of .env
 def load_env():
@@ -115,10 +125,6 @@ def fetch_all(token, env):
         if not page: break
     return all_c, None
 
-def norm(text):
-    text = str(text).lower().strip()
-    text = unicodedata.normalize("NFD", text)
-    return "".join(c for c in text if unicodedata.category(c) != "Mn")
 
 def clean_phone(raw, env):
     digits = re.sub(r"[^\d]", "", str(raw)).lstrip("0") or ""
@@ -150,7 +156,7 @@ def build_contacts(raw_list, env):
                 entries.append({"number": clean, "chatId": f"{clean}@s.whatsapp.net"})
         if entries:
             result.append({"name": name, "chatId": entries[0]["chatId"], "number": entries[0]["number"], "avatarUrl": avatar_url})
-    return sorted(result, key=lambda x: norm(x["name"]))
+    return sorted(result, key=lambda x: normalize_text(x["name"]))
 
 def load_cache():
     try:
@@ -174,19 +180,19 @@ def out(data):
     print(json.dumps(data, ensure_ascii=False, indent=2))
 
 def cmd_buscar(contacts, query, retry=True, filter_tags=None):
-    q = norm(query)
+    q = normalize_text(query)
     found = []
     
     for c in contacts:
-        name_n = norm(c["name"])
-        num_n = norm(c.get("number", ""))
+        name_n = normalize_text(c["name"])
+        num_n = normalize_text(c.get("number", ""))
         if q in name_n or name_n in q or q in num_n:
             found.append({**c, "type": "Contact"})
     
     # 2. Search Groups
     groups = obtener_grupos()
     for g in groups:
-        gn = norm(g["name"])
+        gn = normalize_text(g["name"])
         if q in gn or gn in q:
             if not any(f["chatId"] == g["chatId"] for f in found):
                 found.append({**g, "type": "Group"})
@@ -270,27 +276,24 @@ def obtener_grupos():
 
 # ── Notes Management ──────────────────────────────────────────────────────────
 
-def get_jid(raw):
-    raw = raw.strip()
-    if not "@" in raw:
-        if "-" in raw: raw += "@g.us"
-        else: raw += "@s.whatsapp.net"
-    return raw
+# V1.6: get_jid() reemplazada por normalize_jid() de utils/jids.py
+# Se mantiene como alias para compatibilidad con código existente
+get_jid = normalize_jid
 
-def extract_number(jid):
-    return jid.split("@")[0] if "@" in jid else jid
 
-def cmd_note_set(jid, text):
-    num = extract_number(get_jid(jid))
+def cmd_note_set(jid, text, in_group=None):
+    jid_norm = normalize_jid(jid)
+    num = extract_number(jid_norm)
     NOTES_DIR.mkdir(parents=True, exist_ok=True)
-    note_file = NOTES_DIR / f"{num}.md"
+    note_file = _notes_path(num, in_group)
     note_file.write_text(text, encoding="utf-8")
     out({"status": "OK", "error_code": "NONE", "payload": {"jid": num, "message": "Notes updated."}})
 
-def cmd_note_section_set(jid, section, text):
-    num = extract_number(get_jid(jid))
+def cmd_note_section_set(jid, section, text, in_group=None):
+    jid_norm = normalize_jid(jid)
+    num = extract_number(jid_norm)
     NOTES_DIR.mkdir(parents=True, exist_ok=True)
-    note_file = NOTES_DIR / f"{num}.md"
+    note_file = _notes_path(num, in_group)
     
     if not note_file.exists():
         note_file.write_text(f"# {section}\n{text}\n", encoding="utf-8")
@@ -329,7 +332,11 @@ def cmd_note_section_set(jid, section, text):
     out({"status": "OK", "error_code": "NONE", "payload": {"jid": num, "message": f"Section '{section}' updated."}})
 
 def cmd_note_add(jid, text):
-    num = jid.split("@")[0]
+    # V1.6: Normalizar JID antes de extraer número — asegura
+    # que las notas se guarden siempre con código de país completo,
+    # consistente con build_snapshot() que también normaliza.
+    jid_norm = normalize_jid(jid)
+    num = extract_number(jid_norm)
     NOTES_DIR.mkdir(parents=True, exist_ok=True)
     note_file = NOTES_DIR / f"{num}.md"
     
@@ -349,9 +356,10 @@ def cmd_note_add(jid, text):
     note_file.write_text(new_text, encoding="utf-8")
     out({"status": "OK", "error_code": "NONE", "payload": {"jid": num, "message": "Note added."}})
 
-def cmd_note_read(jid):
-    num = extract_number(get_jid(jid))
-    note_file = NOTES_DIR / f"{num}.md"
+def cmd_note_read(jid, in_group=None):
+    jid_norm = normalize_jid(jid)
+    num = extract_number(jid_norm)
+    note_file = _notes_path(num, in_group)
     if note_file.exists():
         try:
             text = note_file.read_text(encoding="utf-8").strip()
@@ -361,9 +369,10 @@ def cmd_note_read(jid):
             pass
     out({"status": "OK", "error_code": "NONE", "payload": {"jid": num, "notes": ""}})
 
-def cmd_note_clear(jid):
-    num = extract_number(get_jid(jid))
-    note_file = NOTES_DIR / f"{num}.md"
+def cmd_note_clear(jid, in_group=None):
+    jid_norm = normalize_jid(jid)
+    num = extract_number(jid_norm)
+    note_file = _notes_path(num, in_group)
     if note_file.exists():
         try:
             note_file.unlink()

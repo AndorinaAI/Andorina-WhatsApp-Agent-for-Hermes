@@ -8,21 +8,39 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from common import load_env
 from utils.safe_json import read_json_safe, write_json_safe
+from utils.jids import normalize_jid as _norm_jid, clean_number
 from security.input_guard import validate_input
 from security.rbac import load_rules, resolve_role, get_role_config, is_owner
 
 STATE_DIR = Path(__file__).parent.parent.parent / "state"
 
-def build_snapshot(number, env):
+def build_snapshot(number, env, chat_id=None):
+    # V1.6: Normalizar JID antes de resolver rol — asegura que números
+    # parciales sin código de país tengan el formato canónico (@s.whatsapp.net)
+    # para que resolve_role() pueda hacer el suffix match correctamente.
+    normalized = _norm_jid(number) if number else number
     rules = load_rules()
-    role = resolve_role(number, rules, env)
+    role = resolve_role(normalized, rules, env)
     role_config = get_role_config(role, rules)
-    is_admin = is_owner(number, env) or resolve_role(number, rules, env) == "owner"
+    is_admin = is_owner(normalized, env) or role == "owner"
     mode = "full" if is_admin else ("manager" if role == "manager" else "chatbot")
 
-    # Merge JID-level overrides (allowed_folders, allowed_chats) from guard_rules.json
-    num = number.split("@")[0]
-    jid_entry = rules.get("jids", {}).get(num, {})
+    # V1.6: Usar normalized JID para buscar jid_entry y notas — asegura
+    # que números parciales sin código de país encuentren sus entradas.
+    # También intentamos con el número sin código de país (suffix match).
+    _norm_num = clean_number(normalized) if normalized else ""
+    _bare_num = (normalized or number or "").split("@")[0]
+    jid_entry = rules.get("jids", {}).get(_bare_num, rules.get("jids", {}).get(_norm_num, {}))
+    # Usar _bare_num para buscar notas (el archivo .md se guarda con extract_number)
+    num = _bare_num
+
+    # V1.6-Beta1: Separar contexto de notas — grupo vs DM.
+    # Si el chat es un grupo, las notas del sender se guardan en un archivo
+    # separado para no mezclar info del contacto en grupo vs en privado.
+    _group_bare = ""
+    if chat_id and "@g.us" in chat_id:
+        _group_bare = chat_id.split("@")[0]
+
     if jid_entry.get("allowed_folders"):
         merged_folders = list(set(role_config.get("allowed_folders", [])) | set(jid_entry["allowed_folders"]))
         role_config = dict(role_config)
@@ -37,10 +55,17 @@ def build_snapshot(number, env):
     
     # ── Auxiliary context (injected via pre_llm_call hook, NOT the soul) ──
     context_parts = []
-    num = number.split("@")[0]
 
     # Notes
-    notes_file = STATE_DIR / "notes" / f"{num}.md"
+    # V1.6-Beta1: Notas con contexto — en grupo usa archivo separado
+    if _group_bare:
+        notes_file = STATE_DIR / "notes" / f"{num}__in__{_group_bare}.md"
+        # Fallback: si no hay notas de grupo, intentar cargar las individuales
+        if not notes_file.exists():
+            notes_file = STATE_DIR / "notes" / f"{num}.md"
+    else:
+        notes_file = STATE_DIR / "notes" / f"{num}.md"
+
     if notes_file.exists():
         context_parts.append(f"### NOTES FOR {number}:\n" + notes_file.read_text(encoding="utf-8"))
 

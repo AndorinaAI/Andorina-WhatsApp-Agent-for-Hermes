@@ -9,11 +9,13 @@ de memoria a corto (sessions.json) y largo plazo (Hindsight DB).
 """
 import sys
 import json
+import re
 import subprocess
 import time
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from utils.safe_json import read_json_safe
+from utils.jids import normalize_jid
 
 import os
 
@@ -296,12 +298,15 @@ def build_channel_prompts() -> dict:
             if soul_text:
                 print(f"[soul_sync] 🌐 Sub-soul global '{global_default_soul}' aplicada a {num}")
         if soul_text:
-            if "@" in num:
-                jid_full = num  # already has a suffix
-            elif entry.get("type") == "group" or (num.isdigit() and len(num) >= 15):
-                jid_full = f"{num}@g.us"          # groups: type=group OR 15+ digit epoch ID
+            # Use centralized normalize_jid() from utils/jids.py
+            # It handles: country code prefix, @g.us/@s.whatsapp.net suffix detection,
+            #            and respects the entry's type=group for group JIDs
+            if entry.get("type") == "group":
+                # Force group suffix for explicitly typed groups
+                bare = num.split("@")[0] if "@" in num else num
+                jid_full = f"{bare}@g.us"
             else:
-                jid_full = f"{num}@s.whatsapp.net" # individuals use @s.whatsapp.net
+                jid_full = normalize_jid(num)
             prompts[jid_full] = soul_text
             print(f"[soul_sync] ✅ Sub-soul cargada para {jid_full} ({len(soul_text)} chars)")
         else:
@@ -391,7 +396,9 @@ def purge_long_term_memory(jid: str):
         return
         
     pg_bin = psql_bin_list[0]
-    number = jid.replace("@s.whatsapp.net", "")
+    # V1.6: Sanitizar número para prevenir SQL injection.
+    # Solo permitimos dígitos — cualquier otro carácter se elimina.
+    number = re.sub(r"[^\d]", "", jid)
     
     # Hindsight schema uses `documents` with id=jid (or containing jid)
     # Al borrar el documento, el ON DELETE CASCADE borra todas las fact_entities, memory_units, etc.

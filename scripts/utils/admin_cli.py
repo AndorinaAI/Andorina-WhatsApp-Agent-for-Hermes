@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import sys
 import json
 from pathlib import Path
@@ -9,58 +8,51 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 sys.path.append(str(Path(__file__).parent.parent))
 
 from common import out, load_env
-from security.rbac import RULES_FILE, resolve_role, clean_number
+from security.rbac import RULES_FILE, resolve_role
+from utils.jids import clean_number, normalize_jid
+from utils.safe_json import read_json_safe, write_json_safe
 
 STATE_DIR = Path(__file__).parent.parent.parent / "state"
 CHATBOT_FILE = STATE_DIR / "chatbot.json"
 AWAY_FILE = STATE_DIR / "away.json"
 
-def read_json(path):
-    try:
-        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-    except Exception: return {}
-
-def write_json(path, data):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix('.tmp')
-    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-    tmp.replace(path)
-
-def extract_number(jid):
-    return clean_number(jid)
 
 # -- Role commands --
 def cmd_role_set(jid, role):
-    rules = read_json(RULES_FILE)
+    rules = read_json_safe(RULES_FILE, default={})
     if "roles" not in rules: rules["roles"] = {}
     if role not in rules["roles"]:
         return out({"status": "ERROR", "error_code": "INVALID_ARGS", "payload": {"error": f"Role '{role}' does not exist"}})
     
-    num = extract_number(jid)
+    # V1.6: normalizar JID antes de extraer número — soporta formatos parciales
+    jid = normalize_jid(jid)
+    num = clean_number(jid)
     if "jids" not in rules: rules["jids"] = {}
     if num not in rules["jids"]: rules["jids"][num] = {}
     
     rules["jids"][num]["role"] = role
-    write_json(RULES_FILE, rules)
+    write_json_safe(RULES_FILE, rules)
     out({"status": "OK", "error_code": "NONE", "payload": {"message": f"Assigned role '{role}' to {jid}"}})
 
 def cmd_role_get(jid):
-    rules = read_json(RULES_FILE)
+    rules = read_json_safe(RULES_FILE, default={})
     env = load_env()
     role = resolve_role(jid, rules, env)
     out({"status": "OK", "error_code": "NONE", "payload": {"jid": jid, "role": role}})
 
 def cmd_role_remove(jid):
-    rules = read_json(RULES_FILE)
-    num = extract_number(jid)
+    rules = read_json_safe(RULES_FILE, default={})
+    # V1.6: normalizar JID antes de extraer número
+    jid = normalize_jid(jid)
+    num = clean_number(jid)
     if "jids" in rules and num in rules["jids"]:
         if "role" in rules["jids"][num]:
             del rules["jids"][num]["role"]
-            write_json(RULES_FILE, rules)
+            write_json_safe(RULES_FILE, rules)
     out({"status": "OK", "error_code": "NONE", "payload": {"message": f"Removed role from {jid}"}})
 
 def cmd_role_list():
-    rules = read_json(RULES_FILE)
+    rules = read_json_safe(RULES_FILE, default={})
     env = load_env()
     assigned = {}
     
@@ -79,74 +71,82 @@ def cmd_role_list():
 
 # -- Soul commands --
 def cmd_soul_set(jid, text):
-    rules = read_json(RULES_FILE)
-    num = extract_number(jid)
+    rules = read_json_safe(RULES_FILE, default={})
+    # V1.6: normalizar JID antes de extraer número
+    jid = normalize_jid(jid)
+    num = clean_number(jid)
     if "jids" not in rules: rules["jids"] = {}
     if num not in rules["jids"]: rules["jids"][num] = {}
     
     rules["jids"][num]["custom_soul"] = text
-    write_json(RULES_FILE, rules)
+    write_json_safe(RULES_FILE, rules)
     out({"status": "OK", "error_code": "NONE", "payload": {"message": f"Set personality for {jid}"}})
 
 def cmd_soul_get(jid):
-    rules = read_json(RULES_FILE)
-    num = extract_number(jid)
+    rules = read_json_safe(RULES_FILE, default={})
+    # V1.6: normalizar JID antes de extraer número
+    jid = normalize_jid(jid)
+    num = clean_number(jid)
     entry = rules.get("jids", {}).get(num, {})
     soul = entry.get("custom_soul", "")
     out({"status": "OK", "error_code": "NONE", "payload": {"jid": jid, "soul": soul}})
 
 # -- Chatbot commands --
 def cmd_chatbot_on():
-    data = read_json(CHATBOT_FILE)
+    data = read_json_safe(CHATBOT_FILE, default={})
     data["enabled"] = True
-    write_json(CHATBOT_FILE, data)
+    write_json_safe(CHATBOT_FILE, data)
     out({"status": "OK", "error_code": "NONE", "payload": {"message": "Chatbot globally ENABLED"}})
 
 def cmd_chatbot_off():
-    data = read_json(CHATBOT_FILE)
+    data = read_json_safe(CHATBOT_FILE, default={})
     data["enabled"] = False
-    write_json(CHATBOT_FILE, data)
+    write_json_safe(CHATBOT_FILE, data)
     out({"status": "OK", "error_code": "NONE", "payload": {"message": "Chatbot globally DISABLED"}})
 
 def cmd_chatbot_mute(jid):
-    data = read_json(CHATBOT_FILE)
+    data = read_json_safe(CHATBOT_FILE, default={})
     if "muted_jids" not in data: data["muted_jids"] = []
-    num = extract_number(jid)
+    # V1.6: normalizar JID antes de extraer número
+    jid = normalize_jid(jid)
+    num = clean_number(jid)
     if num not in data["muted_jids"]:
         data["muted_jids"].append(num)
-        write_json(CHATBOT_FILE, data)
+        write_json_safe(CHATBOT_FILE, data)
     out({"status": "OK", "error_code": "NONE", "payload": {"message": f"Muted chatbot for {jid}"}})
 
 def cmd_chatbot_unmute(jid):
-    data = read_json(CHATBOT_FILE)
+    data = read_json_safe(CHATBOT_FILE, default={})
     if "muted_jids" not in data: data["muted_jids"] = []
-    num = extract_number(jid)
+    # V1.6: normalizar JID antes de extraer número
+    jid = normalize_jid(jid)
+    num = clean_number(jid)
     if num in data["muted_jids"]:
         data["muted_jids"].remove(num)
-        write_json(CHATBOT_FILE, data)
+        write_json_safe(CHATBOT_FILE, data)
     out({"status": "OK", "error_code": "NONE", "payload": {"message": f"Unmuted chatbot for {jid}"}})
 
 def cmd_chatbot_status():
-    data = read_json(CHATBOT_FILE)
+    data = read_json_safe(CHATBOT_FILE, default={})
     out({"status": "OK", "error_code": "NONE", "payload": data})
 
 # -- Away commands --
 def cmd_away_set(text):
     if text.lower() == "off":
-        data = read_json(AWAY_FILE)
+        data = read_json_safe(AWAY_FILE, default={})
         data["enabled"] = False
-        write_json(AWAY_FILE, data)
+        write_json_safe(AWAY_FILE, data)
         out({"status": "OK", "error_code": "NONE", "payload": {"message": "Away auto-reply DISABLED"}})
     else:
-        data = read_json(AWAY_FILE)
+        data = read_json_safe(AWAY_FILE, default={})
         data["enabled"] = True
         data["message"] = text
         if "cooldown" not in data: data["cooldown"] = {}
-        write_json(AWAY_FILE, data)
+        write_json_safe(AWAY_FILE, data)
         out({"status": "OK", "error_code": "NONE", "payload": {"message": "Away auto-reply ENABLED"}})
 
 def cmd_away_status():
-    data = read_json(AWAY_FILE)
+    data = read_json_safe(AWAY_FILE, default={})
     out({"status": "OK", "error_code": "NONE", "payload": {"enabled": data.get("enabled", False), "message": data.get("message", "")}})
 
 

@@ -4,7 +4,6 @@ import json
 import time
 import re
 import subprocess
-import unicodedata
 from pathlib import Path
 
 def get_input():
@@ -21,6 +20,8 @@ STATE_DIR   = SCRIPTS_DIR.parent / "state"
 sys.path.append(str(Path(__file__).parent.parent))
 from common import load_env
 from security.output_pipeline.pipeline import run_pipeline
+from utils.safe_json import read_json_safe
+from utils.jids import jid_match, normalize_jid, normalize_text, resolve_lid_to_phone, resolve_sender_label
 
 # Load .env to get the bot phone for filtering and admin for alerts
 _env = load_env()
@@ -111,29 +112,10 @@ def check_away_and_reply(chat_id, sender):
     return True
 
 
-# ── JID matching helper ─────────────────────────────────────────────────────
-
-def _jid_match(stored: str, incoming: str) -> bool:
-    """Compare a stored source/target against an incoming chat_id.
-    Strips all non-digits and uses suffix match to tolerate:
-    - Different country prefix (34612345678 vs 612345678)
-    - JID domain differences (@s.whatsapp.net vs @lid)
-    Mirrors the logic in rbac.is_owner."""
-    s = re.sub(r"[^\d]", "", stored)
-    c = re.sub(r"[^\d]", "", incoming)
-    if not s or not c:
-        return False
-    return s == c or c.endswith(s) or s.endswith(c)
 
 
 # ── Fuzzy Alert Matching ──────────────────────────────────────────────────────
 
-def normalize_text(text):
-    """Normalize text for fuzzy matching: lowercase, strip accents/diacritics."""
-    text = str(text).lower().strip()
-    text = unicodedata.normalize("NFD", text)
-    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
-    return text
 
 def strip_suffix(word):
     """Basic Spanish/English stemming: remove common plural/verb suffixes.
@@ -178,45 +160,7 @@ def fuzzy_keyword_match(message_text, keywords_csv):
     return False
 
 
-def resolve_lid(lid_str, retries=4):
-    """Attempts to resolve a LID to a phone number using Baileys reverse mapping files."""
-    if not lid_str: return None
-    lid_num = lid_str.split("@")[0]
-    
-    # Check if it's already a standard phone number length/start, but skip the naive starts-with check
-    # since LIDs can start with any digit and be 14-16 digits long.
-    if len(lid_num) <= 13:
-        # Standard international numbers are usually max 13-14 digits. LIDs are often 15+.
-        pass
-        
-    try:
-        import os, time
-        hermes_home = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
-        session_dir = hermes_home / "whatsapp" / "session"
-        reverse_file = session_dir / f"lid-mapping-{lid_num}_reverse.json"
-        
-        for _ in range(retries):
-            if reverse_file.exists():
-                with open(reverse_file, "r", encoding="utf-8") as f:
-                    val = json.load(f)
-                    if isinstance(val, str):
-                        return val
-            time.sleep(0.5)
-            
-        # Fallback to contacts_cache.json
-        cache_file = STATE_DIR / "contacts_cache.json"
-        if cache_file.exists():
-            with open(cache_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                for c in data.get("contacts", []):
-                    c_id = c.get("id", "")
-                    c_lid = c.get("lid", "")
-                    if (c_lid and lid_num in c_lid) or (lid_num in c_id and "@lid" in c_id):
-                        if "@s.whatsapp.net" in c_id:
-                            return c_id.split("@")[0]
-    except Exception:
-        pass
-    return None
+# resolve_lid() consolidated into utils/jids.py — use resolve_lid_to_phone() instead
 
 
 # ── Core processing (also called directly from orchestrator_hook.py) ─────────────
@@ -237,19 +181,8 @@ def process_incoming_message(chat_id: str, sender: str, text: str,
 
         date_str = time.strftime("%Y-%m-%dT%H:%M:%S")
 
-        def _norm(jid):
-            if not jid:
-                return jid
-            parts = jid.split("@")
-            num = parts[0]
-            cc = _env.get("DEFAULT_COUNTRY_CODE", "34")
-            if len(num) >= 8 and len(num) <= 10 and num.isdigit():
-                parts[0] = f"{cc}{num}"
-                return "@".join(parts)
-            return jid
-
-        chat_id = _norm(chat_id) or chat_id
-        sender  = _norm(sender)  or sender
+        chat_id = normalize_jid(chat_id) or chat_id
+        sender  = normalize_jid(sender)  or sender
 
         entry = {
             "chatId":     chat_id,
@@ -315,12 +248,12 @@ def process_incoming_message(chat_id: str, sender: str, text: str,
 
         # Alert rules
         alerts_file = STATE_DIR / "alerts.json"
-        if alerts_file.exists():
+        alerts = read_json_safe(alerts_file, default=[])
+        if isinstance(alerts, list) and alerts:
             try:
-                alerts = json.loads(alerts_file.read_text(encoding="utf-8"))
                 for rule in alerts:
                     source = rule.get("source", "")
-                    if source and _jid_match(source, chat_id or ""):
+                    if source and jid_match(source, chat_id or ""):
                         target   = rule.get("target", "")
                         keywords = rule.get("keywords")
                         if keywords and not fuzzy_keyword_match(text or "", keywords):
@@ -329,79 +262,12 @@ def process_incoming_message(chat_id: str, sender: str, text: str,
                             target = ADMIN_PHONE + "@s.whatsapp.net"
                         if target:
                             msg_text = (text or "").strip() or "[Multimedia recibido]"
-
-                            # Human-readable label:
-                            # groups → use chat_name (or look it up in inbox)
-                            # individual → use sender number
-                            if "@g.us" in (chat_id or ""):
-                                label = chat_name or ""
-                                if not label and INBOX_FILE.exists():
-                                    try:
-                                        for _m in reversed(
-                                            json.loads(INBOX_FILE.read_text(encoding="utf-8"))
-                                        ):
-                                            if _m.get("chatId") == chat_id and _m.get("chatName"):
-                                                label = _m["chatName"]
-                                                break
-                                    except Exception:
-                                        pass
-                                if not label:
-                                    try:
-                                        import urllib.request as _urlreq, os as _os2
-                                        _burl = _os2.environ.get("WHATSAPP_BRIDGE_URL", "http://localhost:3000")
-                                        with _urlreq.urlopen(f"{_burl}/groups", timeout=2) as _gr:
-                                            _glist = json.loads(_gr.read())
-                                            _gid = chat_id.split("@")[0]
-                                            if isinstance(_glist, list):
-                                                _giter = _glist
-                                            else:
-                                                _giter = _glist.get("groups", [])
-                                            for _g in _giter:
-                                                _gkey = (_g.get("id") or _g.get("chatId") or "").split("@")[0]
-                                                if _gid and _gid == _gkey:
-                                                    label = _g.get("name") or _g.get("subject") or ""
-                                                    break
-                                    except Exception:
-                                        pass
-                                if not label:
-                                    gnum = chat_id.split("@")[0]
-                                    label = f"Grupo {gnum[-6:]}"
-                                sender_label = label
-                            else:
-                                # Individual: Google Contacts → inbox → WhatsApp pushName
-                                sender_num = sender.split("@")[0] if "@" in sender else sender
-                                _sbare = sender_num.lstrip("+").lstrip("0")
-                                contact_name = ""
-                                # 1. Google Contacts (contacts_cache.json) — highest priority
-                                cache_file = STATE_DIR / "contacts_cache.json"
-                                if cache_file.exists():
-                                    try:
-                                        cache = json.loads(cache_file.read_text(encoding="utf-8"))
-                                        for c in cache.get("contacts", []):
-                                            c_id = (c.get("id") or c.get("chatId") or "").split("@")[0].lstrip("+").lstrip("0")
-                                            if _sbare and (_sbare in c_id or c_id in _sbare) and c.get("name"):
-                                                contact_name = c["name"]
-                                                break
-                                    except Exception:
-                                        pass
-                                # 2. Inbox senderName (in case not in contacts)
-                                if not contact_name and INBOX_FILE.exists():
-                                    try:
-                                        for _m in reversed(
-                                            json.loads(INBOX_FILE.read_text(encoding="utf-8"))
-                                        ):
-                                            _mfrom = (_m.get("from") or "").split("@")[0].lstrip("+").lstrip("0")
-                                            if _sbare and (_sbare in _mfrom or _mfrom in _sbare):
-                                                if _m.get("senderName") and _m["senderName"] not in ("Me", "Bot (Hermes)"):
-                                                    contact_name = _m["senderName"]
-                                                    break
-                                    except Exception:
-                                        pass
-                                # 3. WhatsApp pushName (fallback only)
-                                if not contact_name:
-                                    contact_name = sender_name or ""
-                                sender_label = contact_name or sender_num
-
+                            sender_label = resolve_sender_label(
+                                chat_id if "@g.us" in (chat_id or "") else sender,
+                                STATE_DIR,
+                                sender_name=sender_name or "",
+                                inbox_file=INBOX_FILE,
+                            )
                             alert_text = f"🚨 Alerta de {sender_label}:\n\"{msg_text}\""
                             try:
                                 subprocess.Popen([
@@ -460,16 +326,21 @@ def main():
             group_part = session_key.split("whatsapp:group:")[1]
             # The group JID is the first token (may contain @g.us already)
             group_jid_raw = group_part.split(":")[0]
-            effective_chat_id = group_jid_raw if "@" in group_jid_raw else group_jid_raw + "@g.us"
+            # V1.6: usar normalize_jid en lugar de composición manual
+            effective_chat_id = normalize_jid(group_jid_raw)
         elif sender:
-            effective_chat_id = sender + ("" if "@" in sender else "@s.whatsapp.net")
+            effective_chat_id = normalize_jid(sender)
 
         text = extra.get("user_message", "")
         chat_name = extra.get("chat_name") or extra.get("group_name") or ""
         if effective_chat_id:
+            # V1.6 fix: no usar effective_chat_id como fallback de sender —
+            # si sender está vacío, usar "unknown@s.whatsapp.net" en lugar
+            # del JID del grupo (que causaba atribución incorrecta).
+            resolved_sender = normalize_jid(sender) if sender else "unknown@s.whatsapp.net"
             process_incoming_message(
                 chat_id=effective_chat_id,
-                sender=sender + ("" if "@" in sender else "@s.whatsapp.net") if sender else effective_chat_id,
+                sender=resolved_sender,
                 text=text,
                 is_bot=False,
                 chat_name=chat_name,
@@ -484,12 +355,12 @@ def main():
     sender   = (payload.get("from") or payload.get("senderId") or payload.get("user") or "").replace("+", "")
     chat_id  = payload.get("chatId") or payload.get("chat")
 
-    # Resolve LIDs
-    resolved_sender = resolve_lid(sender)
+    # Resolve LIDs (consolidated in utils/jids.py)
+    resolved_sender = resolve_lid_to_phone(sender)
     if resolved_sender:
         sender = resolved_sender if "@" not in sender else f"{resolved_sender}@{sender.split('@')[1]}"
     if chat_id:
-        resolved_chat = resolve_lid(chat_id)
+        resolved_chat = resolve_lid_to_phone(chat_id)
         if resolved_chat:
             chat_id = (
                 f"{resolved_chat}@s.whatsapp.net" if "@lid" in chat_id

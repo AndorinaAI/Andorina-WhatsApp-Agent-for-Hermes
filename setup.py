@@ -638,14 +638,17 @@ def main():
             owner_nums = env_now.get("WHATSAPP_ALLOWED_USERS", "").split(",")
             default_rules = {
                 "_available_permissions": [
-                    "sys_command", "edit_files", "wipe_logs",
-                    "set_role", "get_role", "guard_status", "guard_reset", 
-                    "chatbot_toggle", "chatbot_mute", "away_toggle",
-                    "send_text", "send_file", "send_voice", "broadcast",
-                    "read_inbox", "search_history", "search_contacts", "list_groups", 
-                    "refresh_contacts", "add_note", "schedule_msg", "list_agenda", 
-                    "remove_agenda", "add_alert", "recurring_add", "recurring_list", "recurring_remove",
-                    "run_diag", "run_repair", "remove_role", "list_roles", "set_soul", "get_soul"
+                    "all", "send_text", "send_file", "send_voice", "broadcast",
+                    "read_inbox", "search_history", "inbox_delete",
+                    "search_contacts", "list_groups", "refresh_contacts", "add_note", "notes_clear",
+                    "schedule_msg", "list_agenda", "remove_agenda",
+                    "recurring_add", "recurring_list", "recurring_remove",
+                    "add_alert", "remove_alert", "list_alerts",
+                    "run_diag", "run_repair", "wipe_logs", "run_script",
+                    "guard_status", "guard_reset",
+                    "set_role", "get_role", "remove_role", "list_roles",
+                    "set_soul", "get_soul",
+                    "chatbot_mute", "chatbot_toggle", "away_toggle",
                 ],
                 "global_default_role": "chatbot",
                 "knowledge_embed_model": embed_model,

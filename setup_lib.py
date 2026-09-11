@@ -4,36 +4,141 @@ import re
 import json
 import shutil
 import subprocess
+import time
 from pathlib import Path
 
+# ── Environment Detection ─────────────────────────────────────────────────
+
+def _is_docker() -> bool:
+    """Detecta si estamos ejecutándonos dentro de un contenedor Docker."""
+    # 1. Fichero /.dockerenv
+    if Path("/.dockerenv").exists():
+        return True
+    # 2. cgroup contiene 'docker' o 'lxc'
+    try:
+        cgroup = Path("/proc/1/cgroup").read_text()
+        if "docker" in cgroup or "lxc" in cgroup:
+            return True
+    except Exception:
+        pass
+    # 3. systemd-detect-virt (más fiable si systemd está presente)
+    try:
+        r = subprocess.run(["systemd-detect-virt", "--container"],
+                          capture_output=True, text=True, timeout=3)
+        if r.returncode == 0 and r.stdout.strip() in ("docker", "lxc", "podman"):
+            return True
+    except Exception:
+        pass
+    return False
+
+
+def detect_environment() -> dict:
+    """Retorna un dict con información completa del entorno de ejecución."""
+    home = Path.home()
+    hermes_env = os.environ.get("HERMES_HOME", "")
+
+    # Determinar si es headless
+    has_display = bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+
+    # Determinar el modo
+    is_docker = _is_docker()
+    if is_docker:
+        mode = "docker"
+    elif has_display:
+        mode = "desktop"
+    else:
+        mode = "headless"
+
+    # Buscar candidatos de Hermes
+    candidates = detect_agents()
+    if hermes_env and hermes_env not in candidates:
+        candidates.insert(0, hermes_env)
+
+    return {
+        "mode": mode,
+        "is_docker": is_docker,
+        "is_headless": not has_display and not is_docker,
+        "has_display": has_display,
+        "platform": os.uname().sysname,
+        "home": str(home),
+        "python": sys.executable,
+        "python_version": sys.version.split()[0],
+        "hermes_candidates": candidates,
+    }
+
+
+def _looks_like_hermes_home(path: Path) -> bool:
+    """Check if a directory looks like a valid Hermes agent home (even without skills/ yet)."""
+    if not path.is_dir():
+        return False
+    # Hermes >= 0.16 indicators: config.yaml or .env present
+    for marker in ["config.yaml", ".env", "hermes-agent", "SOUL.md"]:
+        if (path / marker).exists():
+            return True
+    # Also accept if skills/ already exists (already installed skills)
+    if (path / "skills").is_dir():
+        return True
+    return False
+
+
 def detect_agents():
-    """Scan for Hermes agent profiles, including Flatpak and Snap."""
+    """Scan for Hermes agent profiles — desktop, Flatpak, Snap, Docker, and VPS paths."""
     agents = []
     home = Path.home()
-    
-    # 1. Check standard ~/.hermes and ~/.custom-hermes
+
+    # 1. Standard ~/.hermes and ~/.custom-hermes
     for p in sorted(home.iterdir()):
-        if p.name.startswith(".") and p.is_dir() and (p / "skills").is_dir():
+        if p.name.startswith(".") and p.is_dir() and _looks_like_hermes_home(p):
             agents.append(p)
-            
-    # 2. Check ~/.hermes/profiles/
+
+    # 2. ~/.hermes/profiles/
     profiles_dir = home / ".hermes" / "profiles"
     if profiles_dir.is_dir():
         for p in sorted(profiles_dir.iterdir()):
-            if p.is_dir() and (p / "skills").is_dir():
+            if p.is_dir() and _looks_like_hermes_home(p):
                 agents.append(p)
-                
-    # 3. Check Flatpak
+
+    # 3. Flatpak
     flatpak_dir = home / ".var" / "app"
     if flatpak_dir.is_dir():
         for p in sorted(flatpak_dir.iterdir()):
-            if (p / "data" / ".hermes" / "skills").is_dir():
-                agents.append(p / "data" / ".hermes")
-                
-    # 4. Check Snap
+            hermes_in_flatpak = p / "data" / ".hermes"
+            if _looks_like_hermes_home(hermes_in_flatpak):
+                agents.append(hermes_in_flatpak)
+
+    # 4. Snap
     snap_dir = Path("/snap/hermes/current")
-    if snap_dir.is_dir() and (snap_dir / "skills").is_dir():
+    if _looks_like_hermes_home(snap_dir):
         agents.append(snap_dir)
+
+    # 5. Docker / VPS paths (mounted volumes típicos)
+    for docker_path in [
+        Path("/data/.hermes"),
+        Path("/app/.hermes"),
+        Path("/hermes"),
+        home / "hermes",
+        home / "hermes-data",
+    ]:
+        if _looks_like_hermes_home(docker_path):
+            agents.append(docker_path)
+
+    # 6. Buscar directorios con config.yaml recursivamente (hasta 2 niveles)
+    #    en home, por si el usuario tiene una estructura no estándar.
+    try:
+        for p in home.iterdir():
+            if p.is_dir() and not p.name.startswith("."):
+                for sub in p.iterdir():
+                    if sub.is_dir() and _looks_like_hermes_home(sub) and sub not in agents:
+                        agents.append(sub)
+    except PermissionError:
+        pass
+
+    # 7. If HERMES_HOME env var is set, prepend it
+    hermes_env = os.environ.get("HERMES_HOME", "")
+    if hermes_env:
+        p = Path(hermes_env)
+        if p.is_dir() and (p / "skills").is_dir() and p not in agents:
+            agents.insert(0, p)
 
     # Deduplicate
     seen = set()
@@ -45,14 +150,23 @@ def detect_agents():
             unique.append(a)
     return [str(a) for a in unique]
 
+
 def detect_python_env():
     result = {}
     try:
         subprocess.run(["pip", "install", "--dry-run", "requests"], capture_output=True, text=True)
     except: pass
-    result["externally_managed"] = Path("/usr/lib/python3/dist-packages/EXTERNALLY-MANAGED").exists() or \
-                                   Path("/usr/lib/python3.11/EXTERNALLY-MANAGED").exists() or \
-                                   Path("/usr/lib/python3.12/EXTERNALLY-MANAGED").exists()
+    # Generic detection: scan all python3.x paths for EXTERNALLY-MANAGED
+    externally_managed = False
+    # Check /usr/lib/python3/dist-packages (pip --user installs here)
+    if Path("/usr/lib/python3/dist-packages/EXTERNALLY-MANAGED").exists():
+        externally_managed = True
+    # Check version-specific paths (3.8 through 3.20)
+    for ver in range(8, 21):
+        if Path(f"/usr/lib/python3.{ver}/EXTERNALLY-MANAGED").exists():
+            externally_managed = True
+            break
+    result["externally_managed"] = externally_managed
     result["has_pipx"] = bool(shutil.which("pipx"))
     result["has_venv"] = bool(shutil.which("python3-venv") or shutil.which("python3"))
     return result
@@ -124,17 +238,100 @@ def install_deps(install_log_queue=None):
             all_packages.append(pkg)
 
     env_info = detect_python_env()
-    flags = ["--user"]
+    # Si se ejecuta como root, no usar --user (pip no lo permite en muchas distros)
+    is_root = os.geteuid() == 0 if hasattr(os, "geteuid") else False
+    flags = [] if is_root else ["--user"]
     if env_info.get("externally_managed"):
         flags.append("--break-system-packages")
+    # --ignore-installed evita el error "uninstall-no-record-file" cuando
+    # un paquete fue instalado por apt (Debian) y no tiene RECORD de pip.
+    flags.append("--ignore-installed")
 
-    cmd = [python, "-m", "pip", "install"] + flags + all_packages
-    log(f"Installing {len(all_packages)} packages...")
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    for line in iter(p.stdout.readline, ''):
-        log(line.strip())
-    p.stdout.close()
-    return p.wait() == 0
+    def _run_pip(extra_flags=None):
+        cmd = [python, "-m", "pip", "install"] + flags + (extra_flags or []) + all_packages
+        log(f"Installing {len(all_packages)} packages...")
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        output_lines = []
+        for line in iter(p.stdout.readline, ''):
+            log(line.strip())
+            output_lines.append(line)
+        p.stdout.close()
+        return p.wait() == 0, "".join(output_lines)
+
+    ok, output = _run_pip()
+    if not ok:
+        # Reintentar con --break-system-packages si no se había añadido
+        if "externally-managed" in output.lower() and "--break-system-packages" not in flags:
+            log("Entorno externamente gestionado detectado — reintentando con --break-system-packages...")
+            ok, _ = _run_pip(["--break-system-packages"])
+    return ok
+
+def get_skills_dir(agent_path: Path) -> Path:
+    """Retorna el directorio skills/ real del agente Hermes.
+
+    En Docker/headless, la estructura típica es:
+        ~/.hermes/data/skills/   o   ~/hermes/prod/data/skills/
+
+    En instalación estándar (escritorio):
+        ~/.hermes/skills/
+
+    Prioridad:
+    1. Si agent_path/data/skills/ existe → Docker layout
+    2. Si agent_path/skills/ existe → Standard layout
+    3. Si no existe ninguno → Se infiere según la presencia de /data/ en la ruta
+       o se usa el estándar (agent_path/skills/).
+    """
+    docker_candidate = agent_path / "data" / "skills"
+    standard_candidate = agent_path / "skills"
+
+    if docker_candidate.is_dir():
+        return docker_candidate
+    if standard_candidate.is_dir():
+        return standard_candidate
+
+    # Si hay un data/ en el path del agente (ej. ~/hermes/prod/) y existe
+    # data/ como directorio (aunque skills/ aún no exista), usar Docker layout.
+    if (agent_path / "data").is_dir():
+        return docker_candidate
+
+    # Default: standard layout
+    return standard_candidate
+
+
+def get_andorina_dir(agent_path: Path) -> Path:
+    """Retorna el directorio andorina/ usando la detección automática de skills."""
+    return get_skills_dir(agent_path) / "andorina"
+
+
+def check_write_permission(directory: Path) -> tuple:
+    """Verifica que el directorio destino tenga permisos de escritura.
+
+    Retorna (ok, msg). Si ok=False, msg contiene el comando para arreglarlo.
+    """
+    test_dir = directory / ".andorina_perm_test"
+    try:
+        test_dir.mkdir(parents=True, exist_ok=True)
+        test_file = test_dir / ".write_test"
+        test_file.write_text("ok")
+        test_file.unlink()
+        test_dir.rmdir()
+        return True, ""
+    except PermissionError:
+        # Determinar el ancestro que no es escribible
+        p = directory
+        while p != p.root and p.exists():
+            if not os.access(p, os.W_OK):
+                return False, (
+                    f"Sin permisos de escritura en: {p}\n"
+                    f"  Ejecuta: sudo chown -R $USER:$USER {p}\n"
+                    f"  O bien:  chmod -R u+w {p}"
+                )
+            p = p.parent
+        return False, (
+            f"Sin permisos de escritura en: {directory}\n"
+            f"  Ejecuta: sudo chown -R $USER:$USER {directory}"
+        )
+
 
 def read_env(env_path):
     env_path = Path(env_path)
@@ -151,7 +348,12 @@ def read_env(env_path):
 
 def write_env(env_path_str, updates):
     env_path = Path(env_path_str)
-    text = env_path.read_text(encoding="utf-8") if env_path.exists() else ""
+    text = ""
+    if env_path.exists():
+        try:
+            text = env_path.read_text(encoding="utf-8")
+        except PermissionError:
+            return False
     for k, v in updates.items():
         pat = rf"^{k}=.*"
         repl = f"{k}={v}"
@@ -160,14 +362,20 @@ def write_env(env_path_str, updates):
         else:
             if text and not text.endswith("\n"): text += "\n"
             text += f"{repl}\n"
-    env_path.parent.mkdir(parents=True, exist_ok=True)
-    env_path.write_text(text, encoding="utf-8")
+    try:
+        env_path.parent.mkdir(parents=True, exist_ok=True)
+    except PermissionError:
+        return False
+    try:
+        env_path.write_text(text, encoding="utf-8")
+    except PermissionError:
+        return False
     return True
 
 def deploy_files(agent_path_str, source_dir_str, install_log_queue=None):
     agent_path = Path(agent_path_str)
     source_dir = Path(source_dir_str)
-    hermes_base = agent_path / "skills" / "andorina"
+    hermes_base = get_andorina_dir(agent_path)
     scripts_dir = hermes_base / "scripts"
     
     def log(msg):
@@ -245,7 +453,7 @@ def deploy_files(agent_path_str, source_dir_str, install_log_queue=None):
 
 def register_hooks(agent_path_str, install_log_queue=None):
     agent_path = Path(agent_path_str)
-    hermes_base = agent_path / "skills" / "andorina"
+    hermes_base = get_andorina_dir(agent_path)
     scripts_dir = hermes_base / "scripts"
     
     def log(msg):
@@ -257,7 +465,25 @@ def register_hooks(agent_path_str, install_log_queue=None):
         config_file = agent_path / "config.yaml"
         hook_inbox = scripts_dir / "transport" / "webhook.py"
         orchestrator_hook = scripts_dir / "security" / "orchestrator_hook.py"
-        
+
+        # V1.6-Beta1: En headless/Docker, config.yaml puede no existir.
+        # Lo creamos con valores mínimos para que Hermes pueda arrancar.
+        if not config_file.exists():
+            log("config.yaml no encontrado — creando uno mínimo...")
+            config_file.parent.mkdir(parents=True, exist_ok=True)
+            import yaml
+            default_cfg = {
+                "hooks": {
+                    "pre_llm_call": [{"command": f"python3 '{orchestrator_hook}'"}],
+                    "pre_tool_call": [{"command": f"python3 '{orchestrator_hook}'"}]
+                },
+                "hooks_auto_accept": True
+            }
+            with open(config_file, "w", encoding="utf-8") as f:
+                yaml.dump(default_cfg, f, default_flow_style=False, sort_keys=False)
+            log("✓ config.yaml mínimo creado")
+            return True
+
         if config_file.exists():
             import yaml
             content = config_file.read_text(encoding="utf-8")
@@ -313,7 +539,7 @@ def init_rbac(agent_path_str, owner_num_str="", install_log_queue=None, local_di
     if local_dir_str:
         state_dir = Path(local_dir_str) / "state"
     else:
-        hermes_base = agent_path / "skills" / "andorina"
+        hermes_base = get_andorina_dir(agent_path)
         state_dir = hermes_base / "state"
     
     def log(msg):
@@ -332,7 +558,8 @@ def init_rbac(agent_path_str, owner_num_str="", install_log_queue=None, local_di
             if local_dir_str:
                 env_search_paths.append(Path(local_dir_str) / ".env")
             else:
-                env_search_paths.append(agent_path / "skills" / "andorina" / ".env")
+                andorina_dir = get_andorina_dir(agent_path)
+                env_search_paths.append(andorina_dir / ".env")
             for env_path in env_search_paths:
                 if env_path.exists():
                     for line in env_path.read_text(errors="ignore").splitlines():
@@ -347,14 +574,17 @@ def init_rbac(agent_path_str, owner_num_str="", install_log_queue=None, local_di
         if not rules_file.exists():
             default_rules = {
                 "_available_permissions": [
-                    "wipe_logs",
-                    "set_role", "get_role", "guard_status", "guard_reset", 
-                    "chatbot_toggle", "chatbot_mute", "away_toggle",
-                    "send_text", "send_file", "send_voice", "broadcast",
-                    "read_inbox", "search_history", "search_contacts", "list_groups", 
-                    "refresh_contacts", "add_note", "schedule_msg", "list_agenda", 
-                    "remove_agenda", "add_alert", "recurring_add", "recurring_list", "recurring_remove",
-                    "run_diag", "run_repair", "remove_role", "list_roles", "set_soul", "get_soul"
+                    "all", "send_text", "send_file", "send_voice", "broadcast",
+                    "read_inbox", "search_history", "inbox_delete",
+                    "search_contacts", "list_groups", "refresh_contacts", "add_note", "notes_clear",
+                    "schedule_msg", "list_agenda", "remove_agenda",
+                    "recurring_add", "recurring_list", "recurring_remove",
+                    "add_alert", "remove_alert", "list_alerts",
+                    "run_diag", "run_repair", "wipe_logs", "run_script",
+                    "guard_status", "guard_reset",
+                    "set_role", "get_role", "remove_role", "list_roles",
+                    "set_soul", "get_soul",
+                    "chatbot_mute", "chatbot_toggle", "away_toggle",
                 ],
                 "global_default_role": "chatbot",
                 "roles": {
@@ -378,7 +608,9 @@ def init_rbac(agent_path_str, owner_num_str="", install_log_queue=None, local_di
             for o_clean in owner_nums:
                 if o_clean:
                     default_rules["jids"][o_clean] = {"role": "owner"}
-            rules_file.write_text(json.dumps(default_rules, indent=2, ensure_ascii=False), encoding="utf-8")
+            _tmp = rules_file.with_suffix(".tmp")
+            _tmp.write_text(json.dumps(default_rules, indent=2, ensure_ascii=False), encoding="utf-8")
+            _tmp.replace(rules_file)
         else:
             # Rules exist — ensure owner is present
             if owner_nums:
@@ -389,7 +621,9 @@ def init_rbac(agent_path_str, owner_num_str="", install_log_queue=None, local_di
                         rules.setdefault("jids", {})[o_clean] = {"role": "owner"}
                         updated = True
                 if updated:
-                    rules_file.write_text(json.dumps(rules, indent=2, ensure_ascii=False), encoding="utf-8")
+                    _tmp = rules_file.with_suffix(".tmp")
+                    _tmp.write_text(json.dumps(rules, indent=2, ensure_ascii=False), encoding="utf-8")
+                    _tmp.replace(rules_file)
 
         default_soul = state_dir / "souls" / "_default.md"
         if not default_soul.exists():
@@ -436,7 +670,7 @@ def optimize_soul(agent_path_str, owner_num_str="", install_log_queue=None):
         else: print(msg)
         
     # Calculate the skill path dynamically from agent_path_str for multi-profile support
-    skill_path = str(agent_path / "skills" / "andorina")
+    skill_path = str(get_andorina_dir(agent_path))
 
     anchoring = f"""
 # --- WHATSAPP AGENT EXTENSION BEGIN ---
@@ -472,7 +706,10 @@ You are the autonomous manager of WhatsApp. You CAN manage it by executing shell
 - If {owner_num} says "Literal", send ONLY the exact text with no additions.
 - ANTI-LOOP & AUTO-LEARN: If a command fails, DO NOT invent tools. Read the full manual by running `cat SKILL.md` in your terminal.
 - NOTE COMPACTION: If a contact's notes get long or messy, silently structure them into Markdown headers and rewrite using `note-section-set`.
-- MEMORY RULES: After any conversation where a contact shares preferences, plans, names of people they mention, recurring topics, or corrections — silently save it using `note-add "JID" "text"`. At the start of each new conversation, silently run `note-read "JID"` to recall what you know about them before responding.
+- MEMORY RULES:
+  * After any conversation where a contact shares preferences, plans, names, or corrections — silently save using `note-add "JID" "text"`.
+  * At the start of each new conversation, silently run `note-read "JID"` to recall what you know.
+  * **GROUP CONTEXT:** If you are talking in a group (chatId ends with @g.us), always add `--in-group "CHAT_ID"` to keep group notes separate from private notes. Example: `note-add "JID" "text" --in-group "120363001234@g.us"`
 
 ## 🔴 IDENTITY OVERRIDE PROTOCOL (HIGHEST PRIORITY — OVERRIDES EVERYTHING BELOW)
 If your system prompt or context contains a personality block (starting with `### IDENTIDAD BASE` or `### CUSTOM PERSONALITY (SOUL)`), you MUST:

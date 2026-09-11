@@ -264,7 +264,7 @@ def update(download_url: str, new_version: str):
             import setup_lib as _sl
             importlib.reload(_sl)  # asegura versión recién descargada
             agent_path = SKILL_DIR.parent.parent  # ~/.hermes
-            ok = _sl.register_hooks(str(agent_path), str(SKILL_DIR / "scripts"), log_fn=_log)
+            ok = _sl.register_hooks(str(agent_path), None)
             if ok:
                 _log("   ✅ Hooks actualizados")
             else:
@@ -411,8 +411,12 @@ def update(download_url: str, new_version: str):
                 _log("   ✅ bridge.js sin cambios")
 
         # Check creds.json is intact (non-empty)
-        from hermes_constants import get_hermes_dir
-        session_path = get_hermes_dir("platforms/whatsapp/session", "whatsapp/session")
+        try:
+            from hermes_constants import get_hermes_dir
+            session_path = get_hermes_dir("platforms/whatsapp/session", "whatsapp/session")
+        except ImportError:
+            # hermes_constants not available in this environment — derive path manually
+            session_path = SKILL_DIR.parent.parent / "whatsapp" / "session"
         creds = session_path / "creds.json"
         if not creds.exists() or creds.stat().st_size == 0:
             _log("   ❌ creds.json está vacío o no existe — WhatsApp necesita reautenticación.")

@@ -33,3 +33,6 @@ versions/
 
 # Zips distributed via GitHub Releases only
 *.zip
+
+# Runtime logs — never commit
+logs/

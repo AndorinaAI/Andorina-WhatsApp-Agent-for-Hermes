@@ -19,6 +19,7 @@ try:
 except Exception: pass
 
 from common import log_outgoing, post_json, out
+from utils.jids import normalize_jid
 
 def simulate_presence(chat_id, presence_type="composing"):
     """Simulates activity (Base Bridge only supports 'composing')"""
@@ -28,7 +29,13 @@ def simulate_presence(chat_id, presence_type="composing"):
         time.sleep(3.0)
     except Exception: pass
 
-def cmd_enviar(path, chat_id, is_voice=False, caption=""):
+def cmd_enviar(path, chat_id_raw, is_voice=False, caption=""):
+    # V1.6: normalizar JID antes de validar
+    chat_id = normalize_jid(chat_id_raw)
+    if not chat_id or not (chat_id.endswith("@s.whatsapp.net") or chat_id.endswith("@g.us")):
+        out({"status": "DENY", "error_code": "INVALID_ARGS", "payload": {"error": "INVALID_CHAT_ID"}})
+        sys.exit(0)
+
     # --- PATH TRAVERSAL PROTECTION ---
     try:
         target_path = Path(path).resolve()

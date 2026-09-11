@@ -2,25 +2,69 @@
 
 ---
 
+## [v1.6-Beta1] - 2026-07-16
+
+### 🔧 JID Resolution Refactor / Refactor de Resolución de JIDs
+
+**🇬🇧 English**
+
+- **Centralized JID Utilities (`utils/jids.py`):** All JID normalization, cleaning, matching, LID resolution, and sender label resolution consolidated in a single module. Functions: `normalize_jid`, `clean_number`, `extract_number`, `jid_match`, `resolve_lid_to_phone`, `resolve_sender_label`, `resolve_hook_jid`, `is_whatsapp_session`.
+- **Normalize on Entry:** `send.py`, `files.py`, `admin_cli.py`, `webhook.py`, `alerts.py`, `inbox.py`, `soul_sync.py`, and `agenda.py` now normalize JIDs using the centralized helpers. Partial numbers (e.g., `612345678` without country code or suffix) are automatically expanded.
+- **`normalize_jid` honors `DEFAULT_COUNTRY_CODE`** from `.env` (fallback `34`), auto-detects group vs individual by length (>13 digits → `@g.us`).
+- **Suffix matching (`jid_match`)** replaces unsafe substring `in` checks across RBAC, alerts, inbox, and contacts resolution.
+- **Sender fallback fix in `webhook.py`:** When sender is empty in group messages, no longer uses the group JID as the sender — uses `"unknown@s.whatsapp.net"` instead.
+- **JID validation in `alerts.py`:** Rejects empty source/target JIDs before normalization to prevent accidental rule deletion.
+- **`inbox.py` filter_chats normalization:** `cmd_listar` and `cmd_buscar_historial` now normalize and use `jid_match` for filter comparisons.
+
+### 🛡️ Security Fixes / Correcciones de Seguridad
+
+- **DLP Pipeline now functional (`orchestrator_hook.py`):** The output sanitization pipeline was executing but its results were discarded — the hook always emitted `{"action": "allow"}` unconditionally. Now emits the cleaned text via `modified_text` so Hermes delivers the sanitized version.
+- **DELETE routes now require authentication (`GUI/server.py`):** All DELETE endpoints (`/api/agenda/*`, `/api/souls/*`, `/api/knowledge/*`, `/api/webhooks/*`, `/api/roles/*`, `/api/notes/*`, `/api/recurring/*`) now call `check_auth()` before processing.
+- **SQL injection fix in `soul_sync.py`:** `purge_long_term_memory` now sanitizes the JID with `re.sub(r"[^\d]", "", jid)` before embedding it in SQL.
+- **Deadlock fix in `GUI/server.py`:** `save_sessions()` no longer acquires `SESSION_LOCK` (the caller already holds it), preventing a non-reentrant lock deadlock.
+- **`NameError` fix in `GUI/server.py`:** `/api/auth/status` initializes `session = None` before conditional blocks.
+- **No-op DLP block (`orchestrator_hook.py`):** DLP blocked output now emits `{"action": "block"}` instead of silently allowing blocked content.
+
+### 🐛 Bug Fixes / Correcciones de Errores
+
+- **Agenda pending sends (`agenda.py`):** `cmd_send_pending` now normalizes `chat_id` when reading from `agenda.json`, ensuring old tasks with partial JIDs still deliver correctly.
+- **`resolve_sender_label` in `jids.py`:** Replaced insecure substring matching with `jid_match()` for both contacts cache and inbox senderName resolution.
+- **VERSION file updated** to reflect `1.6-Beta1`.
+
+**🇪🇸 Español**
+
+- **Utilidades JID Centralizadas (`utils/jids.py`):** Toda la normalización, limpieza, coincidencia, resolución LID y etiquetas de remitente consolidadas en un solo módulo.
+- **Normalizar al entrar:** `send.py`, `files.py`, `admin_cli.py`, `webhook.py`, `alerts.py`, `inbox.py`, `soul_sync.py` y `agenda.py` ahora normalizan JIDs con los helpers centralizados. Números parciales se expanden automáticamente.
+- **Detección automática grupo vs individuo** por longitud (>13 dígitos → `@g.us`).
+- **Coincidencia por sufijo (`jid_match`)** reemplaza comprobaciones inseguras de subcadena `in`.
+- **Corrección de sender en `webhook.py`:** Ya no se usa el JID del grupo como remitente cuando sender está vacío.
+- **Pipeline DLP ahora funcional:** El texto saneado se entrega a Hermes vía `modified_text`.
+- **Rutas DELETE ahora requieren autenticación** en `GUI/server.py`.
+- **Corrección de SQL injection** en `soul_sync.py`.
+- **Corrección de deadlock** en `GUI/server.py`.
+- **Archivo VERSION actualizado** a `1.6-Beta1`.
+
+---
 
 ## [v1.5.2-Beta5] - 2026-06-17
 
 ### Fixed / Corregido
+
 - **Semantic Alerts Group→Group / Alertas Semánticas Grupo→Grupo:** The `pre_llm_call` path in `webhook.py` was building `chat_id` from the individual sender's JID instead of the group JID. Alert rules with a group as source never matched because the comparison was against the member's `@s.whatsapp.net` JID, not the group's `@g.us` JID. Fixed by parsing `session_key` (format: `whatsapp:group:<GROUP_JID>[:<SENDER>]`) to extract the real group JID. / El path `pre_llm_call` de `webhook.py` construía el `chat_id` a partir del JID del miembro individual en lugar del JID del grupo. Las reglas de alerta con un grupo como origen nunca coincidían. Corregido parseando el `session_key` para extraer el JID real del grupo.
 
 ---
 
-
 ## [v1.5.2-Beta4] - 2026-06-15
 
-
 ### Fixed / Corregido
+
 - **RBAC Role Suffix Matching / Coincidencia de Sufijos de Rol RBAC:** `resolve_role()` now matches JIDs using suffix matching, preventing role-assignment failures when users store short phone numbers without country prefixes (e.g., matching `699999999` with `34699999999@s.whatsapp.net`). / `resolve_role()` ahora coincide JIDs mediante sufijos, evitando fallos de asignación de roles cuando los usuarios guardan números cortos sin prefijo de país.
 - **Alert Source JID Matching / Coincidencia de Origen de Alerta:** Replaced unsafe substring `in` check with a clean JID suffix match to prevent false security matching. / Se reemplazó la comprobación insegura de subcadena `in` por una coincidencia limpia de sufijo JID para evitar falsos positivos de seguridad.
 - **Away Auto-Reply Admin Exclusion / Exclusión de Administrador en Auto-respuesta:** Suffix matching is now used when comparing incoming messages against the `ADMIN_PHONE` for away auto-replies. / Ahora se usa coincidencia de sufijo al comparar mensajes entrantes con `ADMIN_PHONE` para las auto-respuestas de modo ausente.
 - **Webhook Port & Public URL Auto-Detection / Autodetectado de URL de Webhook:** Replaced single-tier detection with a robust multi-tier fallback (checks tunnel headers, external IPs) and outputs a stability flag. / Se reemplazó la detección de un solo nivel con un robusto fallback multinivel (comprueba cabeceras de túneles, IPs externas) y genera una bandera de estabilidad.
 
 ### Added / Añadido
+
 - **Fuzzy Accent-Insensitive Alerts / Alertas Semánticas Difusas e Insensibles a Acentos:** Added `fuzzy_keyword_match` support to dynamic alert rules to catch plurals and ignore accents. / Se añadió soporte para `fuzzy_keyword_match` en las reglas de alertas dinámicas para capturar plurales e ignorar acentos.
 - **Webhook Stability UI Banner / Banner de Estabilidad de Webhook:** A warning banner now appears on the panel if the webhook URL is missing, using local hostnames, or deemed unstable. / Ahora aparece un banner de advertencia en el panel si la URL de webhook no está configurada, usa hostnames locales o se considera inestable.
 - **JID Normalization / Normalización de JID:** Centralized `_jid_match` and `_norm_jid` helper functions. / Funciones de ayuda centralizadas `_jid_match` y `_norm_jid`.
@@ -30,6 +74,7 @@
 ## [v1.5.2-Beta3] - 2026-06-15
 
 ### Fixed
+
 - Admin recognition: `is_owner()` now handles missing country prefix via suffix match
 - Admin mode: `build_snapshot()` falls back to `resolve_role` when `ADMIN_PHONE` doesn't match exactly
 - `pre_tool_call`: reserved soul names (`__HERMES__`, `__DEFAULT__`, `__NONE__`) no longer incorrectly loaded as plugins
@@ -38,6 +83,7 @@
 - Soul transition: replaced full session purge with selective transition — preserves user context, strips old persona responses
 
 ### Added
+
 - Hindsight status banner in admin panel dashboard with one-click "Start Memory" button
 - `/api/hindsight/start` endpoint in GUI server
 - `transition_short_term_memory()` in `soul_sync.py` for graceful soul handoffs
@@ -45,6 +91,7 @@
 ---
 
 ## [v1.5.2-Beta2] - 2026-06-10
+
 **🔧 Bug Fix Release — Security Bypass, Webhooks, Memory & Banner**
 **🔧 Versión de Corrección de Errores — Seguridad, Webhooks, Memoria y Banner**
 
@@ -55,12 +102,14 @@
 ### 🇺🇸 English
 
 #### 🐛 Bug Fixes
+
 - **TUI/CLI Blocked by RBAC (Critical):** `orchestrator_hook.py` was applying WhatsApp identity checks to ALL Hermes sessions, including local TUI/CLI sessions. The owner using Hermes TUI was denied all actions. Fixed by adding `_is_whatsapp_session()` — RBAC now only applies to incoming WhatsApp messages; local sessions are allowed through unconditionally.
 - **Webhook Port Hardcoded to 3001:** `GUI/server.py` `_detect_public_url()` fallback used `"3001"` instead of the actual server port (`PORT = 8888`), making all webhook URLs point to the wrong port. Fixed to use `str(PORT)`.
 - **Contacts Notes Never Written or Read:** The LLM had no instructions to proactively save or retrieve contact notes. Added `MEMORY RULES` to `setup_lib.py` `optimize_soul()` so the SOUL.md instructs the agent to silently run `note-add` after meaningful conversations and `note-read` at the start of each new conversation.
 - **Updater Didn't Patch SOUL.md:** `andorina_updater.py` registered hooks on update but never called `optimize_soul()`, so improvements to the system prompt were never applied on existing installations. Fixed in step 7c — the updater now reads `ADMIN_PHONE` from `.env` and runs `optimize_soul()` after every successful update.
 
 #### ✨ Improvements
+
 - **Banner i18n:** The live announcement banner now fetches `banner_andorina_en.txt` when the panel language is set to English, and the Spanish file when in ES. Banner scroll speed slowed from 35s to 55s for readability.
 - **Banner Loaded at Startup:** The remote banner is now fetched and displayed on every panel load (not only when an update is pending).
 
@@ -69,28 +118,33 @@
 ### 🇪🇸 Español
 
 #### 🐛 Correcciones de Errores
+
 - **TUI/CLI Bloqueado por RBAC (Crítico):** `orchestrator_hook.py` aplicaba las comprobaciones de identidad de WhatsApp a TODAS las sesiones de Hermes, incluidas las sesiones locales TUI/CLI. El dueño usando el TUI de Hermes tenía denegadas todas las acciones. Corregido añadiendo `_is_whatsapp_session()` — el RBAC ahora solo se aplica a mensajes de WhatsApp entrantes; las sesiones locales pasan sin restricciones.
 - **Puerto de Webhooks Fijado en 3001:** El fallback de `_detect_public_url()` en `GUI/server.py` usaba `"3001"` en lugar del puerto real del servidor (`PORT = 8888`), haciendo que todas las URLs de webhook apuntasen al puerto incorrecto. Corregido usando `str(PORT)`.
 - **Notas de Contactos Sin Escribir ni Leer:** El LLM no tenía instrucciones para guardar o recuperar notas de contactos de forma proactiva. Añadidas `MEMORY RULES` en `optimize_soul()` de `setup_lib.py` para que el SOUL.md instruya al agente a ejecutar silenciosamente `note-add` tras conversaciones relevantes y `note-read` al inicio de cada nueva conversación.
 - **El Actualizador No Parcheaba el SOUL.md:** `andorina_updater.py` registraba los hooks en cada actualización pero nunca llamaba a `optimize_soul()`, por lo que las mejoras al system prompt nunca se aplicaban en instalaciones existentes. Corregido en el paso 7c — el actualizador ahora lee `ADMIN_PHONE` del `.env` y ejecuta `optimize_soul()` tras cada actualización exitosa.
 
 #### ✨ Mejoras
+
 - **Banner i18n:** El banner de anuncios en vivo ahora descarga `banner_andorina_en.txt` cuando el panel está en inglés, y el archivo en español cuando está en ES. La velocidad de desplazamiento del banner se ha reducido de 35s a 55s para mayor legibilidad.
 - **Banner Visible al Cargar:** El banner remoto ahora se descarga y muestra en cada carga del panel (no solo cuando hay una actualización pendiente).
 
 ---
 
 ## [v1.5.1-Beta1] - 2026-06-07
+
 **🩹 Hotfix — Bridge Stability / Hotfix — Estabilidad del Puente**
 
 ### 🇺🇸 English
 
 #### 🐛 Critical Fixes
+
 - **Bridge Restart Loop (Critical):** `bridge_health.py` was checking for the string `"from: senderId"` as a patch marker — a string that `patch_bridge.py` has never written. This caused `apply_repair()` to always consider the bridge "unpatched" and restart it on every call, including from scheduled message cron jobs. The bridge was being killed every time a scheduled message fired. Fixed by aligning markers with what `patch_bridge.py` actually writes.
 - **Node.js `ReferenceError` Crash (Critical):** The `fromMe` inbox patch in `patch_bridge.py` injected code using `existsSync`, `readFileSync`, `writeFileSync`, and `path.join()` without declaring them locally. Different Hermes/Baileys versions import them differently (or as `fs.*`). This caused a silent `ReferenceError` that killed the Node.js bridge process. Fixed with inline `require('fs')` / `require('path')` — the fix is now self-contained.
 - **Stale Hook Warnings:** `setup.py` now removes obsolete hook events (`message_received`, `whatsapp:message`) from `config.yaml` on install/upgrade, eliminating the `WARNING agent.shell_hooks: unknown hook event` log spam.
 
 #### 🔧 Improvements
+
 - `ensure_patched()` now retries 3 times (6s total) before triggering repair, avoiding false alarms from a slow bridge startup or momentary load.
 - `check_patches.py` markers updated: removed phantom `sender_id_fix` marker, `fromMe` check updated to detect the new v2 patch.
 
@@ -99,17 +153,20 @@
 ### 🇪🇸 Español
 
 #### 🐛 Correcciones Críticas
+
 - **Bucle de Reinicio del Bridge (Crítico):** `bridge_health.py` buscaba la cadena `"from: senderId"` como marcador de parche — una cadena que `patch_bridge.py` nunca ha escrito. Esto hacía que `apply_repair()` considerase siempre el bridge como "no parcheado" y lo reiniciase en cada llamada, incluso desde los trabajos cron de mensajes programados. El bridge se terminaba cada vez que se disparaba un mensaje programado. Corregido alineando los marcadores con lo que `patch_bridge.py` realmente escribe.
 - **Crash `ReferenceError` de Node.js (Crítico):** El parche del inbox `fromMe` en `patch_bridge.py` inyectaba código usando `existsSync`, `readFileSync`, `writeFileSync` y `path.join()` sin declararlos localmente. Distintas versiones de Hermes/Baileys los importan de forma diferente (o como `fs.*`). Esto causaba un `ReferenceError` silencioso que mataba el proceso Node.js del bridge. Corregido con `require('fs')` / `require('path')` en línea — la corrección es ahora autocontenida.
 - **Advertencias de Hooks Obsoletos:** `setup.py` ahora elimina eventos de hook obsoletos (`message_received`, `whatsapp:message`) de `config.yaml` en cada instalación/actualización, eliminando el spam de `WARNING agent.shell_hooks: unknown hook event` en los logs.
 
 #### 🔧 Mejoras
+
 - `ensure_patched()` ahora reintenta 3 veces (6s en total) antes de activar la reparación, evitando falsas alarmas por un arranque lento del bridge o carga momentánea.
 - Marcadores de `check_patches.py` actualizados: eliminado el marcador fantasma `sender_id_fix`, comprobación de `fromMe` actualizada para detectar el nuevo parche v2.
 
 ---
 
 ## [v1.5.2-Beta2] - 2026-06-07
+
 **"The Architectural Refactor & Tool Polish Update" / "Actualización de Refactor Arquitectónico y Pulido de Herramientas"**
 
 > [!WARNING]
@@ -120,12 +177,14 @@
 ### 🇺🇸 English
 
 #### 🔒 Security & Orchestration Pipeline (Zero-Trust Refactor)
+
 - **Centralized `_resolve_jid()` Identity Layer:** Identity resolution has been moved to a module-level function executed *before* all other logic. It robustly resolves WhatsApp LIDs to Canonical phone numbers via `lid-mapping-*_reverse.json` or local cache.
 - **Input & Tool Guard:** Added `input_guard.py` and `tool_guard.py` acting as pre-execution validation gates. They restrict access to allowed folders and chats, enforce strict 30-second execution timeouts for subprocesses, and sanitize LLM tool calls.
 - **`reasoning_content` Strip:** System actively recursively strips reasoning and thinking blocks from conversation histories to avoid context contamination in the RAG engine.
 - **Group Soul Sync Heuristic:** Fixed a critical routing bug by implementing a length-based heuristic (≥15 digits) in `soul_sync.py` to differentiate Group Epoch IDs (`@g.us`) from personal numbers (`@s.whatsapp.net`), ensuring Group Sub-Souls apply properly.
 
 #### 🛠️ Tool Enhancements
+
 - **Agenda (Collision Avoidance):** `agenda.py` now implements an intelligent **Delivery Window** (60 min default) and an **Auto-Offset Mechanism** (2 mins default) for tasks scheduled simultaneously, preventing LLM bot collision. It also supports `recurring` cron jobs safely.
 - **Semantic Alerts Notification:** `alerts.py` now automatically sends a privacy notification to the alert target when a new forwarding rule is established, increasing transparency.
 - **Advanced Contacts & Notes:** `contacts.py` now supports section-based permanent memory updating via `note-section-set`, in addition to `note-add`, `note-read`, and `note-clear`, serving as the LLM's Long Term Memory.
@@ -133,6 +192,7 @@
 - **Typing Simulation:** `send.py` actively queries the `/typing` bridge endpoint to simulate human composing time based on message length.
 
 #### 🖥️ GUI & Live Monitor
+
 - **Live Monitor (`monitor.html`):** Added a new, fully localized real-time log inspector component in the Web UI for tracking Bridge, Agent, and Server events with autoscroll functionality.
 - **UI Localization & Sticky Headers:** The entire interface now supports dynamic i18n translation strings (EN/ES) with persistent chat sticky headers and toggle states for chatbots/away messages.
 
@@ -141,12 +201,14 @@
 ### 🇪🇸 Español
 
 #### 🔒 Tubería de Seguridad y Orquestación (Refactor Zero-Trust)
+
 - **Capa de Identidad `_resolve_jid()` Centralizada:** La resolución de identidad se ha movido para ejecutarse *antes* de toda lógica. Resuelve robustamente LIDs de WhatsApp a números Canónicos mediante `lid-mapping-*_reverse.json` o caché local.
 - **Guardias de Entrada y Herramientas:** Añadidos `input_guard.py` y `tool_guard.py` como puertas de validación previas a la ejecución. Restringen el acceso a carpetas y chats permitidos, imponen tiempos de espera estrictos de 30 segundos y sanean llamadas de herramientas.
 - **Borrado de `reasoning_content`:** El sistema elimina recursiva y activamente los bloques de razonamiento del historial de conversaciones para evitar contaminación del contexto en el motor RAG.
 - **Heurística de Sincronización de Souls de Grupo:** Corregido un bug crítico de enrutamiento implementando una heurística basada en la longitud (≥15 dígitos) en `soul_sync.py` para diferenciar IDs de Grupo (`@g.us`) de números personales (`@s.whatsapp.net`), asegurando que las personalidades de grupo se apliquen.
 
 #### 🛠️ Mejoras en Herramientas
+
 - **Agenda (Evasión de Colisiones):** `agenda.py` ahora implementa una **Ventana de Entrega** (60 min) y un mecanismo de **Auto-Offset** (2 mins) para tareas programadas simultáneamente, evitando choques del bot. También soporta tareas recurrentes.
 - **Notificación de Alertas Semánticas:** `alerts.py` ahora envía automáticamente una notificación de privacidad al objetivo cuando se establece una regla de reenvío.
 - **Contactos y Notas Avanzadas:** `contacts.py` soporta edición de memoria a largo plazo por secciones vía `note-section-set`, además de `note-add/read/clear`.
@@ -154,12 +216,14 @@
 - **Simulación de Escritura:** `send.py` envía solicitudes activas de `composing` basadas en la longitud del mensaje.
 
 #### 🖥️ GUI y Monitor en Vivo
+
 - **Monitor en Vivo (`monitor.html`):** Añadido un componente UI inspector de logs en tiempo real para rastrear eventos del Bridge, Agente y Servidor, completamente traducido y con autoscroll.
 - **Localización UI:** La interfaz completa soporta strings i18n (EN/ES), cabeceras pegajosas y estados globales visuales.
 
 ---
 
 ## [v1.5-Beta1.1] - 2026-06-01
+
 **"The Security Refactor & Knowledge Engine Fix" / "Refactor de Seguridad y Corrección del Motor de Conocimiento"**
 
 - **Root Cause Found & Fixed / Causa Raíz Encontrada y Corregida:** Knowledge Base injection moved from `messages` to `context` to ensure RAG delivery on Hermes. / La inyección de la Base de Conocimiento se movió de `messages` a `context` para asegurar la entrega RAG en Hermes.
@@ -169,6 +233,7 @@
 ---
 
 ## [v1.5-Beta1] - 2026-05-28
+
 **"The V2 Sandbox & Knowledge Update" / "Actualización V2 Sandbox y Conocimiento"**
 
 - **Sandbox Engine / Motor Sandbox:** Groundwork for V2 Sandbox architecture (plugins & games). / Base para la arquitectura V2 Sandbox (plugins y juegos).
@@ -178,6 +243,7 @@
 ---
 
 ## [v1.5.0] - 2026-05-25
+
 **"Modular Refactor" / "Refactor Modular"**
 
 - **Modular Directory / Directorio Modular:** Flatted scripts refactored to `security/`, `tools/`, `transport/`, `utils/`. / Scripts reorganizados en `security/`, `tools/`, `transport/`, `utils/`.
@@ -187,21 +253,25 @@
 ---
 
 ## [v1.0.5] - 2026-05-21
+
 - **Fuzzy Semantic Alerts / Alertas Semánticas Difusas:** Rules engine normalizing accents. / Motor de reglas normalizando acentos.
 - **Mass Messaging & Recurring Tasks / Mensajería Masiva y Tareas Recurrentes:** `broadcast` added. / Añadido `broadcast`.
 
 ---
 
 ## [v1.0.4-Beta2] - 2026-05-19
+
 - **Test Runner Fixes / Correcciones del Test Runner:** Validation tests fixed for pytest environments. / Tests de validación corregidos para entornos pytest.
 - **Common Module / Módulo Común:** Unified `common.py` HTTP methods. / Métodos HTTP unificados en `common.py`.
 
 ---
 
 ## [v1.0.3] - 2026-05-12
+
 - **Embedded Zero-Config Auth / Autenticación Sin Configuración Embebida:** Embedded Google OAuth setup via `auth.py`. / Flujo OAuth de Google embebido vía `auth.py`.
 
 ---
 
 ## [v1.0.2] - 2026-05-09
+
 - **Media Isolation / Aislamiento de Medios:** Per-agent image cache isolation. / Aislamiento de caché de imágenes por agente.

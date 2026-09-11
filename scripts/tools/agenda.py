@@ -26,6 +26,7 @@ import subprocess
 sys.path.append(str(Path(__file__).parent.parent))
 from common import post_json
 from utils.safe_json import read_json_safe, write_json_safe
+from utils.jids import normalize_jid
 try:
     from filelock import FileLock
 except ImportError:
@@ -235,7 +236,8 @@ def cmd_send_pending(msg_id: str):
         sys.exit(0)
 
     data = agenda[msg_id]
-    chat_id   = data["chatId"]
+    # V1.6: normalizar chat_id al recuperar — tareas antiguas pueden tener JID no normalizado
+    chat_id   = normalize_jid(data["chatId"])
     file_path = data.get("file_path")
     message   = data.get("message", "")
 
@@ -323,6 +325,8 @@ def cmd_remove(msg_id: str, creator_jid: str = None):
 
 def cmd_auto_schedule(chat_id: str, time_str: str, message: str,
                       file_path=None, is_voice: bool = False, creator_jid: str = None):
+    # V1.6: Normalizar JID — acepta números parciales y los convierte a formato canónico
+    chat_id = normalize_jid(chat_id)
     if not (chat_id.endswith("@s.whatsapp.net") or chat_id.endswith("@g.us")):
         out({"status": "DENY", "error_code": "INVALID_ARGS", "payload": {"error": "INVALID_CHAT_ID"}})
         sys.exit(0)
@@ -391,6 +395,8 @@ def get_recurring_dir():
     return rdir
 
 def cmd_recurring_add(chat_id: str, cron_expr: str, message: str, file_path: str = None, creator_jid: str = None):
+    # V1.6: Normalizar JID — acepta números parciales y los convierte a formato canónico
+    chat_id = normalize_jid(chat_id)
     if not (chat_id.endswith("@s.whatsapp.net") or chat_id.endswith("@g.us")):
         out({"status": "DENY", "error_code": "INVALID_ARGS", "payload": {"error": "INVALID_CHAT_ID"}})
         sys.exit(0)

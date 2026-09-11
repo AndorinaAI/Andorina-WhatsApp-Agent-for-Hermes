@@ -8,28 +8,16 @@ Now with automatic notification to the alert target.
 
 import sys
 import json
-import re
 import subprocess
 from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).parent.parent.absolute()
 ALERTS_FILE = SCRIPTS_DIR.parent / "state" / "alerts.json"
+STATE_DIR   = SCRIPTS_DIR.parent / "state"
 
-def _norm_jid(val: str) -> str:
-    """Normalize a phone number or partial JID to a full WhatsApp JID.
-    If val already has '@', return as-is.
-    Groups: numbers with '-' or >13 digits → @g.us
-    Individuals: everything else → @s.whatsapp.net"""
-    if not val:
-        return val
-    if "@" in val:
-        return val
-    num = re.sub(r"[^\d]", "", val)
-    if not num:
-        return val
-    if len(num) > 13 or "-" in val:
-        return f"{num}@g.us"
-    return f"{num}@s.whatsapp.net"
+sys.path.append(str(SCRIPTS_DIR))
+from utils.jids import normalize_jid, resolve_sender_label, jid_match
+
 
 def out(data):
     print(json.dumps(data, ensure_ascii=False, indent=2))
@@ -47,42 +35,6 @@ def save_alerts(alerts):
     tmp.write_text(json.dumps(alerts, ensure_ascii=False, indent=2), encoding="utf-8")
     tmp.replace(ALERTS_FILE)
 
-def _resolve_label(source: str) -> str:
-    """Resolve a JID/phone to a human-readable name.
-    Priority: Google Contacts (contacts_cache) → bridge /groups → raw number."""
-    raw = source.split("@")[0] if "@" in source else source
-    _bare = raw.lstrip("+").lstrip("0")
-    state_dir = SCRIPTS_DIR.parent / "state"
-
-    # 1. Google Contacts cache (contacts_cache.json) — highest priority
-    cache_file = state_dir / "contacts_cache.json"
-    if cache_file.exists():
-        try:
-            cache = json.loads(cache_file.read_text(encoding="utf-8"))
-            for c in cache.get("contacts", []):
-                c_id = (c.get("id") or c.get("chatId") or "").split("@")[0].lstrip("+").lstrip("0")
-                if _bare and (_bare in c_id or c_id in _bare) and c.get("name"):
-                    return c["name"]
-        except Exception:
-            pass
-
-    # 2. Bridge /groups (for group JIDs)
-    if "@g.us" in source or (len(raw) > 13 and raw.isdigit()):
-        try:
-            import urllib.request, os
-            burl = os.environ.get("WHATSAPP_BRIDGE_URL", "http://localhost:3000")
-            with urllib.request.urlopen(f"{burl}/groups", timeout=2) as resp:
-                glist = json.loads(resp.read())
-                giter = glist if isinstance(glist, list) else glist.get("groups", [])
-                for g in giter:
-                    g_id = (g.get("id") or g.get("chatId") or "").split("@")[0]
-                    if raw and raw == g_id:
-                        return g.get("name") or g.get("subject") or raw
-        except Exception:
-            pass
-
-    return raw
-
 
 def notify_target(target, source, keywords=None):
     """Send a privacy notification to the alert target informing them."""
@@ -90,7 +42,7 @@ def notify_target(target, source, keywords=None):
     if target == "OWNER":
         return
 
-    source_label = _resolve_label(source)
+    source_label = resolve_sender_label(source, STATE_DIR)
     msg = f"🔔 Se ha configurado una alerta. Recibirás en este chat los mensajes de {source_label}"
     if keywords:
         msg += f" que contengan las palabras clave: {keywords}"
@@ -106,21 +58,31 @@ def notify_target(target, source, keywords=None):
         pass
 
 def cmd_add(source, target, keywords=None):
-    source = _norm_jid(source)
+    # V1.6: validar JIDs no vacíos antes de normalizar
+    if not source or not str(source).strip():
+        out({"status": "ERROR", "error_code": "INTERNAL_ERROR", "payload": {"error": "Source JID cannot be empty."}})
+        return
+    if not target or not str(target).strip():
+        out({"status": "ERROR", "error_code": "INTERNAL_ERROR", "payload": {"error": "Target JID cannot be empty."}})
+        return
+    source = normalize_jid(source)
+    # V1.6: Normalizar target también — permite números parciales y
+    # asegura que la deduplicación por JID sea consistente.
+    if target != "OWNER":
+        target = normalize_jid(target)
     alerts = load_alerts()
     for a in alerts:
-        if a["source"] == source and a["target"] == target:
-            # Update existing rule (same source+target): just refresh keywords
+        # V1.6: usar jid_match en lugar de igualdad exacta —
+        # tolera formatos distintos del mismo JID (con/sin código de país)
+        if jid_match(a["source"], source) and jid_match(a["target"], target):
             a["keywords"] = keywords
             save_alerts(alerts)
             out({"status": "OK", "error_code": "NONE", "payload": {"message": "Rule updated."}})
             return
-        elif a["source"] == source and a["target"] != target:
-            # Same source but different target: update everything
+        elif jid_match(a["source"], source) and not jid_match(a["target"], target):
             a["target"] = target
             a["keywords"] = keywords
             save_alerts(alerts)
-            # Notify the new target
             notify_target(target, source, keywords)
             out({"status": "OK", "error_code": "NONE", "payload": {"message": f"Rule updated: now forwarding to {target}."}})
             return
@@ -137,8 +99,13 @@ def cmd_add(source, target, keywords=None):
     out({"status": "OK", "error_code": "NONE", "payload": {"message": msg}})
 
 def cmd_remove(source):
+    # V1.6: validar JID no vacío y normalizar
+    if not source or not str(source).strip():
+        out({"status": "ERROR", "error_code": "INTERNAL_ERROR", "payload": {"error": "Source JID cannot be empty."}})
+        return
+    source = normalize_jid(source)
     alerts = load_alerts()
-    new_alerts = [a for a in alerts if a["source"] != source]
+    new_alerts = [a for a in alerts if not jid_match(a["source"], source)]
     if len(new_alerts) == len(alerts):
         out({"status": "ERROR", "error_code": "INTERNAL_ERROR", "payload": {"error": "Rule not found."}})
         return

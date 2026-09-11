@@ -129,6 +129,15 @@ def start_tunnel(port=8888, token=None):
         
     if not download_cloudflared():
         return False, "No se pudo descargar cloudflared"
+
+    # V1.6: Verificar que el binario existe y es ejecutable antes de usarlo
+    if not CLOUDFLARED.exists():
+        return False, f"cloudflared no encontrado en {CLOUDFLARED}"
+    if not os.access(CLOUDFLARED, os.X_OK):
+        try:
+            os.chmod(CLOUDFLARED, 0o755)
+        except Exception:
+            return False, f"cloudflared sin permisos de ejecución: {CLOUDFLARED}"
         
     active_url = None
     cmd = []

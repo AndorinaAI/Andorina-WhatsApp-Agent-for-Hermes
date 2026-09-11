@@ -11,12 +11,14 @@ from pathlib import Path
 SCRIPTS_DIR = Path(__file__).parent.parent.absolute()
 sys.path.append(str(SCRIPTS_DIR))
 from utils.safe_json import read_json_safe, write_json_safe
+from utils.jids import normalize_jid, jid_match, resolve_lid_to_phone
 
 INBOX_FILE = SCRIPTS_DIR.parent / 'state' / 'inbox.json'
 
 def load_canonical_map():
     """Builds {numeric_part -> canonical_JID} map from lid-mapping-*_reverse.json files.
     Allows resolving @lid chatIds to their @s.whatsapp.net equivalents and vice-versa.
+    V1.6: Delega a resolve_lid_to_phone() de utils/jids.py para evitar duplicación.
     """
     import os
     num_to_canonical = {}
@@ -27,12 +29,11 @@ def load_canonical_map():
             for f in session_dir.glob("lid-mapping-*_reverse.json"):
                 lid_num = f.name.replace("lid-mapping-", "").replace("_reverse.json", "")
                 try:
-                    phone = json.loads(f.read_text(encoding="utf-8"))
-                    if isinstance(phone, str) and phone:
-                        phone_clean = phone.split("@")[0]
-                        canonical = f"{phone_clean}@s.whatsapp.net"
-                        num_to_canonical[lid_num] = canonical    # LID num  → canonical JID
-                        num_to_canonical[phone_clean] = canonical  # phone num → canonical JID
+                    phone = resolve_lid_to_phone(f"{lid_num}@lid", str(hermes_home))
+                    if phone:
+                        canonical = f"{phone}@s.whatsapp.net"
+                        num_to_canonical[lid_num] = canonical     # LID num  → canonical JID
+                        num_to_canonical[phone] = canonical       # phone num → canonical JID
                 except Exception:
                     pass
     except Exception:
@@ -47,20 +48,28 @@ def load_inbox():
     data = read_json_safe(INBOX_FILE, default=[])
     return data if isinstance(data, list) else []
 
+
+def _to_canon(cid, cmap):
+    """Canonicaliza un chat_id usando el mapa LID→JID."""
+    if not cid: return cid
+    return cmap.get(cid.split("@")[0], cid)
+
 def cmd_listar(filter_chats=None):
     inbox = load_inbox()
     cmap = load_canonical_map()
-    def _to_canon(cid):
-        if not cid: return cid
-        return cmap.get(cid.split("@")[0], cid)
+
+    # V1.6: normalizar filter_chats para comparaciones consistentes
+    if filter_chats:
+        filter_chats = [normalize_jid(fc) for fc in filter_chats if fc]
 
     chats = {}  # canonical_chatId → most recent msg
     for msg in inbox:
         chat_id = msg.get('chatId')
         if not chat_id:
             continue
-        canon = _to_canon(chat_id)
-        if filter_chats and canon not in filter_chats and chat_id not in filter_chats:
+        canon = _to_canon(chat_id, cmap)
+        # V1.6: usar jid_match en lugar de comparación exacta
+        if filter_chats and not any(jid_match(canon, fc) or jid_match(chat_id, fc) for fc in filter_chats):
             continue
         # Keep the most recent message per canonical chat
         existing = chats.get(canon)
@@ -73,21 +82,16 @@ def cmd_listar(filter_chats=None):
 def cmd_leer(chat_id, limit=50, filter_chats=None):
     inbox = load_inbox()
     
-    chat_id = chat_id.strip()
-    if "@" not in chat_id:
-        if "-" in chat_id: chat_id += "@g.us"
-        else: chat_id += "@s.whatsapp.net"
+    # V1.6: usar normalize_jid en lugar de composición manual
+    chat_id = normalize_jid(chat_id.strip())
         
     if filter_chats and chat_id not in filter_chats:
         out({"status": "DENY", "error_code": "PERMISSION_DENIED", "payload": {"error": "You are not authorized to read this chat."}})
         sys.exit(1)
         
     cmap = load_canonical_map()
-    def _to_canon(cid):
-        if not cid: return cid
-        return cmap.get(cid.split("@")[0], cid)
-    target = _to_canon(chat_id)
-    messages = [m for m in inbox if _to_canon(m.get('chatId', '')) == target]
+    target = _to_canon(chat_id, cmap)
+    messages = [m for m in inbox if _to_canon(m.get('chatId', ''), cmap) == target]
     
     if str(limit).lower() != "all":
         try:
@@ -114,7 +118,8 @@ def cmd_buscar_historial(keyword, filter_chats=None, max_days=None):
 
     for m in inbox:
         chat_id = m.get('chatId')
-        if filter_chats and chat_id not in filter_chats:
+        # V1.6: usar jid_match para filtrar — tolera formatos distintos del mismo JID
+        if filter_chats and not any(jid_match(chat_id, fc) for fc in filter_chats):
             continue
             
         if cutoff and m.get('date') and m.get('date') < cutoff:
@@ -134,18 +139,13 @@ def cmd_buscar_historial(keyword, filter_chats=None, max_days=None):
 
 def cmd_delete(chat_id):
     inbox = load_inbox()
-    chat_id = chat_id.strip()
-    if "@" not in chat_id:
-        if "-" in chat_id: chat_id += "@g.us"
-        else: chat_id += "@s.whatsapp.net"
+    # V1.6: usar normalize_jid en lugar de composición manual
+    chat_id = normalize_jid(chat_id.strip())
     
     original_len = len(inbox)
     cmap = load_canonical_map()
-    def _to_canon(cid):
-        if not cid: return cid
-        return cmap.get(cid.split("@")[0], cid)
-    target = _to_canon(chat_id)
-    inbox = [m for m in inbox if _to_canon(m.get('chatId', '')) != target]
+    target = _to_canon(chat_id, cmap)
+    inbox = [m for m in inbox if _to_canon(m.get('chatId', ''), cmap) != target]
     
     if len(inbox) < original_len:
         if write_json_safe(INBOX_FILE, inbox):

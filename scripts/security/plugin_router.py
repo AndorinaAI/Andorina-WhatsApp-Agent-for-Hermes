@@ -62,6 +62,25 @@ def route_on_message(plugin_name: str, jid: str, message_text: str, plugin_role:
         return plugin["tools"].on_message(plugin["sdk"], jid, message_text, plugin_role)
     except Exception as e:
         plugin["sdk"].log(f"Error in on_message: {e}")
+        # FASE 3 — Fusible de auto-desconexión: si el plugin falla, restaurar bot mode
+        try:
+            from utils.safe_json import read_json_safe, write_json_safe
+            import subprocess
+            _rules_path = Path(__file__).parent.parent.parent / "state" / "guard_rules.json"
+            _rules = read_json_safe(_rules_path, default={})
+            _jid_num = jid.split("@")[0]
+            _entry = _rules.setdefault("jids", {}).setdefault(_jid_num, {})
+            _entry["dm_mode"] = "bot"
+            _entry["dm_game"] = ""
+            write_json_safe(_rules_path, _rules)
+            _send_py = str(Path(__file__).parent.parent / "transport" / "send.py")
+            subprocess.Popen(
+                [sys.executable, _send_py, "message", jid,
+                 f"⚠️ El juego '{plugin_name}' ha fallado y se ha restaurado el asistente."],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
+        except Exception:
+            pass
         return None
 
 def route_on_tool_call(plugin_name: str, jid: str, func_name: str, args: dict, plugin_role: str):
@@ -74,7 +93,20 @@ def route_on_tool_call(plugin_name: str, jid: str, func_name: str, args: dict, p
         return f"ERROR: {str(e)}"
     except Exception as e:
         plugin["sdk"].log(f"Error in on_tool_call ({func_name}): {e}")
+        # FASE 3 — Fusible: restaurar bot mode si el plugin falla en ejecución de tool
+        try:
+            from utils.safe_json import read_json_safe, write_json_safe
+            _rules_path = Path(__file__).parent.parent.parent / "state" / "guard_rules.json"
+            _rules = read_json_safe(_rules_path, default={})
+            _jid_num = jid.split("@")[0]
+            _entry = _rules.setdefault("jids", {}).setdefault(_jid_num, {})
+            _entry["dm_mode"] = "bot"
+            _entry["dm_game"] = ""
+            write_json_safe(_rules_path, _rules)
+        except Exception:
+            pass
         return f"ERROR: Plugin execution failed: {e}"
+
 
 def route_on_install(plugin_name: str):
     plugin = load_plugin(plugin_name)

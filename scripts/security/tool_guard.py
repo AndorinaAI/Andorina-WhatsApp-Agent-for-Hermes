@@ -139,11 +139,13 @@ def validate_tool_call(command_line: str, role_config: dict = None, user_jid: st
         else: req_perm = "send_file"
     elif script_name == "inbox.py":
         if subcmd == "search": req_perm = "search_history"
+        elif subcmd == "delete": req_perm = "inbox_delete"
         else: req_perm = "read_inbox"
     elif script_name == "contacts.py":
         if subcmd == "search": req_perm = "search_contacts"
         elif subcmd == "groups": req_perm = "list_groups"
         elif subcmd == "refresh": req_perm = "refresh_contacts"
+        elif subcmd == "note-clear": req_perm = "notes_clear"
         elif subcmd.startswith("note-"): req_perm = "add_note"
     elif script_name == "agenda.py":
         if subcmd == "auto-schedule": req_perm = "schedule_msg"
@@ -154,7 +156,10 @@ def validate_tool_call(command_line: str, role_config: dict = None, user_jid: st
             if r_sub == "add": req_perm = "recurring_add"
             elif r_sub == "list": req_perm = "recurring_list"
             elif r_sub == "remove": req_perm = "recurring_remove"
-    elif script_name == "alerts.py": req_perm = "add_alert"
+    elif script_name == "alerts.py":
+        if subcmd == "remove": req_perm = "remove_alert"
+        elif subcmd == "list": req_perm = "list_alerts"
+        else: req_perm = "add_alert"
     elif script_name == "diag.py": req_perm = "run_diag"
     elif script_name == "bridge_health.py": req_perm = "run_repair"
     elif script_name == "wipe_logs.py": req_perm = "wipe_logs"
@@ -167,7 +172,11 @@ def validate_tool_call(command_line: str, role_config: dict = None, user_jid: st
             if r_sub == "set": req_perm = "set_role"
             elif r_sub in ["get", "list"]: req_perm = "get_role"
             elif r_sub == "remove": req_perm = "remove_role"
-        elif subcmd == "chatbot": req_perm = "chatbot_toggle"
+        elif subcmd == "chatbot":
+            c_sub = parts[parts.index("chatbot")+1] if "chatbot" in parts and parts.index("chatbot")+1 < len(parts) else ""
+            if c_sub in ("mute", "unmute"): req_perm = "chatbot_mute"
+            elif c_sub == "status": req_perm = "chatbot_toggle"
+            else: req_perm = "chatbot_toggle"
         elif subcmd == "away": req_perm = "away_toggle"
         elif subcmd == "soul":
             s_sub = parts[parts.index("soul")+1] if "soul" in parts and parts.index("soul")+1 < len(parts) else ""
