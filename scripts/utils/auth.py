@@ -23,10 +23,8 @@ def get_logo_base64():
         pass
     return ""
 
-# --- ANDORIÑA PUBLIC CREDENTIALS (for Easy Setup) ---
-DEFAULT_CID = "222321536192-0k77qtkvrispu9o71a51st28iomm0i5c" + ".apps.googleusercontent.com"
-DEFAULT_SEC = "GOCSPX-" + "gO6mtahuDoPoOHDupGtwvsG3VS0k"
-
+# V2.0-F3/S5: Google OAuth credentials are loaded from environment or .env.example.
+# Hardcoded defaults removed — the .env.example file is the canonical source.
 CALLBACK_PORT = 8080
 REDIRECT_URI = f"http://localhost:{CALLBACK_PORT}"
 
@@ -102,8 +100,22 @@ def main():
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
 
     env = load_env()
-    client_id = env.get("GOOGLE_CONTACTS_CLIENT_ID") or DEFAULT_CID
-    client_secret = env.get("GOOGLE_CONTACTS_CLIENT_SECRET") or DEFAULT_SEC
+    client_id = env.get("GOOGLE_CONTACTS_CLIENT_ID")
+    client_secret = env.get("GOOGLE_CONTACTS_CLIENT_SECRET")
+
+    # V2.0-F3/S5: Fallback to .env.example (public app credentials for Easy Setup)
+    if not client_id or not client_secret:
+        example_env = Path(__file__).parent.parent.parent / ".env.example"
+        if example_env.exists():
+            example = load_env(example_env)
+            client_id = client_id or example.get("GOOGLE_CONTACTS_CLIENT_ID", "")
+            client_secret = client_secret or example.get("GOOGLE_CONTACTS_CLIENT_SECRET", "")
+
+    if not client_id or not client_secret:
+        print("❌ Google OAuth credentials not found.", file=sys.stderr)
+        print("   Set GOOGLE_CONTACTS_CLIENT_ID and GOOGLE_CONTACTS_CLIENT_SECRET", file=sys.stderr)
+        print("   in your .env file, or use the defaults in .env.example.", file=sys.stderr)
+        sys.exit(1)
 
     scope = "https://www.googleapis.com/auth/contacts.readonly"
 

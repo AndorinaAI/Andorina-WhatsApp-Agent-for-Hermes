@@ -45,7 +45,15 @@ def cmd_enviar(path, chat_id_raw, is_voice=False, caption=""):
         sys.exit(0)
 
     # 1. Block access to critical system directories
-    blocked_prefixes = ["/etc/", "/var/", "/proc/", "/sys/", "/dev/", "/root/", "/boot/"]
+    # V2.0: multi-OS blocked prefixes
+    import platform as _plat
+    if _plat.system() == "Windows":
+        blocked_prefixes = [
+            "C:\\Windows\\", "C:\\Program Files\\", "C:\\ProgramData\\",
+            "C:\\Users\\Default\\", "C:\\$Recycle.Bin\\"
+        ]
+    else:
+        blocked_prefixes = ["/etc/", "/var/", "/proc/", "/sys/", "/dev/", "/root/", "/boot/"]
     if any(str_path.startswith(b) for b in blocked_prefixes):
         out({"status": "DENY", "error_code": "PERMISSION_DENIED", "payload": {"reason": "system_directory_blocked"}})
         sys.exit(0)

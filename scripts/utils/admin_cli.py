@@ -71,6 +71,13 @@ def cmd_role_list():
 
 # -- Soul commands --
 def cmd_soul_set(jid, text):
+    # V2.0-F3/S3: Block _hermes_ backdoor — only owner can configure
+    # this via direct filesystem access (rules.json), never via LLM tool.
+    if text and text.strip().lower() == "_hermes_":
+        return out({"status": "DENY", "error_code": "FORBIDDEN",
+                     "payload": {"error": "The reserved soul '_hermes_' cannot be assigned "
+                                          "via the tool. The owner may configure it directly "
+                                          "in rules.json if required."}})
     rules = read_json_safe(RULES_FILE, default={})
     # V1.6: normalizar JID antes de extraer número
     jid = normalize_jid(jid)

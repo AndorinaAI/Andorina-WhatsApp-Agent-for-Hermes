@@ -23,6 +23,7 @@ from common import load_env, log_outgoing, STATE_DIR
 from utils.safe_json import read_json_safe, write_json_safe
 from security.rbac import load_rules, resolve_role, get_role_config, is_owner
 from security.soul_sync import load_soul_text, resolve_soul_knowledge_dir
+from transport.webhook import process_incoming_message
 
 # DLP Output Pipeline — sanitiza respuestas del LLM antes de enviarlas
 from security.output_pipeline.pipeline import run_pipeline as _dlp_run_pipeline
@@ -323,7 +324,6 @@ def main():
         # Resolve sender identity (all fallbacks, LID→JID included) via module-level function
         jid = _resolve_jid(data)
         chat_id = _resolve_chat_id(data)  # V1.6-Beta1: contexto para notas/grupos
-        chat_id = _resolve_chat_id(data)  # V1.6-Beta1: contexto para notas/grupos
 
         # ── Non-WhatsApp sessions (Hermes TUI/CLI): pass through without RBAC ──
         # The local user IS the owner. RBAC only applies to incoming WhatsApp messages.
@@ -363,6 +363,12 @@ def main():
                 
                 # V1.6: Obtener el último mensaje (4 fallbacks en helper)
                 last_msg_text = _get_last_message_text(extra, data, jid)
+
+                # V2.0: Write incoming message to inbox (restored from V1 webhook flow)
+                try:
+                    process_incoming_message(chat_id or jid, jid, last_msg_text, is_bot=False, write_inbox=True)
+                except Exception:
+                    pass  # inbox persistence failure must not block message processing
 
                 msg_lower = last_msg_text.strip().lower()
 

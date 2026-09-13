@@ -1,0 +1,69 @@
+# ─────────────────────────────────────────────────────────────
+# Andoriña — WhatsApp Enhancement Plugin for Hermes Agent
+# ─────────────────────────────────────────────────────────────
+
+name: andorina
+label: Andoriña WhatsApp
+kind: backend
+version: 2.0.0-alpha
+description: >
+  Andoriña is an autonomous WhatsApp manager that extends Hermes
+  with sub-souls (per-contact personalities), inbox tracking,
+  semantic alerts, message scheduling, RBAC, contact notes,
+  and multimedia sending.
+author: AndorinaAI <jorgegformoso@gmail.com>
+license: AGPL-3.0
+homepage: https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes
+
+# ── Compatibility ────────────────────────────────────────────
+
+# requires_hermes: ">=0.19.0"  # temporarily disabled — Hermes v0.21.1 validate bug
+
+
+provides_tools:
+  - send_text
+  - send_file
+  - broadcast
+  - read_inbox
+  - search_contacts
+  - list_groups
+  - schedule_msg
+  - add_note
+  - add_alert
+  - manage_role
+  - manage_soul
+provides_hooks:
+  - pre_llm_call
+  - pre_tool_call
+  - post_llm_call
+provides_middleware: []
+requires_env:
+  - name: ANDORINA_ADMIN_PHONE
+    description: "WhatsApp phone number of the admin/owner"
+    prompt: "Admin WhatsApp number (without country code, e.g. 600000000)"
+    password: false
+optional_env:
+  - name: ANDORINA_COUNTRY_CODE
+    description: "Default country code for JID normalization"
+    default: "34"
+  - name: ANDORINA_BRIDGE_URL
+    description: "WhatsApp bridge URL"
+    default: "http://localhost:3000"
+  - name: ANDORINA_DELIVERY_WINDOW
+    description: "Minutes a scheduled task stays alive after its time"
+    default: "60"
+  - name: ANDORINA_CRON_OFFSET
+    description: "Minutes between concurrent scheduled tasks"
+    default: "2"
+  - name: ANDORINA_MEMORY_BACKEND
+    description: "Memory backend for cognitive purge (auto, hindsight, hermes, none)"
+    default: "auto"
+  - name: ANDORINA_TARGET_CONTEXT
+    description: "Context window in tokens"
+    default: "75000"
+
+# ── i18n ─────────────────────────────────────────────────────
+
+locales:
+  - en
+  - es

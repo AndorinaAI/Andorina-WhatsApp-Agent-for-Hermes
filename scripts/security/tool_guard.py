@@ -55,12 +55,14 @@ def validate_tool_call(command_line: str, role_config: dict = None, user_jid: st
             break
             
     if not script_name:
-        # Permite acceso al OS crudo si es Owner, si tiene permiso os:execute o si es la soul de _hermes_
+        # V2.0-F4: OS access requires is_owner or os:execute permission.
+        # _hermes_ soul bypass removed — defense-in-depth (F3 already blocks
+        # setting _hermes_ via LLM tools). Owners have access via is_owner above.
         if is_owner:
             _log_audit_owner(command_line, user_jid)
             return {"status": "OK", "error_code": "NONE", "payload": {"command": command_line}, "trace_id": "", "tool_call_id": "", "tool_chain_id": "", "parent_trace_id": None}
 
-        if role_config.get("custom_soul") == "_hermes_" or "os:execute" in perms:
+        if "os:execute" in perms:
             return {"status": "OK", "error_code": "NONE", "payload": {"command": command_line}, "trace_id": "", "tool_call_id": "", "tool_chain_id": "", "parent_trace_id": None}
 
         # Validate granular OS permissions

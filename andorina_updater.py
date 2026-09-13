@@ -1,14 +1,7 @@
 #!/usr/bin/env python3
-"""Andoriña Self-Updater
+"""Andoriña Self-Updater [DEPRECATED in V2.0 — use hermes plugin update]
 
-Checks the GitHub releases API for a newer version of Andoriña, downloads it,
-backs up user data, replaces scripts+GUI, re-applies patches, syncs souls, and
-restarts the gateway.
-
-Usage:
-    python3 andorina_updater.py --check     → JSON: {up_to_date, current, latest}
-    python3 andorina_updater.py --update    → full update, stdout progress
-    python3 andorina_updater.py --json      → --check but emit JSON (for GUI)
+Legacy updater para V1.x. Mantenido para compatibilidad.
 """
 
 import sys
@@ -164,7 +157,7 @@ def download_zip(url: str, dest: Path):
     import urllib.request
     _log(f"⬇️  Descargando {url} ...")
     urllib.request.urlretrieve(url, dest)
-    _log(f"   ✅ Descargado → {dest.name}")
+    _log(f"   ✅ Descargado -> {dest.name}")
 
 
 def update(download_url: str, new_version: str):
@@ -226,27 +219,13 @@ def update(download_url: str, new_version: str):
         restore_user_data(backup)
         _log("   ✅ Datos restaurados")
 
-        # 6. Re-apply patches & verify health
-        health_script = SKILL_DIR / "scripts" / "utils" / "bridge_health.py"
+        # 6. V2.0-F5: Plugin platform — no patches to re-apply.
+        # Health check via bridge_health.py still runs for diagnostics.
         if health_script.exists():
-            _log("🩹 Ejecutando diagnóstico y reparación automática...")
+            _log("🩺 Ejecutando diagnóstico post-actualización...")
             r = subprocess.run([sys.executable, str(health_script)], capture_output=True, text=True)
             for line in (r.stdout + r.stderr).splitlines():
                 _log(f"   {line}")
-        else:
-            # Fallback to individual patch scripts if bridge_health.py doesn't exist
-            patch_script = SKILL_DIR / "patch_whatsapp.py"
-            if patch_script.exists():
-                _log("🩹 Reaplicando patches...")
-                r = subprocess.run([sys.executable, str(patch_script)], capture_output=True, text=True)
-                for line in (r.stdout + r.stderr).splitlines():
-                    _log(f"   {line}")
-            patch_bridge = SKILL_DIR / "patch_bridge.py"
-            if patch_bridge.exists():
-                _log("🩹 Reaplicando bridge patch...")
-                r = subprocess.run([sys.executable, str(patch_bridge)], capture_output=True, text=True)
-                for line in (r.stdout + r.stderr).splitlines():
-                    _log(f"   {line}")
 
         # 7. Soul sync
         soul_sync = SKILL_DIR / "scripts" / "security" / "soul_sync.py"
@@ -298,7 +277,7 @@ def update(download_url: str, new_version: str):
             if _old_session.exists() and not _new_session_link.exists():
                 _new_session_dir.mkdir(parents=True, exist_ok=True)
                 _os.symlink(str(_old_session), str(_new_session_link))
-                _log("   ✅ Symlink de sesión creado (platforms/whatsapp/session → whatsapp/session)")
+                _log("   ✅ Symlink de sesión creado (platforms/whatsapp/session -> whatsapp/session)")
         except Exception as e:
             _log(f"   ⚠️  symlink: {e}")
 
@@ -380,35 +359,10 @@ def update(download_url: str, new_version: str):
             except Exception as e:
                 _log(f"   ⚠️  No se pudo reiniciar el panel automáticamente: {e}")
 
-        # 9c. Post-update bridge integrity check
-        _log("🔍 Verificando integridad del bridge tras actualización...")
-        import hashlib, urllib.request as _urlreq
-
-        hermes_home = SKILL_DIR.parent.parent
-        bridge_js = hermes_home / "hermes-agent" / "scripts" / "whatsapp-bridge" / "bridge.js"
-        bridge_bak = hermes_home / "hermes-agent" / "scripts" / "whatsapp-bridge" / "bridge_andorina_bak.js"
-
-        # Check if Hermes replaced bridge.js (hash changed vs our backup)
-        bridge_changed = False
-        if bridge_js.exists() and bridge_bak.exists():
-            def _hash(p):
-                return hashlib.md5(p.read_bytes()).hexdigest()
-            if _hash(bridge_js) != _hash(bridge_bak):
-                bridge_changed = True
-                _log("   ⚠️  bridge.js fue modificado por Hermes — reaplicando parches...")
-                patch_bridge = SKILL_DIR / "patch_bridge.py"
-                patch_wa     = SKILL_DIR / "patch_whatsapp.py"
-                for ps in [patch_bridge, patch_wa]:
-                    if ps.exists():
-                        r2 = subprocess.run([sys.executable, str(ps)], capture_output=True, text=True)
-                        for line in (r2.stdout + r2.stderr).splitlines():
-                            _log(f"      {line}")
-                # Update the backup to the new version
-                import shutil as _sh
-                _sh.copy2(bridge_js, bridge_bak)
-                _log("   ✅ Parches reaplicados y backup de bridge actualizado")
-            else:
-                _log("   ✅ bridge.js sin cambios")
+        # 9c. V2.0-F5: Plugin platform — bridge integrity check without patching.
+        # In V2.0, the bridge is managed by Hermes, not patched by Andorina.
+        _log("🔍 Verificando integridad del bridge...")
+        _log("   ℹ️  V2.0 Plugin Platform — bridge integrity managed by Hermes.")
 
         # Check creds.json is intact (non-empty)
         try:

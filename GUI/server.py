@@ -1121,72 +1121,14 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
                 "desktop_icon_path": str(icon_path) if icon_path.exists() else None
             })
 
-        # ── Patch Guard ──
+        # ── Patch Guard (V2.0-F5: plugin platform — no patches required) ──
         elif path == "/api/patches/status":
-            try:
-                env = os.environ.copy()
-                if "HERMES_HOME" not in env:
-                    env["HERMES_HOME"] = str(Path.home() / ".hermes")
-                r = subprocess.run(
-                    [sys.executable, str(SOURCE_DIR / "check_patches.py"), "--json"],
-                    capture_output=True, text=True, timeout=15, env=env
-                )
-                raw = json.loads(r.stdout)
-
-                # Transform raw marker dicts into the flat list the frontend renders:
-                # [{name, ok, reason}]  +  ok  +  missing_count
-                MARKER_LABELS = {
-                    "health_endpoint":  "bridge.js — /health endpoint",
-                    "groups_endpoint":  "bridge.js — /groups endpoint",
-                    "sender_id_fix":    "bridge.js — sender ID fix",
-                    "mime_expansion":   "bridge.js — MIME type expansion",
-                    "fromMe_inbox_fix": "bridge.js — fromMe inbox filter",
-                    "inbox_writer":     "whatsapp.py — inbox writer",
-                    "webhook_dispatch": "whatsapp.py — webhook dispatch",
-                    "hermes_home_env":  "whatsapp.py — HERMES_HOME env",
-                }
-                patches = []
-                missing_count = 0
-
-                # Bridge file presence
-                bridge_ok = raw.get("bridge", {}).get("exists", False)
-                patches.append({
-                    "name": f"bridge.js — {raw.get('bridge', {}).get('file', 'not found')}",
-                    "ok": bridge_ok,
-                    "reason": None if bridge_ok else "bridge.js not found"
-                })
-                for key, present in raw.get("bridge", {}).get("markers", {}).items():
-                    if not present:
-                        missing_count += 1
-                    patches.append({
-                        "name": MARKER_LABELS.get(key, f"bridge.js — {key}"),
-                        "ok": present,
-                        "reason": None if present else "Missing from bridge.js"
-                    })
-
-                # whatsapp.py
-                wa_ok = raw.get("whatsapp", {}).get("exists", False)
-                patches.append({
-                    "name": "whatsapp.py — adapter file",
-                    "ok": wa_ok,
-                    "reason": None if wa_ok else "whatsapp.py not found"
-                })
-                for key, present in raw.get("whatsapp", {}).get("markers", {}).items():
-                    if not present:
-                        missing_count += 1
-                    patches.append({
-                        "name": MARKER_LABELS.get(key, f"whatsapp.py — {key}"),
-                        "ok": present,
-                        "reason": None if present else "Missing from whatsapp.py"
-                    })
-
-                self.send_json({
-                    "ok": missing_count == 0,
-                    "patches": patches,
-                    "missing_count": missing_count
-                })
-            except Exception as e:
-                self.send_error_json(500, str(e))
+            self.send_json({
+                "ok": True,
+                "patches": [],
+                "missing_count": 0,
+                "message": "V2.0 Plugin Platform — no patches required."
+            })
 
         # ── Andoriña Update ──
         elif path == "/api/update/check":
@@ -1570,24 +1512,12 @@ ANDORINA_ROOT={agent_path / "skills" / "andorina"}
             return
 
         elif path == "/api/install/step/patch":
+            # V2.0-F5: Plugin platform — no core patching required.
+            # The legacy patch_bridge.py / patch_whatsapp.py have been deprecated.
             def run_patch():
-                INSTALL_LOG.put({"level": "info", "msg": "Parcheando bridge.js..."})
-                env_dict = os.environ.copy()
-                env_dict["HERMES_HOME"] = body.get("agent_path", str(Path.home() / ".hermes"))
-                p = subprocess.Popen([sys.executable, str(SOURCE_DIR / "patch_bridge.py")], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, cwd=str(SOURCE_DIR), env=env_dict)
-                for line in iter(p.stdout.readline, ''):
-                    line = line.strip()
-                    if line: INSTALL_LOG.put({"level": "info", "msg": line})
-                p.wait()
-                
-                INSTALL_LOG.put({"level": "info", "msg": "Parcheando whatsapp.py (Sub-Soul)..."})
-                p2 = subprocess.Popen([sys.executable, str(SOURCE_DIR / "patch_whatsapp.py")], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, cwd=str(SOURCE_DIR), env=env_dict)
-                for line in iter(p2.stdout.readline, ''):
-                    line = line.strip()
-                    if line: INSTALL_LOG.put({"level": "info", "msg": line})
-                p2.wait()
-                
-                INSTALL_LOG.put({"level": "info", "msg": "Parcheado completado."})
+                INSTALL_LOG.put({"level": "info", "msg": "🔌 V2.0 Plugin Platform — patching not required."})
+                INSTALL_LOG.put({"level": "info", "msg": "   Hooks, tools, and sub-souls are registered via plugin manifest."})
+                INSTALL_LOG.put({"level": "ok", "msg": "✓ Plugin platform active — no patches needed."})
             threading.Thread(target=run_patch, daemon=True).start()
             self.send_json({"ok": True})
             return
@@ -2477,20 +2407,11 @@ ANDORINA_ROOT={agent_path / "skills" / "andorina"}
             self.send_json({"ok": rc == 0, "output": out + err})
 
         elif path == "/api/patches/repair":
-            try:
-                env = os.environ.copy()
-                if "HERMES_HOME" not in env:
-                    env["HERMES_HOME"] = str(Path.home() / ".hermes")
-                r = subprocess.run(
-                    [sys.executable, str(SOURCE_DIR / "check_patches.py"), "--repair"],
-                    capture_output=True, text=True, timeout=60, env=env
-                )
-                self.send_json({
-                    "ok": r.returncode == 0,
-                    "output": (r.stdout + r.stderr).strip()
-                })
-            except Exception as e:
-                self.send_error_json(500, str(e))
+            # V2.0-F5: Plugin platform — no patches to repair.
+            self.send_json({
+                "ok": True,
+                "output": "V2.0 Plugin Platform — no patches to repair."
+            })
 
         elif path == "/api/update/run":
             def run_update():

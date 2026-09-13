@@ -3,22 +3,37 @@ import json
 import time
 import urllib.request
 import urllib.error
-import fcntl
+try:
+    from filelock import FileLock
+    _HAS_FILELOCK = True
+except ImportError:
+    import fcntl
+    _HAS_FILELOCK = False
 from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).parent.absolute()
-STATE_DIR   = SCRIPTS_DIR.parent / "state"
+
+def _get_state_dir():
+    """Resolve state directory — plugin path takes priority over skill path."""
+    state = SCRIPTS_DIR.parent / "state"
+    return state
+
+STATE_DIR = _get_state_dir()
 
 # Helper to locate the appropriate .env file
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
 
 def get_env_path(profile_path):
-    # FIRST priority: local .env next to the skill folder (always wins)
+    # FIRST priority: local .env next to the plugin/skill folder (always wins)
     local_env = SCRIPTS_DIR.parent / ".env"
     if local_env.exists():
         return local_env
 
-    # Secondary: flat skills/andorina hierarchy (Hermes >= 2025)
+    # Secondary: flat skills/andorina or plugins/andorina hierarchy
+    # V2.0: Check plugin layout first, then skill layout
+    plugin_env = profile_path / "plugins" / "andorina" / ".env"
+    if plugin_env.exists():
+        return plugin_env
     skill_env = profile_path / "skills" / "andorina" / ".env"
     if skill_env.exists():
         return skill_env
@@ -52,7 +67,7 @@ if ENV_PATH.exists():
     except Exception: pass
 
 BRIDGE_URL = os.environ.get("WHATSAPP_BRIDGE_URL", BRIDGE_URL)
-INBOX_FILE = SCRIPTS_DIR.parent / "state" / "inbox.json"
+INBOX_FILE = _get_state_dir() / "inbox.json"
 
 def log_outgoing(chat_id, text, msg_type="text"):
     """Saves outgoing messages to the local inbox for self-visibility"""
@@ -67,9 +82,10 @@ def log_outgoing(chat_id, text, msg_type="text"):
         INBOX_FILE.parent.mkdir(parents=True, exist_ok=True)
         lock_file = INBOX_FILE.with_suffix(".lock")
         
-        with open(lock_file, "w") as lf:
-            fcntl.flock(lf, fcntl.LOCK_EX)
-            try:
+        lock_path = INBOX_FILE.with_suffix(".lock")
+        if _HAS_FILELOCK:
+            from filelock import FileLock
+            with FileLock(str(lock_path), timeout=5):
                 inbox = []
                 if INBOX_FILE.exists():
                     try:
@@ -83,8 +99,6 @@ def log_outgoing(chat_id, text, msg_type="text"):
                 tmp_file = INBOX_FILE.with_suffix(".tmp")
                 tmp_file.write_text(json.dumps(inbox, ensure_ascii=False, indent=2), encoding="utf-8")
                 tmp_file.replace(INBOX_FILE)
-            finally:
-                fcntl.flock(lf, fcntl.LOCK_UN)
     except Exception: pass
 
 def post_json(endpoint, data, attempt=0, silent_pacing=False):

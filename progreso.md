@@ -4,6 +4,58 @@
 > Inicio: 2026-07-09  
 > Última actualización: 2026-07-19
 
+## V2.0-alpha — Plugin Platform Migration
+
+> **Fecha:** 2026-09-12
+> **Rama:** `andorinaDEV`
+> **Objetivo:** Migrar de skill legacy (parches) a plugin nativo oficial de Hermes v0.21.1
+
+### ✅ F1 — Plugin Entry (APROBADA)
+
+| # | Cambio | Archivos | Resultado |
+|---|--------|----------|-----------|
+| F1.1 | Crear `__init__.py` con `register(ctx)` | `__init__.py` (raíz) | ✅ 3 hooks + 11 tools registrados |
+| F1.2 | `plugin.yaml` reestructurado (campos en nivel raíz) | `plugin.yaml` | ✅ `hermes plugins validate` 10/10 |
+| F1.3 | `adapter.py` reducido 165→68 líneas (thin wrapper) | `scripts/security/memory/adapter.py` | ✅ Sin duplicación con `__init__.py` |
+| F1.4 | Docstrings español→inglés (6 archivos) | `memory/`, `common.py`, `install_cli.py`, `setup.py` | ✅ Inglés en todo el código |
+| F1.5 | `state/` eliminado del repo | `.gitignore` | ✅ |
+| F1.6 | `versions/` archivado | `versions/` | ✅ Movido a release archive |
+| F1.7 | `VERSION` → `2.0.0-alpha`, CHANGELOG | `VERSION`, `CHANGELOG.md` | ✅ |
+
+**Validación F1:** 75/75 tests, `hermes plugins validate` 10/10, plugin discoverable, hooks stdin piping verificado, tool arguments 11/11 correctos.
+
+### ✅ F2 — Native APIs (APROBADA)
+
+| # | Cambio | Archivos | Resultado |
+|---|--------|----------|-----------|
+| F2.1 | `crontab` → `hermes cron` (con fallback) | `scripts/tools/agenda.py` | ✅ `_run_cron_command` usa `hermes cron` preferido, `crontab` fallback |
+| F2.2 | `fcntl` → `filelock` | `scripts/common.py` | ✅ `filelock` importado, `fcntl` fallback mantenido |
+| F2.3 | `systemctl`/`pkill` → `hermes gateway restart` | `scripts/security/soul_sync.py` | ✅ 10 líneas eliminadas, solo `hermes gateway restart` |
+| F2.4 | `tool_executor.py` multi-OS PATH | `scripts/security/tool_executor.py` | ✅ Sin PATH hardcodeado (ya migrado) |
+
+**Validación F2:** 75/75 tests, `hermes plugins validate` 10/10, compilación 4/4 archivos.
+
+### 🔧 HOTFIX — Webhook Locking (APROBADO)
+
+| Cambio | Archivos | Resultado |
+|--------|----------|-----------|
+| Eliminado `_try_lock()` (código muerto con `fcntl`) | `scripts/transport/webhook.py` | ✅ 0 refs a `_try_lock`, 0 refs a `fcntl` |
+| Añadido `from filelock import FileLock` | `scripts/transport/webhook.py` | ✅ 2 refs (import + uso) |
+| Reemplazado `_get_lock()`/`_release_lock()` (indefinidas → NameError) por `FileLock` context manager | `scripts/transport/webhook.py` | ✅ Sin pérdida de datos (10 escritores concurrentes) |
+
+**Validación Hotfix:** 75/75 tests, `hermes plugins validate` 10/10, test aislado de locking 10/10 concurrente sin data loss.
+
+### ⏳ F3 — Security (PENDIENTE)
+
+### ⏳ F4 — Cleanup (PENDIENTE)
+
+### ⏳ F5 — Config (PENDIENTE)
+
+### ⏳ F6 — Docs (PENDIENTE)
+
+### ⏳ F7 — Tests (PENDIENTE)
+
+### ⏳ F8 — Final Audit (PENDIENTE)
 ---
 
 ## ✅ Issues corregidos (30+)

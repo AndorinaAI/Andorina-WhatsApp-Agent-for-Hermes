@@ -2,8 +2,8 @@
 """
 🕊️ Andoriña — CLI Install Wizard (v1.6)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Wizard interactivo de terminal para instalar Andoriña en entornos
-headless, VPS, servidores, o Docker. Sin dependencia de GUI.
+Interactive terminal wizard to install Andoriña in headless,
+VPS, server, or Docker environments. No GUI dependency.
 
 Uso:
   python3 install_cli.py                  # Wizard interactivo
@@ -477,14 +477,9 @@ def run_step_patch(state, env_file=None):
     if not bridge_path:
         return True, "Bridge no encontrado — omitiendo parcheo (se hará al iniciar)."
 
-    patch_bridge = SOURCE_DIR / "patch_bridge.py"
-    patch_whatsapp = SOURCE_DIR / "patch_whatsapp.py"
-
-    for patcher in [patch_bridge, patch_whatsapp]:
-        if patcher.exists():
-            r = subprocess.run([sys.executable, str(patcher)], capture_output=True, text=True)
-            if r.returncode != 0:
-                warn(f"patcher {patcher.name}: {r.stderr[:200]}")
+    # V2.0-F5: Plugin platform — no patches to apply.
+    # The legacy patch scripts are deprecated and do nothing.
+    _log("   ℹ️  V2.0 Plugin Platform — patches not required.")
     return True, t("ok_patch")
 
 def run_step_rbac(state, env_file=None):

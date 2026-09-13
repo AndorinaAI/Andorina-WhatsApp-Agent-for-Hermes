@@ -34,8 +34,22 @@ def _notes_path(num: str, in_group: str = "") -> Path:
     Si in_group es un JID de grupo (@g.us), usa archivo separado."""
     if in_group and "@g.us" in in_group:
         group_bare = in_group.split("@")[0]
-        return NOTES_DIR / f"{num}__in__{group_bare}.md"
-    return NOTES_DIR / f"{num}.md"
+        path = NOTES_DIR / f"{num}__in__{group_bare}.md"
+    else:
+        path = NOTES_DIR / f"{num}.md"
+    return _validate_note_path(path)
+
+def _validate_note_path(path: Path) -> Path:
+    """V2.0-F3/S4: Resuelve el path y verifica que no escape de NOTES_DIR.
+    Previene path traversal via ../, rutas absolutas, symlinks, etc."""
+    try:
+        resolved = path.resolve()
+        notes_resolved = NOTES_DIR.resolve()
+        if not str(resolved).startswith(str(notes_resolved) + os.sep) and resolved != notes_resolved:
+            raise ValueError(f"Path traversal blocked: {path} escapes {NOTES_DIR}")
+        return resolved
+    except (ValueError, OSError) as e:
+        raise ValueError(f"Invalid note path: {e}") from e
 
 
 # contacts.py needs env-var overrides on top of .env
@@ -338,7 +352,8 @@ def cmd_note_add(jid, text):
     jid_norm = normalize_jid(jid)
     num = extract_number(jid_norm)
     NOTES_DIR.mkdir(parents=True, exist_ok=True)
-    note_file = NOTES_DIR / f"{num}.md"
+    # V2.0-F3/S4: Usar _notes_path para validación de path traversal
+    note_file = _notes_path(num)
     
     if note_file.exists():
         try:

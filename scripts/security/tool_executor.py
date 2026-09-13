@@ -37,7 +37,7 @@ def execute_tool(command_line: str, role_config: dict = None, user_jid: str = No
 
     # 2. Setup isolated environment
     safe_env = {
-        "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+        "PATH": os.environ.get("PATH", ""),  # V2.0: multi-OS — sin hardcodear rutas POSIX
         "PYTHONPATH": str(Path(__file__).parent.parent),  # Crucial for import common
         "HOME": os.environ.get("HOME", "/tmp"),
         "HERMES_HOME": os.environ.get("HERMES_HOME", str(Path.home() / ".hermes"))

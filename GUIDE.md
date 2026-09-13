@@ -1,4 +1,4 @@
-# 📖 Andoriña v1.5.2-Beta5 — Complete User Guide
+# 📖 Andoriña v2.0.0-alpha — Complete User Guide
 ## 🕊️ Autonomous WhatsApp Manager for Hermes
 
 > [!WARNING]

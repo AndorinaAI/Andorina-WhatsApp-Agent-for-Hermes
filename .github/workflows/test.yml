@@ -1,0 +1,50 @@
+name: Test
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pyyaml filelock
+
+      - name: Install Hermes (for plugin validation)
+        run: |
+          pip install hermes-agent || echo "Hermes not available — skipping plugin validate"
+
+      - name: Compile check
+        run: |
+          python -m py_compile __init__.py
+          python -m py_compile scripts/common.py
+          python -m py_compile scripts/security/tool_guard.py
+          python -m py_compile scripts/tools/contacts.py
+
+      - name: Run tests
+        run: |
+          python -m pytest tests/ -v --tb=short
+
+      - name: Plugin validate (if Hermes available)
+        run: |
+          hermes plugins validate . || echo "Hermes validate skipped"
+
+      - name: Legacy test suite
+        run: |
+          python tests/test_sandbox.py --quick

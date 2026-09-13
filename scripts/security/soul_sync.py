@@ -386,43 +386,23 @@ def purge_short_term_memory(jid: str):
         print(f"[soul_sync] ⚠️  Error purgando sessions.json: {e}")
 
 def purge_long_term_memory(jid: str):
-    """Borra el historial vectorial del JID en la BD de Hindsight (PostgreSQL embebido)."""
-    import glob
-    import subprocess
-    
-    psql_bin_list = glob.glob(str(Path.home() / ".pg0" / "installation" / "*" / "bin" / "psql"))
-    if not psql_bin_list:
-        print("[soul_sync] ℹ️  Base de datos Hindsight local no detectada (no hay psql).")
-        return
-        
-    pg_bin = psql_bin_list[0]
-    # V1.6: Sanitizar número para prevenir SQL injection.
-    # Solo permitimos dígitos — cualquier otro carácter se elimina.
-    number = re.sub(r"[^\d]", "", jid)
-    
-    # Hindsight schema uses `documents` with id=jid (or containing jid)
-    # Al borrar el documento, el ON DELETE CASCADE borra todas las fact_entities, memory_units, etc.
-    query = f"DELETE FROM documents WHERE id LIKE '%{number}%';"
-    
-    # Check possible database names (hindsight vs hindsight-embed-hermes)
-    dbs_to_try = ["hindsight", "hindsight-embed-hermes"]
-    success = False
-    
-    for db in dbs_to_try:
-        try:
-            cmd = [pg_bin, f"postgresql://postgres:postgres@127.0.0.1:5432/{db}", "-c", query]
-            r = subprocess.run(cmd, capture_output=True, text=True)
-            if r.returncode == 0:
-                print(f"[soul_sync] 🧠 Purga a largo plazo OK ({db}) para: {number}")
-                success = True
-                break
-            elif "does not exist" not in r.stderr:
-                print(f"[soul_sync] ⚠️  Error purgando Hindsight ({db}): {r.stderr.strip()}")
-        except Exception as e:
-            print(f"[soul_sync] ⚠️  Excepción purgando Hindsight ({db}): {e}")
-            
-    if not success:
-        print("[soul_sync] 🧠 Base de datos Hindsight no inicializada aún, omitiendo purga.")
+    """Borra el historial vectorial del JID usando el backend de memoria configurado.
+
+    V2.0: Abstracción de memoria — soporta Hindsight, Mnemosyne, Honcho,
+    o cualquier backend compatible con Hermes Agent.
+    """
+    try:
+        from security.memory import get_memory_backend
+        backend = get_memory_backend()
+        if not backend.is_available():
+            print(f"[soul_sync] ℹ️  Backend de memoria no disponible para {jid}")
+            return
+        if backend.purge(jid):
+            print(f"[soul_sync] 🧠 Purga a largo plazo OK ({backend.get_name()}) para: {jid}")
+        else:
+            print(f"[soul_sync] ⚠️  Fallo purgando memoria ({backend.get_name()}) para: {jid}")
+    except Exception as e:
+        print(f"[soul_sync] ⚠️  Error purgando memoria: {e}")
 
 
 # ── Config update ──────────────────────────────────────────────────────────
@@ -536,23 +516,12 @@ def main():
     if jids_changed:
         print("[soul_sync] 🔄 Reiniciando hermes-gateway para aplicar nueva configuración...")
         restarted = False
-        # a) systemd --user (Linux con systemd)
-        r = subprocess.run(["systemctl", "--user", "restart", "hermes-gateway"],
-                           capture_output=True)
+        # V2.0: Use Hermes native gateway restart (multi-OS)
+        hermes_cmd = os.environ.get("HERMES_CMD", "hermes")
+        r = subprocess.run([hermes_cmd, "gateway", "restart"], capture_output=True, timeout=30)
         if r.returncode == 0:
             restarted = True
-        # b) pkill + relaunch (sin systemd o nombre de servicio distinto)
-        if not restarted:
-            hermes_cmd = os.environ.get("HERMES_CMD", "hermes")
-            subprocess.run(["pkill", "-f", "hermes.*gateway"], capture_output=True)
-            time.sleep(1)
-            try:
-                subprocess.Popen([hermes_cmd, "gateway", "start"],
-                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                                 start_new_session=True)
-                restarted = True
-            except FileNotFoundError:
-                pass
+        # V2.0: hermes gateway restart is cross-platform
         if restarted:
             print("[soul_sync] ✅ Gateway reiniciado. Sincronización completada.")
         else:

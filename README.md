@@ -7,14 +7,14 @@
 </p>
 
 <p align="center">
-  <em>Autonomous WhatsApp Manager for Hermes (v1.5.2-Beta5)</em><br>
-  <em>Gestor Autónomo de WhatsApp para Hermes (v1.5.2-Beta5)</em>
+  <em>Autonomous WhatsApp Manager for Hermes (v2.0.0-alpha)</em><br>
+  <em>Gestor Autónomo de WhatsApp para Hermes (v2.0.0-alpha)</em>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.5.2--Beta5-blueviolet?style=flat-square" alt="Version">
-  <img src="https://img.shields.io/badge/status-BETA-orange?style=flat-square" alt="Status">
-  <img src="https://img.shields.io/badge/platform-Linux-lightgrey?style=flat-square&logo=linux" alt="Linux">
+  <img src="https://img.shields.io/badge/status-ALPHA-orange?style=flat-square" alt="Status">
+  <img src="https://img.shields.io/badge/platform-multi--os-lightgrey?style=flat-square&logo=linux" alt="Linux">
   <img src="https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square&logo=python" alt="Python">
 </p>
 
@@ -27,27 +27,18 @@
 - **Follow on X:** [@andorinaAI](https://x.com/andorinaAI)
 
 > [!IMPORTANT]
-> **🔧 v1.5.2-Beta5 — BUG FIX RELEASE**
+> **🔧 V2.0.0-alpha — Plugin Platform Release**
 > Fixed: Semantic alerts group→group now fire correctly. Root cause was `webhook.py` using the individual sender's JID instead of the group JID for alert source matching.
 >
-> **🔧 v1.5.2-Beta5 — VERSIÓN DE CORRECCIÓN DE ERRORES**
-> Corregido: Las alertas semánticas de grupo→grupo ahora funcionan correctamente. La causa era que `webhook.py` usaba el JID del miembro individual en lugar del JID del grupo para el match de alertas.
+> **🚀 V2.0.0-alpha — Plugin Platform Release**
+> Andoriña is now a native Hermes plugin. Zero core modifications required.
+> Install with: `hermes plugins install andorina`
+> See [MIGRATION.md](MIGRATION.md) for V1→V2 upgrade instructions.
 >
-> ---
->
-> **🔧 v1.5.2-Beta4 — BUG FIX RELEASE**
-> Fixed: RBAC JID suffix match fallback · Alert source matching using JID check · Away admin phone JID exclusion fallback · Webhook public URL multi-tier detection. Improvements: fuzzy accent-insensitive keyword matching for alerts · Webhook stability dashboard banner · Centralized JID helper.
->
-> **🔧 v1.5.2-Beta4 — VERSIÓN DE CORRECCIÓN DE ERRORES**
-> Corregido: Coincidencia de sufijos RBAC para roles · Coincidencia de origen de alertas por JID · Coincidencia de sufijos de admin en auto-respuesta · Autodetección de URL webhook multinivel. Mejoras: coincidencia difusa e insensible a acentos en alertas · Banner de estabilidad de webhook · Ayudante JID centralizado.
->
-> ---
->
-> **🔧 v1.5.2-Beta3 — BUG FIX RELEASE**
-> Fixed: TUI/CLI blocked by RBAC · Webhook port hardcoded to 3001 · Contact notes never written or read · Updater not patching SOUL.md. Improvements: banner i18n (EN/ES), banner shown on every panel load, scroll speed reduced.
->
-> **🔧 v1.5.2-Beta3 — VERSIÓN DE CORRECCIÓN DE ERRORES**
-> Corregido: TUI/CLI bloqueado por RBAC · Puerto de webhooks fijado en 3001 · Notas de contacto sin escribir ni leer · Actualizador sin parchear el SOUL.md. Mejoras: banner i18n (EN/ES), banner visible siempre al cargar, velocidad de scroll reducida.
+> **🚀 V2.0.0-alpha — Versión Plugin Platform**
+> Andoriña ahora es un plugin nativo de Hermes. Sin modificaciones al core.
+> Instala con: `hermes plugins install andorina`
+> Consulta [MIGRATION.md](MIGRATION.md) para instrucciones de actualización V1→V2.
 
 ---
 
@@ -61,8 +52,8 @@
   Toma el control absoluto de tus comunicaciones. Olvídate de teclear: programa envíos, lanza notas de voz, adjunta archivos de tu PC y busca en tu agenda al instante. Tu mensajería, en piloto automático.
 </p>
 
-> ⚠️ **Exclusive for Linux.** We have shifted our direction to prioritize the free software community. To resist privatization and Big Tech monopolies, Andoriña is currently developed exclusively for Linux (though we remain open to future possibilities).
-> ⚠️ **Exclusivo para Linux.** Hemos cambiado de rumbo para priorizar a la comunidad y el software libre. Frente a la privatización y el control de las Big Tech, Andoriña se desarrolla ahora exclusivamente para Linux (sin cerrarnos a cambiar de idea en el futuro).
+> ⚠️ **Linux-first (currently supported and tested on Linux).** We have shifted our direction to prioritize the free software community. To resist privatization and Big Tech monopolies, Andoriña is currently developed exclusively for Linux (though we remain open to future possibilities).
+> ⚠️ **Linux-first (soportado y probado actualmente en Linux).** Hemos cambiado de rumbo para priorizar a la comunidad y el software libre. Frente a la privatización y el control de las Big Tech, Andoriña se desarrolla ahora exclusivamente para Linux (sin cerrarnos a cambiar de idea en el futuro).
 
 ---
 
@@ -111,13 +102,13 @@
 | 🔕 **Away & Mute** | Per-contact mute and global away auto-responder with cooldowns |
 | 🔐 **Absolute Privacy** | **100% Local Processing**. Zero telemetry, no cloud storage |
 | 📒 **Google Cloud Sync** | Full OAuth2 sync with Google Contacts, **Fuzzy Search**, and **LID-Mapping** |
-| ⚕️ **Self-Healing** | Automated infra repair, patch checker (`check_patches.py`), and Diagnostic Engine |
+| ⚕️ **Self-Healing** | Automated infra repair, and Diagnostic Engine (V2.0: plugin platform, no patches needed) |
 | 🧠 **Cognitive Reset** | Surgical memory wipe (logs + inbox) without breaking WhatsApp sessions (`inbox.py delete`) |
 
 ### 🚀 Installation & Documentation
 
 > [!IMPORTANT]
-> **Requires Hermes Agent >= v0.16.0.** Update with `hermes update` before installing. The installer checks this automatically and offers to update if needed.
+> **Requires Hermes Agent >= v0.19.0.** Update with `hermes update` before installing. The installer checks this automatically and offers to update if needed.
 
 1. **Quick Start:** Unzip the downloaded folder and double-click `Andorina-Panel.sh` (If it doesn't open, open a terminal and run `bash ./Andorina-Panel.sh`). The Andoriña Control Panel will open in your browser and guide you visually through the entire installation process.
 2. **First Login:** On the first login screen, you can enter **any password you want** to set it as your master password.

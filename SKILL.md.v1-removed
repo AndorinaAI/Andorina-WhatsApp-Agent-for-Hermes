@@ -1,4 +1,4 @@
-# 🕊️ Andoriña — WhatsApp Autonomous Manager (v1.5.2)
+# 🕊️ Andoriña — WhatsApp Autonomous Manager (v2.0.0-alpha)
 
 > ⛔ **STOP. READ THIS BEFORE DOING ANYTHING.**
 >
@@ -403,14 +403,14 @@ Use this when the user says "alert me", "warn me", "listen to", or "forward mess
 |---|---|
 | Full system health check | `python3 scripts/utils/diag.py` |
 | Auto-repair bridge + QR | `python3 scripts/utils/bridge_health.py` |
-| Check/Repair Core Patches | `python3 check_patches.py` |
+| Check/Repair Core Patches | `hermes plugins validate .` |
 | Check for new Updates | `python3 andorina_updater.py --check` |
 | View rate limit status | `python3 scripts/security/orchestrator.py status` |
 | Unblock a user | `python3 scripts/security/orchestrator.py reset "34600000000"` |
 
 - If the user says "WhatsApp is not working", run `diag.py` first.
 - If bridge is offline, run `bridge_health.py`. It will attempt auto-repair.
-- If messages aren't appearing in the inbox or Sub-Souls are failing, run `check_patches.py` to restore the code injections.
+- If messages aren't appearing in the inbox or Sub-Souls are failing, run `hermes plugins validate` to restore the code injections.
 - If the user asks to update the skill, run `andorina_updater.py --check`. Do NOT run `--update` without their explicit approval first.
 
 ### 🤖 CHATBOT & AUTO-RESPONDER

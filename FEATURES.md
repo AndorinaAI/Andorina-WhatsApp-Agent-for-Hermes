@@ -1,4 +1,4 @@
-# 🌟 Andoriña v1.5.2-Beta5 — Complete Feature Reference
+# 🌟 Andoriña v2.0.2-Beta5 — Complete Feature Reference
 ## 🇬🇧 English | 🇪🇸 Español
 
 > [!WARNING]
@@ -8,8 +8,8 @@
 
 ---
 
-## 🔧 What's New in v1.5.2-Beta5 (Bug Fix Release)
-## 🔧 Novedades en v1.5.2-Beta5 (Versión de Corrección de Errores)
+## 🔧 What's New in v2.0.2-Beta5 (Bug Fix Release)
+## 🔧 Novedades en v2.0.2-Beta5 (Versión de Corrección de Errores)
 
 ### 🇺🇸 English
 
@@ -25,8 +25,8 @@
 
 ---
 
-## 🔧 What's New in v1.5.2-Beta4 (Bug Fix Release)
-## 🔧 Novedades en v1.5.2-Beta4 (Versión de Corrección de Errores)
+## 🔧 What's New in v2.0.2-Beta4 (Bug Fix Release)
+## 🔧 Novedades en v2.0.2-Beta4 (Versión de Corrección de Errores)
 
 ### 🇺🇸 English
 
@@ -54,8 +54,8 @@
 
 ---
 
-## 🔧 What's New in v1.5.2-Beta3 (Bug Fix Release)
-## 🔧 Novedades en v1.5.2-Beta3 (Versión de Corrección de Errores)
+## 🔧 What's New in v2.0.2-Beta3 (Bug Fix Release)
+## 🔧 Novedades en v2.0.2-Beta3 (Versión de Corrección de Errores)
 
 ### 🇺🇸 English
 
@@ -155,7 +155,7 @@
 ### ⚕️ 10. Infrastructure & Self-Healing
 - **`bridge_health.py`:** Patches `bridge.js` dinámicamente for MIME, PTT, health endpoint, and presence indicators.
 - **Always creates a backup** (`bridge_andorina_bak.js`) before writing any patch.
-- **`patch_bridge.py`:** Adds the `/profile-pic/:jid` endpoint directly into the Baileys bridge.
+- **`(deprecated — V2.0 plugin platform)`:** Adds the `/profile-pic/:jid` endpoint directly into the Baileys bridge.
 
 ### 🔑 11. Google OAuth2 Authentication
 - **`auth.py`:** Interactive terminal-based OAuth2 flow for Google People API.
@@ -294,7 +294,7 @@
 
 ### ⚕️ 10. Infraestructura y Auto-Reparación
 - **`bridge_health.py`:** Parchea `bridge.js` dinámicamente y crea backups.
-- **`patch_bridge.py`:** Añadido el endpoint `/profile-pic/:jid`.
+- **`(deprecated — V2.0 plugin platform)`:** Añadido el endpoint `/profile-pic/:jid`.
 
 ### 🔑 11. Autenticación OAuth2 con Google
 - Flujo OAuth2 interactivo mediante `auth.py`. Auto-refresco de tokens en segundo plano.
@@ -369,4 +369,4 @@
 - Totalmente configurable en el archivo `.env` del agente (`HERMES_HOME`, `ANDORINA_CRON_OFFSET`, etc.).
 
 ---
-*Developed with ❤️ by Jorge. — Andoriña v1.5.2*
+*Developed with ❤️ by Jorge. — Andoriña v2.0.2*

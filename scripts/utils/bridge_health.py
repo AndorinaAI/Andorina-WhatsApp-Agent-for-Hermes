@@ -142,22 +142,9 @@ def apply_repair():
             
             if missing:
                 print(f"🔧 Bridge Repair: Patching missing features: {', '.join(missing)}", file=sys.stderr)
-                scripts_dir = Path(__file__).parent.absolute()
-                # Use the root patch script as source of truth
-                patch_script = scripts_dir.parent.parent / "patch_bridge.py"
-                if not patch_script.exists(): patch_script = scripts_dir.parent / "patch_bridge.py"
-                
-                if patch_script.exists():
-                    subprocess.run([sys.executable, str(patch_script)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                    print("✅ Bridge patched and restarted successfully.", file=sys.stderr)
-                    time.sleep(2)
-                
-                # Also apply whatsapp.py patch
-                whatsapp_patch = scripts_dir.parent.parent / "patch_whatsapp.py"
-                if not whatsapp_patch.exists(): whatsapp_patch = scripts_dir.parent / "patch_whatsapp.py"
-                if whatsapp_patch.exists():
-                    subprocess.run([sys.executable, str(whatsapp_patch)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                    print("✅ WhatsApp Sub-Soul patch verified.", file=sys.stderr)
+                # V2.0-F5: Plugin platform — no patches to apply.
+                # Bridge integrity is managed by Hermes. Skip legacy patch execution.
+                print("✅ V2.0 Plugin Platform — bridge managed by Hermes (no patches needed).", file=sys.stderr)
         except Exception: pass
 
     # 3. Crontab hygiene — remove stale entries from old Andoriña versions

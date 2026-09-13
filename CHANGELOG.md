@@ -2,6 +2,60 @@
 
 ---
 
+## [v2.0-alpha] - 2026-09-12
+
+### 🚀 Plugin Platform Migration (F1 + F2)
+
+**🇬🇧 English**
+
+- **Plugin entry point (`__init__.py`):** `register(ctx)` registers 3 hooks (`pre_llm_call`, `pre_tool_call`, `post_llm_call`) and 11 tools via `ctx.register_hook()` and `ctx.register_tool()`. Plugin discoverable by Hermes `PluginManager`.
+- **`plugin.yaml` restructured:** `provides_tools` and `provides_hooks` at root level (Hermes v0.21.1 requirement). Validation: 10/10 checks pass.
+- **Native APIs (F2):**
+  - `crontab` → `hermes cron` (agenda.py): `_run_cron_command` helper prefers `hermes cron`, falls back to `crontab`. Multi-OS compatible.
+  - `fcntl` → `filelock` (common.py, webhook.py): Cross-platform file locking. `filelock` already in `requirements.txt`.
+  - `systemctl`/`pkill` → `hermes gateway restart` (soul_sync.py): 10 lines removed, uses native Hermes API.
+  - `tool_executor.py` multi-OS PATH: No hardcoded paths.
+- **Webhook locking hotfix:** Replaced undefined `_get_lock()`/`_release_lock()` with `FileLock` context manager. Removed dead `_try_lock()` code. Zero `fcntl` references remaining.
+- **Memory backend abstraction:** ABC + Hindsight (PostgreSQL) + Hermes native + Noop + auto-detector.
+- **Tests:** 75/75 pass. Plugin validate: 10/10. Isolated locking test: 10 concurrent writers, zero data loss.
+
+**🇪🇸 Español**
+
+- **Punto de entrada del plugin (`__init__.py`):** `register(ctx)` registra 3 hooks y 11 tools. Plugin descubrible por `PluginManager` de Hermes.
+- **`plugin.yaml` reestructurado:** Campos `provides_tools`/`provides_hooks` en nivel raíz. Validación Hermes: 10/10.
+- **APIs nativas (F2):**
+  - `crontab` → `hermes cron`: Helper `_run_cron_command` prefiere API nativa, fallback a crontab.
+  - `fcntl` → `filelock`: Locking multi-plataforma unificado con `safe_json.py`.
+  - `systemctl` → `hermes gateway restart`: 10 líneas eliminadas, usa API nativa.
+  - `tool_executor.py` sin PATH hardcodeado.
+- **Hotfix locking del webhook:** `_get_lock`/`_release_lock` indefinidas reemplazadas por `FileLock`. Código muerto `_try_lock` eliminado. Cero referencias a `fcntl`.
+- **Tests:** 75/75 pasan. Plugin validate: 10/10. Test de locking: 10 escritores concurrentes sin pérdida de datos.
+
+### 🔐 Security Hardening (F3)
+
+- **_hermes_ bypass blocked:** `admin_cli.py cmd_soul_set` rejects `_hermes_` soul assignment via LLM tools. Owners can still configure directly via `rules.json`.
+- **Path traversal in notes:** `_validate_note_path` prevents escape from `NOTES_DIR` via `../`, absolute paths, and null bytes.
+- **OAuth credentials:** `DEFAULT_CID`/`DEFAULT_SEC` removed from `auth.py`. Fallback reads from `.env.example`.
+- **Defense-in-depth:** `_hermes_` soul bypass removed from `tool_guard.py`. OS access now requires `is_owner` or `os:execute` permission.
+- **Tests:** 19/19 security tests pass.
+
+### 🧹 Cleanup (F4)
+
+- **Orphan files deleted:** `scripts/security/__init___v2.py`, `revision-plan.md`.
+- **Docstrings translated:** `detector.py` Spanish→English (7 translations).
+- **Patch stubs kept** (GUI still referenced them at time of F4).
+
+### 🔌 Patch Decoupling (F5)
+
+- **Patch stubs deleted:** `patch_whatsapp.py`, `patch_bridge.py`, `check_patches.py` — all functional references removed.
+- **GUI/server.py:** `/api/install/step/patch`, `/api/patches/status`, `/api/patches/repair` converted to informative no-ops.
+- **andorina_updater.py:** Patch re-application logic removed. Bridge integrity check simplified.
+- **install_cli.py, setup.py, setup_lib.py:** Patch execution and file copying removed.
+- **bridge_health.py:** Patch execution replaced with plugin platform message.
+- **Validation:** 75/75 tests, 19/19 security tests, 10/10 plugin validate.
+
+---
+
 ## [v1.6-Beta1] - 2026-07-16
 
 ### 🔧 JID Resolution Refactor / Refactor de Resolución de JIDs
@@ -275,3 +329,32 @@
 ## [v1.0.2] - 2026-05-09
 
 - **Media Isolation / Aislamiento de Medios:** Per-agent image cache isolation. / Aislamiento de caché de imágenes por agente.
+
+---
+
+## [v2.0.0-alpha] - 2026-09-11
+
+### 🏗️ Architectural Refactor / Refactor Arquitectónico
+
+**🇬🇧 English**
+
+- **Plugin Platform Migration:** Andoriña is now a native Hermes plugin platform instead of patching the core. Eliminated `patch_bridge.py` and `patch_whatsapp.py` dependencies.
+- **Memory Backend Abstraction:** New `security/memory/` module with abstract `MemoryBackend` interface. Supports `HindsightBackend` (legacy), `HermesMemoryBackend` (native API), and `NoopBackend` (safe fallback).
+- **Multi-OS readiness:** `tool_executor.py` has no hardcoded PATH. `files.py` includes multi-OS blocked prefixes. `agenda.py` uses Hermes cron API for platform-independent scheduling. Full Windows/macOS validation is future work.
+- **Plugin Manifiesto:** New `plugin.yaml` with declared hooks, permissions, and environment variables.
+- **Adapter Pattern:** New `AndorinaAdapter` class connects plugin logic to Hermes core via native APIs.
+
+### 📁 New Files / Archivos Nuevos
+- `scripts/security/memory/__init__.py` — Memory backend package
+- `scripts/security/memory/backend.py` — Abstract `MemoryBackend` interface + `NoopBackend`
+- `scripts/security/memory/hindsight.py` — `HindsightBackend` (PostgreSQL legacy)
+- `scripts/security/memory/hermes_memory.py` — `HermesMemoryBackend` (native API)
+- `scripts/security/memory/detector.py` — Auto-detection + singleton
+- `scripts/security/memory/adapter.py` — `AndorinaAdapter` (plugin lifecycle)
+- `plugin.yaml` — V2.0 plugin manifest
+
+### 🔧 Modified Files / Archivos Modificados
+- `soul_sync.py` — `purge_long_term_memory` uses `MemoryBackend` abstraction
+- `tool_executor.py` — Multi-OS PATH (no POSIX hardcoding)
+- `input_guard.py` — Multi-OS system path patterns
+- `files.py` — Multi-OS blocked prefixes

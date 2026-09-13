@@ -22,6 +22,7 @@ import shlex
 from datetime import datetime, timedelta
 from pathlib import Path
 import subprocess
+import shutil
 
 sys.path.append(str(Path(__file__).parent.parent))
 from common import post_json
@@ -51,6 +52,43 @@ def load_env_config():
     env = load_env()
     DELIVERY_WINDOW_MINUTES = int(env.get("ANDORINA_DELIVERY_WINDOW", DELIVERY_WINDOW_MINUTES))
     CRON_OFFSET_MINUTES = int(env.get("ANDORINA_CRON_OFFSET", CRON_OFFSET_MINUTES))
+
+# ─────────────── V2.0: Scheduling multi-plataforma ────────────────────────────
+
+def _run_cron_command(action: str, *args: str) -> tuple[bool, str]:
+    """Ejecuta comandos de scheduling usando hermes cron (preferido) o crontab (fallback)."""
+    hermes_bin = shutil.which("hermes")
+    if hermes_bin:
+        try:
+            cmd = [hermes_bin, "cron", action] + list(args)
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+            if r.returncode == 0:
+                return True, r.stdout.strip()
+            return False, r.stderr.strip() or r.stdout.strip()
+        except Exception:
+            pass
+    # Fallback a crontab (Linux/macOS)
+    try:
+        if action == "list":
+            r = subprocess.run(["crontab", "-l"], capture_output=True, text=True, timeout=5)
+            return r.returncode == 0, r.stdout.strip()
+        elif action == "add":
+            crontab_content = "\n".join(args) + "\n"
+            r = subprocess.run(["crontab", "-"], input=crontab_content, text=True, capture_output=True, timeout=5)
+            return r.returncode == 0, r.stderr.strip()
+        elif action == "remove":
+            r = subprocess.run(["crontab", "-l"], capture_output=True, text=True, timeout=5)
+            if r.returncode != 0:
+                return False, r.stderr.strip()
+            lines = r.stdout.split("\n")
+            marker = f"ANDORINA_AGENDA:{args[0]}"
+            new_lines = [l for l in lines if marker not in l]
+            cron_str = "\n".join(new_lines) + "\n" if new_lines else "\n"
+            r2 = subprocess.run(["crontab", "-"], input=cron_str, text=True, capture_output=True, timeout=5)
+            return r2.returncode == 0, r2.stderr.strip()
+    except Exception as e:
+        return False, str(e)
+    return False, "no scheduler available"
 
 # ─────────────── Output ───────────────────────────────────────────────────────
 def out(data):
@@ -277,11 +315,11 @@ def cmd_send_pending(msg_id: str):
 
         # Try to remove the native cron job silently
         try:
-            res = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
-            if res.returncode == 0:
-                crons = [line for line in res.stdout.splitlines() if f"ANDORINA_AGENDA:{msg_id}" not in line]
+            ok, out = _run_cron_command("list")
+            if ok:
+                crons = [line for line in out.splitlines() if f"ANDORINA_AGENDA:{msg_id}" not in line]
                 crons_str = "\n".join(crons) + "\n" if crons else "\n"
-                subprocess.run(["crontab", "-"], input=crons_str, text=True, check=True)
+                _run_cron_command("add", crons_str)
         except Exception:
             pass
 
@@ -312,12 +350,12 @@ def cmd_remove(msg_id: str, creator_jid: str = None):
 
     # Try to remove the native cron job silently
     try:
-        res = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
-        if res.returncode == 0:
-            crons = [line for line in res.stdout.splitlines() if f"ANDORINA_AGENDA:{msg_id}" not in line]
+        ok, out = _run_cron_command("list")
+        if ok:
+            crons = [line for line in out.splitlines() if f"ANDORINA_AGENDA:{msg_id}" not in line]
             # If crons list is empty, crontab - requires at least a newline
             crons_str = "\n".join(crons) + "\n" if crons else "\n"
-            subprocess.run(["crontab", "-"], input=crons_str, text=True, check=True)
+            _run_cron_command("add", crons_str)
     except Exception:
         pass
     out({"status": "OK", "error_code": "NONE", "payload": {"message": f"Cancelled: {msg_id}"}})
@@ -380,10 +418,10 @@ def cmd_auto_schedule(chat_id: str, time_str: str, message: str,
     env_prefix = f"HERMES_HOME='{HERMES_HOME}' HERMES_CMD='{hermes_cmd}'"
     cmd_str = f"{env_prefix} python3 '{SCRIPTS_DIR}/tools/agenda.py' send {msg_id} >/dev/null 2>&1 # ANDORINA_AGENDA:{msg_id}"
     try:
-        res = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
-        current_crons = res.stdout if res.returncode == 0 else ""
+        _current_crons = _run_cron_command("list")
+        current_crons = _current_crons[1] if _current_crons[0] else ""
         new_cron = f"{cron_expr} {cmd_str}\n"
-        subprocess.run(["crontab", "-"], input=current_crons + new_cron, text=True, check=True)
+        _run_cron_command("add", current_crons + new_cron)
         out({"status": "OK", "error_code": "NONE", "payload": {"id": msg_id, "time_requested": time_str, "time_scheduled": final_time, "offset_applied": final_time != time_str}})
     except Exception as e:
         out({"status": "ERROR", "error_code": "INTERNAL_ERROR", "payload": {"error": "CRON_FAILED", "detail": str(e)}})
@@ -458,10 +496,10 @@ def cmd_recurring_add(chat_id: str, cron_expr: str, message: str, file_path: str
     cmd_str = f"{env_prefix} python3 {script_esc} {cmd_args} >/dev/null 2>&1 # ANDORINA_RECURRING:{rec_id}"
     
     try:
-        res = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
-        current_crons = res.stdout if res.returncode == 0 else ""
+        _current_crons = _run_cron_command("list")
+        current_crons = _current_crons[1] if _current_crons[0] else ""
         new_cron = f"{cron_expr} {cmd_str}\n"
-        subprocess.run(["crontab", "-"], input=current_crons + new_cron, text=True, check=True)
+        _run_cron_command("add", current_crons + new_cron)
         out({"status": "OK", "error_code": "NONE", "payload": {"id": rec_id, "message": "Recurring task added."}})
     except Exception as e:
         task_file.unlink(missing_ok=True)
@@ -491,11 +529,11 @@ def cmd_recurring_remove(rec_id: str, creator_jid: str = None):
         task_file.unlink()
     
     try:
-        res = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
-        if res.returncode == 0:
-            crons = [line for line in res.stdout.splitlines() if f"ANDORINA_RECURRING:{rec_id}" not in line]
+        ok, out = _run_cron_command("list")
+        if ok:
+            crons = [line for line in out.splitlines() if f"ANDORINA_RECURRING:{rec_id}" not in line]
             crons_str = "\n".join(crons) + "\n" if crons else "\n"
-            subprocess.run(["crontab", "-"], input=crons_str, text=True, check=True)
+            _run_cron_command("add", crons_str)
     except Exception: pass
     
     out({"status": "OK", "error_code": "NONE", "payload": {"message": f"Cancelled recurring task: {rec_id}"}})
@@ -509,17 +547,17 @@ def cmd_cleanup_crons():
       3. If the recurring ID (for RECURRING) no longer exists as a JSON file.
     """
     try:
-        res = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
-        if res.returncode != 0:
+        ok, out_crons = _run_cron_command("list")
+        if not ok:
             out({"status": "OK", "error_code": "NONE",
-                 "payload": {"removed": 0, "message": "No crontab found."}})
+                 "payload": {"removed": 0, "message": "No scheduled tasks found."}})
             return
 
         # Load active agenda and recurring directory
         agenda = load_agenda()
         rdir = get_recurring_dir()
 
-        lines = res.stdout.splitlines()
+        lines = out.splitlines()
         cleaned, removed = [], []
         for line in lines:
             stripped = line.strip()
@@ -569,7 +607,7 @@ def cmd_cleanup_crons():
             cleaned.append(line)
 
         new_crontab = "\n".join(cleaned) + "\n" if cleaned else "\n"
-        subprocess.run(["crontab", "-"], input=new_crontab, text=True, check=True)
+        _run_cron_command("add", new_crontab)
         out({"status": "OK", "error_code": "NONE", "payload": {
             "removed": len(removed),
             "message": f"Removed {len(removed)} stale cron entries.",

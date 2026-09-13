@@ -28,7 +28,9 @@ DANGEROUS_PATTERNS = [
     r"\bcat\s+[/\.~]",
     r"\b(ls|pwd|whoami|ifconfig|uname|ps aux|printenv|env|sudo|su )\b",
     r"\.\./",
-    r"(/etc/|/root/|/var/|/proc/|/sys/)",
+    # V2.0: multi-OS system paths
+    r"(/etc/|/root/|/var/|/proc/|/sys/)" if not (lambda: __import__('platform').system() == 'Windows')()
+    else r"(C:\\Windows\\|C:\\Program Files\\|C:\\ProgramData\\|C:\\$Recycle.Bin\\|C:\\Users\\Default\\)",
     r"\brm\s+-[rRf]{1,3}\s",
     r"\b(chmod|chown|mkfs|fdisk|dd\s+if|shred|wipefs)\b",
     r"\b(nc|ncat|netcat|nmap|tcpdump)\b",

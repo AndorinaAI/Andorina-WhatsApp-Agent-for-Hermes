@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🚀 Andoriña — Setup Assistant (v1.5.2-Beta4)
+🚀 Andoriña — Setup Assistant (v2.0.0-alpha)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
 
@@ -57,7 +57,7 @@ LANG = "en"  # default
 STRINGS = {
     "es": {
         "lang_prompt":     "Selecciona idioma / Select language (es/en)",
-        "subtitle":        "Asistente de Instalación v1.5.2-Beta4",
+        "subtitle":        "Asistente de Instalación v2.0.0-alpha",
         "tagline":         "Gestor Autónomo de WhatsApp para Hermes Agent",
         "profile":         "Perfil",
         "target":          "Destino",
@@ -140,7 +140,7 @@ STRINGS = {
     },
     "en": {
         "lang_prompt":     "Selecciona idioma / Select language (es/en)",
-        "subtitle":        "Setup Assistant v1.5.2-Beta4",
+        "subtitle":        "Setup Assistant v2.0.0-alpha",
         "tagline":         "Autonomous WhatsApp Manager for Hermes Agent",
         "profile":         "Profile",
         "target":          "Target",
@@ -482,9 +482,9 @@ def main():
 
         ok(t("s4_ok", n=count))
 
-        # Copy patcher scripts to skill root so the panel can invoke them post-install
-        for patcher in ["patch_bridge.py", "patch_whatsapp.py", "check_patches.py",
-                        "setup_lib.py", "andorina_updater.py", "VERSION", "requirements.txt"]:
+        # V2.0-F5: Copy helper scripts to skill root.
+        # Patch stubs (patch_*.py, check_patches.py) are no longer needed.
+        for patcher in ["setup_lib.py", "andorina_updater.py", "VERSION", "requirements.txt"]:
             src = SOURCE_DIR / patcher
             if src.exists():
                 shutil.copy2(src, hermes_base / patcher)
@@ -591,20 +591,9 @@ def main():
     if not bridge_path.exists():
         warn(t("prereq_missing"))
         info(t("s8_skip"))
-    elif confirm(t("s8_ask")):
-        patch_script = SOURCE_DIR / "patch_bridge.py"
-        if patch_script.exists():
-            subprocess.run([sys.executable, str(patch_script)])
-        else:
-            warn(t("s8_notfound"))
-
-        # Also patch whatsapp.py for Sub-Soul support
-        whatsapp_patch = SOURCE_DIR / "patch_whatsapp.py"
-        if whatsapp_patch.exists():
-            subprocess.run([sys.executable, str(whatsapp_patch)])
-        else:
-            warn("patch_whatsapp.py not found.")
     else:
+        # V2.0-F5: Plugin platform — no patches to apply.
+        info("   ℹ️  V2.0 Plugin Platform — patches not required.")
         info(t("s8_skip"))
 
     # ── STEP 8.5: Initialize RBAC State Structure ────────────

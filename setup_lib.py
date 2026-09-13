@@ -408,9 +408,9 @@ def deploy_files(agent_path_str, source_dir_str, install_log_queue=None):
         except Exception as e:
             log(f"Aviso: no se pudo patchear .env raíz de Hermes: {e}")
 
-        # Copy helper scripts needed by the installed server
-        for helper in ["setup_lib.py", "check_patches.py", "andorina_updater.py",
-                       "patch_bridge.py", "patch_whatsapp.py", "VERSION", "requirements.txt"]:
+        # V2.0-F5: Copy helper scripts needed by the installed server.
+        # Patch stubs (check_patches.py, patch_*.py) are no longer needed.
+        for helper in ["setup_lib.py", "andorina_updater.py", "VERSION", "requirements.txt"]:
             src = source_dir / helper
             if src.exists():
                 shutil.copy2(src, hermes_base / helper)

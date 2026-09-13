@@ -5,6 +5,7 @@ import time
 import re
 import subprocess
 from pathlib import Path
+from filelock import FileLock
 
 def get_input():
     try:
@@ -176,7 +177,6 @@ def process_incoming_message(chat_id: str, sender: str, text: str,
     when whatsapp.py has already written it) and only run away/alert logic.
     """
     try:
-        import fcntl as _fcntl
         from datetime import datetime as _dt
 
         date_str = time.strftime("%Y-%m-%dT%H:%M:%S")
@@ -197,48 +197,44 @@ def process_incoming_message(chat_id: str, sender: str, text: str,
 
         if write_inbox:
             INBOX_FILE.parent.mkdir(parents=True, exist_ok=True)
-            lock_file = INBOX_FILE.with_suffix(".lock")
 
-            with open(lock_file, "w") as lf:
-                _fcntl.flock(lf, _fcntl.LOCK_EX)
-                try:
-                    inbox = []
-                    if INBOX_FILE.exists():
-                        try:
-                            data = json.loads(INBOX_FILE.read_text(encoding="utf-8"))
-                            inbox = data if isinstance(data, list) else []
-                        except Exception:
-                            inbox = []
+            lock = FileLock(str(INBOX_FILE) + ".lock", timeout=3)
+            with lock:
+                inbox = []
+                if INBOX_FILE.exists():
+                    try:
+                        data = json.loads(INBOX_FILE.read_text(encoding="utf-8"))
+                        inbox = data if isinstance(data, list) else []
+                    except Exception:
+                        inbox = []
 
-                    merged = False
-                    if inbox and entry["type"] == "text":
-                        try:
-                            curr_dt = _dt.strptime(entry["date"], "%Y-%m-%dT%H:%M:%S")
-                            for i in range(len(inbox) - 1, max(len(inbox) - 21, -1), -1):
-                                prev = inbox[i]
-                                if (prev.get("chatId") == entry["chatId"]
-                                        and prev.get("from") == entry["from"]
-                                        and prev.get("type") == "text"):
-                                    prev_dt = _dt.strptime(prev["date"], "%Y-%m-%dT%H:%M:%S")
-                                    if (_dt.strptime(entry["date"], "%Y-%m-%dT%H:%M:%S") - prev_dt).total_seconds() < 300:
-                                        prev["text"] += "\n" + entry["text"]
-                                        prev["date"]  = entry["date"]
-                                        prev["read"]  = False
-                                        merged = True
-                                    break
-                        except Exception:
-                            pass
+                merged = False
+                if inbox and entry["type"] == "text":
+                    try:
+                        curr_dt = _dt.strptime(entry["date"], "%Y-%m-%dT%H:%M:%S")
+                        for i in range(len(inbox) - 1, max(len(inbox) - 21, -1), -1):
+                            prev = inbox[i]
+                            if (prev.get("chatId") == entry["chatId"]
+                                    and prev.get("from") == entry["from"]
+                                    and prev.get("type") == "text"):
+                                prev_dt = _dt.strptime(prev["date"], "%Y-%m-%dT%H:%M:%S")
+                                if (_dt.strptime(entry["date"], "%Y-%m-%dT%H:%M:%S") - prev_dt).total_seconds() < 300:
+                                    prev["text"] += "\n" + entry["text"]
+                                    prev["date"]  = entry["date"]
+                                    prev["read"]  = False
+                                    merged = True
+                                break
+                    except Exception:
+                        pass
 
-                    if not merged:
-                        inbox.append(entry)
-                    if len(inbox) > MAX_HISTORY:
-                        inbox = inbox[-MAX_HISTORY:]
+                if not merged:
+                    inbox.append(entry)
+                if len(inbox) > MAX_HISTORY:
+                    inbox = inbox[-MAX_HISTORY:]
 
-                    tmp = INBOX_FILE.with_suffix(".tmp")
-                    tmp.write_text(json.dumps(inbox, ensure_ascii=False, indent=2), encoding="utf-8")
-                    tmp.replace(INBOX_FILE)
-                finally:
-                    _fcntl.flock(lf, _fcntl.LOCK_UN)
+                tmp = INBOX_FILE.with_suffix(".tmp")
+                tmp.write_text(json.dumps(inbox, ensure_ascii=False, indent=2), encoding="utf-8")
+                tmp.replace(INBOX_FILE)
 
         if is_bot:
             return
