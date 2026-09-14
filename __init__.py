@@ -118,7 +118,7 @@ def register(ctx):
     ctx.register_hook("post_llm_call", _hook_post_llm)
 
 
-    # ── Tool schemas (Hermes v0.21.1 API) ────────────────────
+    # ── Tool schemas (Hermes v0.21.2 API) ────────────────────
 
     _S = lambda name, desc, props, req=None: {
         "name": name, "description": desc,

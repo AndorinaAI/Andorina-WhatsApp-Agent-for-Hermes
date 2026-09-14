@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🚨 Andoriña — Alerts & Forwarding Engine (v1.5.2-Beta4)
+🚨 Andoriña — Alerts & Forwarding Engine
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Manages permanent listening rules for incoming messages.
 Now with automatic notification to the alert target.

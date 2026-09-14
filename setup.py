@@ -63,7 +63,7 @@ STRINGS = {
         "target":          "Destino",
         # Hermes version check
         "hermes_ok":       "Hermes Agent v{ver} detectado.",
-        "hermes_old":      "Hermes Agent v{ver} es demasiado antiguo. Andoriña v1.5.2+ requiere >= v{min}.",
+        "hermes_old":      "Hermes Agent v{ver} es demasiado antiguo. Andoriña v2.0.0+ requiere >= v{min}.",
         "hermes_update":   "¿Actualizar Hermes ahora? (hermes update)",
         "hermes_manual":   "Ejecuta: hermes update   — luego vuelve a ejecutar install.sh",
         "hermes_missing":  "Hermes Agent no encontrado. Instálalo primero: https://hermes-agent.nousresearch.com",
@@ -146,7 +146,7 @@ STRINGS = {
         "target":          "Target",
         # Hermes version check
         "hermes_ok":       "Hermes Agent v{ver} detected.",
-        "hermes_old":      "Hermes Agent v{ver} is too old. Andoriña v1.5.2+ requires >= v{min}.",
+        "hermes_old":      "Hermes Agent v{ver} is too old. Andoriña v2.0.0+ requires >= v{min}.",
         "hermes_update":   "Update Hermes now? (hermes update)",
         "hermes_manual":   "Run: hermes update   — then re-run install.sh",
         "hermes_missing":  "Hermes Agent not found. Install it first: https://hermes-agent.nousresearch.com",

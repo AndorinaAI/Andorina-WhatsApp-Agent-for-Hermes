@@ -17,7 +17,7 @@ homepage: https://andorinaai.github.io/Andorina-WhatsApp-Agent-for-Hermes
 
 # ── Compatibility ────────────────────────────────────────────
 
-# requires_hermes: ">=0.19.0"  # temporarily disabled — Hermes v0.21.1 validate bug
+# requires_hermes: ">=0.21.2"  # Hermes backend plugin
 
 
 provides_tools:

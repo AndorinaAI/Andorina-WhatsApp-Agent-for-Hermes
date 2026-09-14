@@ -12,8 +12,8 @@ Andoriña is an actively developed project. We highly recommend always using the
 
 | Version | Supported | Notes |
 | ------- | :---: | --- |
-| **v1.0.x** (Latest) | ✅ | Receives all security, anti-ban, and feature updates. |
-| **< v1.0.0** | ❌ | Deprecated. Please upgrade immediately. |
+| **v2.0.x** (Latest) | ✅ | Receives all security, anti-ban, and feature updates. |
+| **< v2.0.0** | ❌ | Deprecated. Please upgrade immediately. |
 
 ### Reporting a Vulnerability
 
@@ -42,8 +42,8 @@ Andoriña es un proyecto en desarrollo activo. Recomendamos encarecidamente util
 
 | Versión | Soportada | Notas |
 | ------- | :---: | --- |
-| **v1.0.x** (Última) | ✅ | Recibe todas las actualizaciones de seguridad, anti-baneo y funciones. |
-| **< v1.0.0** | ❌ | Obsoleta. Por favor, actualiza inmediatamente. |
+| **v2.0.x** (Última) | ✅ | Recibe todas las actualizaciones de seguridad, anti-baneo y funciones. |
+| **< v2.0.0** | ❌ | Obsoleta. Por favor, actualiza inmediatamente. |
 
 ### Reportar una Vulnerabilidad
 

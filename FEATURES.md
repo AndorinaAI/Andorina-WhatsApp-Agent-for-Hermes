@@ -1,4 +1,4 @@
-# 🌟 Andoriña v2.0.2-Beta5 — Complete Feature Reference
+# 🌟 Andoriña v2.0.0-alpha — Complete Feature Reference
 ## 🇬🇧 English | 🇪🇸 Español
 
 > [!WARNING]
@@ -8,8 +8,8 @@
 
 ---
 
-## 🔧 What's New in v2.0.2-Beta5 (Bug Fix Release)
-## 🔧 Novedades en v2.0.2-Beta5 (Versión de Corrección de Errores)
+## 🔧 What's New in v2.0.0-alpha (Bug Fix Release)
+## 🔧 Novedades en v2.0.0-alpha (Versión de Corrección de Errores)
 
 ### 🇺🇸 English
 
@@ -25,8 +25,8 @@
 
 ---
 
-## 🔧 What's New in v2.0.2-Beta4 (Bug Fix Release)
-## 🔧 Novedades en v2.0.2-Beta4 (Versión de Corrección de Errores)
+## 🔧 What's New in v2.0.0-alpha (pre-release) (Bug Fix Release)
+## 🔧 Novedades en v2.0.0-alpha (pre-release) (Versión de Corrección de Errores)
 
 ### 🇺🇸 English
 
@@ -54,8 +54,8 @@
 
 ---
 
-## 🔧 What's New in v2.0.2-Beta3 (Bug Fix Release)
-## 🔧 Novedades en v2.0.2-Beta3 (Versión de Corrección de Errores)
+## 🔧 What's New in v2.0.0-alpha (pre-release) (Bug Fix Release)
+## 🔧 Novedades en v2.0.0-alpha (pre-release) (Versión de Corrección de Errores)
 
 ### 🇺🇸 English
 
@@ -369,4 +369,4 @@
 - Totalmente configurable en el archivo `.env` del agente (`HERMES_HOME`, `ANDORINA_CRON_OFFSET`, etc.).
 
 ---
-*Developed with ❤️ by Jorge. — Andoriña v2.0.2*
+*Developed with ❤️ by Jorge. — Andoriña v2.0.0-alpha*

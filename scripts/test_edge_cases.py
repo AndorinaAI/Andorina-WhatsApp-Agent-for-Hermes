@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🔥 Andoriña V1.6‑Beta1 — Auditoría de Edge Cases
+🔥 Andoriña V2.0 — Auditoría de Edge Cases
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Prueba sistemáticamente todos los casos límite:
   • Datos vacíos/nulos
@@ -744,7 +744,7 @@ def edge_injection():
 def main():
     global PASS, FAIL, WARN
     print("═" * 60)
-    print("  🔥 Andoriña V1.6‑Beta1 — Edge Case Auditor")
+    print("  🔥 Andoriña V2.0 — Edge Case Auditor")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("═" * 60)
 
