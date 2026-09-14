@@ -28,7 +28,7 @@ class TestPluginImports:
         import yaml
         manifest = yaml.safe_load((_PROJECT_ROOT / "plugin.yaml").read_text())
         assert manifest["name"] == "andorina"
-        assert manifest["kind"] == "tool"
+        assert manifest["kind"] == "backend"
         assert "provides_tools" in manifest
         assert "provides_hooks" in manifest
 

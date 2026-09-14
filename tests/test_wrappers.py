@@ -21,9 +21,10 @@ class TestToolWrappers:
         importlib.reload(plugin)
         plugin.register(mock_plugin_context)
         self.tools = {}
-        for call_args in mock_plugin_context.register_tool.call_args_list:
-            name, callback = call_args[0]
-            self.tools[name] = callback
+        for call in mock_plugin_context.register_tool.call_args_list:
+            name = call[1].get("name")
+            handler = call[1].get("handler")
+            self.tools[name] = handler
 
     def _call_and_assert(self, mock_run, tool_name, tool_args, expected_script, expected_args_start):
         """Helper: call tool, verify subprocess args."""
@@ -171,8 +172,9 @@ class TestToolWrappers:
         mock_proc.stderr = "Script failed"
         mock_run.return_value = mock_proc
         result = self.tools["send_text"](chat_id="x", message="y")
-        assert isinstance(result, dict)
-        assert not result.get("ok", True)
+        assert isinstance(result, str)
+        parsed = json.loads(result)
+        assert not parsed.get("ok", True)
 
     @patch("subprocess.run")
     def test_json_parse_failure(self, mock_run):
@@ -182,5 +184,112 @@ class TestToolWrappers:
         mock_proc.stderr = ""
         mock_run.return_value = mock_proc
         result = self.tools["send_text"](chat_id="x", message="y")
-        assert isinstance(result, dict)
-        assert "raw" in result
+        assert isinstance(result, str)
+        parsed = json.loads(result)
+        assert "raw" in parsed
+
+
+class TestOutputToolsMock:
+    """Mock tests for send tools: verify transport calls, no HTTP."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self, mock_plugin_context):
+        os.chdir(str(_PROJECT_ROOT))
+        import importlib
+        import __init__ as plugin
+        importlib.reload(plugin)
+        plugin.register(mock_plugin_context)
+        self.tools = {}
+        for call in mock_plugin_context.register_tool.call_args_list:
+            name = call[1].get("name")
+            handler = call[1].get("handler")
+            self.tools[name] = handler
+
+    @patch("subprocess.run")
+    def test_send_text_single_transport_call(self, mock_run):
+        """send_text with args_dict → 1 subprocess call, 0 HTTP."""
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = '{"ok": true}'
+        mock_proc.stderr = ""
+        mock_run.return_value = mock_proc
+        result = self.tools["send_text"]({"chat_id": "test@s.whatsapp.net", "message": "hi"})
+        assert isinstance(result, str)
+        assert mock_run.call_count == 1
+        cmd = mock_run.call_args[0][0]
+        assert "transport/send.py" in str(cmd)
+        assert "message" in cmd
+
+    @patch("subprocess.run")
+    def test_send_file_single_transport_call(self, mock_run):
+        """send_file with args_dict → 1 subprocess call."""
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = '{"ok": true}'
+        mock_run.return_value = mock_proc
+        result = self.tools["send_file"]({"chat_id": "test@s.whatsapp.net", "file_path": "/tmp/f"})
+        assert isinstance(result, str)
+        assert mock_run.call_count == 1
+
+    @patch("subprocess.run")
+    def test_send_file_voice_flag(self, mock_run):
+        """send_file with voice=True adds --voice flag."""
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = '{"ok": true}'
+        mock_run.return_value = mock_proc
+        result = self.tools["send_file"]({"chat_id": "x@s.whatsapp.net", "file_path": "/tmp/f", "voice": True})
+        assert isinstance(result, str)
+        cmd = mock_run.call_args[0][0]
+        assert "--voice" in cmd
+
+    @patch("subprocess.run")
+    def test_broadcast_single_call_multiple_jids(self, mock_run):
+        """broadcast with 3 JIDs → 1 subprocess call (broadcast handles loop internally)."""
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = '{"ok": true}'
+        mock_run.return_value = mock_proc
+        result = self.tools["broadcast"]({"message": "hi", "jids": "a@s.whatsapp.net,b@s.whatsapp.net,c@s.whatsapp.net"})
+        assert isinstance(result, str)
+        assert mock_run.call_count == 1
+        cmd = mock_run.call_args[0][0]
+        assert "broadcast" in cmd
+        # All 3 JIDs passed to the script
+        assert "a@s.whatsapp.net" in str(cmd)
+
+    @patch("subprocess.run")
+    def test_broadcast_empty_jids(self, mock_run):
+        """broadcast with empty jids → still calls subprocess."""
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = '{"ok": true}'
+        mock_run.return_value = mock_proc
+        result = self.tools["broadcast"]({"message": "hi", "jids": ""})
+        assert isinstance(result, str)
+
+    @patch("subprocess.run")
+    def test_send_text_handles_error(self, mock_run):
+        """send_text with error response → still returns str."""
+        mock_proc = MagicMock()
+        mock_proc.returncode = 1
+        mock_proc.stdout = '{"ok": false, "error": "NETWORK_ERROR"}'
+        mock_run.return_value = mock_proc
+        result = self.tools["send_text"]({"chat_id": "x@s.whatsapp.net", "message": "hi"})
+        assert isinstance(result, str)
+        parsed = json.loads(result)
+        assert not parsed.get("ok", True)
+
+    @patch("subprocess.run")
+    def test_schedule_msg_passes_args(self, mock_run):
+        """schedule_msg passes correct args to agenda.py."""
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = '{"ok": true}'
+        mock_run.return_value = mock_proc
+        result = self.tools["schedule_msg"]({"chat_id": "x@s.whatsapp.net", "time_str": "22:00", "message": "hi"})
+        assert isinstance(result, str)
+        cmd = mock_run.call_args[0][0]
+        assert "agenda.py" in str(cmd)
+        assert "auto-schedule" in cmd
+        assert "22:00" in cmd

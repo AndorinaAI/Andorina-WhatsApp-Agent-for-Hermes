@@ -8,7 +8,7 @@
 
 ## ★ Plugin Architecture (Hermes Official)
 
-Andoriña V2.0 is a **tool/skill plugin** that extends the built-in WhatsApp platform
+Andoriña V2.0 is a **backend plugin** that extends the built-in WhatsApp platform
 of Hermes Agent. It follows the official Hermes plugin contract:
 
 - **Entry point:** `register(ctx)` — called by `PluginManager` at discovery
@@ -133,9 +133,9 @@ To add a new language:
 
 | Version | Hermes Requirement | Status |
 |---------|-------------------|--------|
-| V1.0 — V1.6 | Hermes >= 0.16.0 | ✅ (legacy — skill in `~/.hermes/skills/`) |
-| V2.0-alpha | Hermes >= 0.19.0 | ✅ (plugin in `~/.hermes/plugins/`) |
+| V1.0 — V1.6 | Hermes >= 0.16.0 | ✅ (legacy — replaced by V2 plugin) |
+| V2.0-alpha | Hermes >= 0.21.2 | ✅ (plugin in `~/.hermes/plugins/`) |
 
 ---
 
-*Built with ❤️ for the Hermes community*
+---

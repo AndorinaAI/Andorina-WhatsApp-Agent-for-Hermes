@@ -95,16 +95,18 @@ def _resolve_active_plugin(jid: str, jid_entry: dict, rules: dict, extra: dict) 
 
 def _get_last_message_text(extra: dict, data: dict, jid: str) -> str:
     """Obtiene el último mensaje del usuario desde 4 fuentes en cascada."""
-    # 1. Fuente principal: extra.user_message (campo nativo de Hermes)
+    # 1. Fuente principal: user_message (V2 hooks lo pasan en data, V1 en extra)
     if extra.get("user_message"):
         return str(extra["user_message"])
+    if data.get("user_message"):
+        return str(data["user_message"])
     # 2. Fallback: buscar en data["messages"]
     if "messages" in data and isinstance(data["messages"], list):
         for m in reversed(data["messages"]):
             if m.get("role") == "user":
                 return m.get("content", "")
-    # 3. Fallback: conversation_history
-    conv_history = extra.get("conversation_history", [])
+    # 3. Fallback: conversation_history (data o extra)
+    conv_history = data.get("conversation_history") or extra.get("conversation_history", [])
     if isinstance(conv_history, list):
         for m in reversed(conv_history):
             if isinstance(m, dict) and m.get("role") == "user":

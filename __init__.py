@@ -26,24 +26,44 @@ def _ensure_state():
         (_STATE_DIR / d).mkdir(parents=True, exist_ok=True)
 
 
-def _run_script(script: str, *args) -> dict:
-    """Execute an Andoriña script and return parsed JSON output."""
+def _run_script(script: str, *args) -> str:
+    """Execute an Andoriña script and return JSON-encoded result string."""
     script_path = _SCRIPTS_DIR / script
     if not script_path.exists():
-        return {"ok": False, "error": f"Script not found: {script}"}
+        return json.dumps({"ok": False, "error": f"Script not found: {script}"}, ensure_ascii=False)
     try:
         env = os.environ.copy()
         env["HERMES_HOME"] = env.get("HERMES_HOME", str(Path.home() / ".hermes"))
         cmd = [sys.executable, str(script_path)] + list(args)
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=30, env=env)
         try:
-            return json.loads(r.stdout) if r.stdout.strip() else {"ok": r.returncode == 0}
+            result = json.loads(r.stdout) if r.stdout.strip() else {"ok": r.returncode == 0}
+            return json.dumps(result, ensure_ascii=False)
         except json.JSONDecodeError:
-            return {"ok": r.returncode == 0, "raw": r.stdout.strip()[:500]}
+            result = {"ok": r.returncode == 0, "raw": r.stdout.strip()[:500]}
+            return json.dumps(result, ensure_ascii=False)
     except subprocess.TimeoutExpired:
-        return {"ok": False, "error": "Timeout"}
+        return json.dumps({"ok": False, "error": "Timeout"}, ensure_ascii=False)
     except Exception as e:
-        return {"ok": False, "error": str(e)}
+        return json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False)
+
+
+def _adapt_handler(fn):
+    """Adapt a handler expecting keyword args to Hermes' args_dict positional contract.
+    
+    Hermes v0.21.2 dispatches as ``entry.handler(args_dict, **kwargs)`` where
+    ``args_dict`` is the tool's parameters dict. This wrapper unpacks it into
+    keyword arguments matching the original handler signatures.
+    """
+    def wrapper(args=None, **kw):
+        if args is None:
+            args = {}
+        if isinstance(args, dict):
+            return fn(**args, **kw)
+        return fn(args, **kw)
+    wrapper.__name__ = fn.__name__
+    wrapper.__qualname__ = fn.__qualname__
+    return wrapper
 
 
 def register(ctx):
@@ -64,8 +84,8 @@ def register(ctx):
     # passing the Hermes hook payload as JSON via stdin.
     # orchestrator_hook.py reads sys.stdin.read() and outputs JSON to stdout.
 
-    def _run_hook(kwargs: dict) -> dict:
-        """Execute orchestrator_hook.py, piping kwargs as JSON to stdin."""
+    def _run_hook(event: str, kwargs: dict) -> dict:
+        """Execute orchestrator_hook.py, piping hook event + kwargs as JSON to stdin."""
         script = _SCRIPTS_DIR / "security" / "orchestrator_hook.py"
         if not script.exists():
             return {}
@@ -74,7 +94,7 @@ def register(ctx):
             env["HERMES_HOME"] = env.get("HERMES_HOME", str(Path.home() / ".hermes"))
             proc = subprocess.run(
                 [sys.executable, str(script)],
-                input=json.dumps(kwargs),
+                input=json.dumps({"hook_event_name": event, **kwargs}),
                 capture_output=True, text=True, timeout=30, env=env
             )
             try:
@@ -85,13 +105,13 @@ def register(ctx):
             return {}
 
     def _hook_pre_llm(**kwargs):
-        return _run_hook(kwargs)
+        return _run_hook("pre_llm_call", kwargs)
 
     def _hook_pre_tool(**kwargs):
-        return _run_hook(kwargs)
+        return _run_hook("pre_tool_call", kwargs)
 
     def _hook_post_llm(**kwargs):
-        return _run_hook(kwargs)
+        return _run_hook("post_llm_call", kwargs)
 
     ctx.register_hook("pre_llm_call", _hook_pre_llm)
     ctx.register_hook("pre_tool_call", _hook_pre_tool)
@@ -194,14 +214,14 @@ def register(ctx):
             args.append(kw["text"])
         return _run_script("utils/admin_cli.py", *args)
 
-    ctx.register_tool(name="send_text", toolset="andorina", schema=_SEND_TEXT_SCHEMA, handler=_tool_send_text)
-    ctx.register_tool(name="send_file", toolset="andorina", schema=_SEND_FILE_SCHEMA, handler=_tool_send_file)
-    ctx.register_tool(name="broadcast", toolset="andorina", schema=_BROADCAST_SCHEMA, handler=_tool_broadcast)
-    ctx.register_tool(name="read_inbox", toolset="andorina", schema=_READ_INBOX_SCHEMA, handler=_tool_read_inbox)
-    ctx.register_tool(name="search_contacts", toolset="andorina", schema=_SEARCH_CONTACTS_SCHEMA, handler=_tool_search_contacts)
-    ctx.register_tool(name="list_groups", toolset="andorina", schema=_LIST_GROUPS_SCHEMA, handler=_tool_list_groups)
-    ctx.register_tool(name="schedule_msg", toolset="andorina", schema=_SCHEDULE_MSG_SCHEMA, handler=_tool_schedule_msg)
-    ctx.register_tool(name="add_note", toolset="andorina", schema=_ADD_NOTE_SCHEMA, handler=_tool_add_note)
-    ctx.register_tool(name="add_alert", toolset="andorina", schema=_ADD_ALERT_SCHEMA, handler=_tool_add_alert)
-    ctx.register_tool(name="manage_role", toolset="andorina", schema=_MANAGE_ROLE_SCHEMA, handler=_tool_manage_role)
-    ctx.register_tool(name="manage_soul", toolset="andorina", schema=_MANAGE_SOUL_SCHEMA, handler=_tool_manage_soul)
+    ctx.register_tool(name="send_text", toolset="andorina", schema=_SEND_TEXT_SCHEMA, handler=_adapt_handler(_tool_send_text))
+    ctx.register_tool(name="send_file", toolset="andorina", schema=_SEND_FILE_SCHEMA, handler=_adapt_handler(_tool_send_file))
+    ctx.register_tool(name="broadcast", toolset="andorina", schema=_BROADCAST_SCHEMA, handler=_adapt_handler(_tool_broadcast))
+    ctx.register_tool(name="read_inbox", toolset="andorina", schema=_READ_INBOX_SCHEMA, handler=_adapt_handler(_tool_read_inbox))
+    ctx.register_tool(name="search_contacts", toolset="andorina", schema=_SEARCH_CONTACTS_SCHEMA, handler=_adapt_handler(_tool_search_contacts))
+    ctx.register_tool(name="list_groups", toolset="andorina", schema=_LIST_GROUPS_SCHEMA, handler=_adapt_handler(_tool_list_groups))
+    ctx.register_tool(name="schedule_msg", toolset="andorina", schema=_SCHEDULE_MSG_SCHEMA, handler=_adapt_handler(_tool_schedule_msg))
+    ctx.register_tool(name="add_note", toolset="andorina", schema=_ADD_NOTE_SCHEMA, handler=_adapt_handler(_tool_add_note))
+    ctx.register_tool(name="add_alert", toolset="andorina", schema=_ADD_ALERT_SCHEMA, handler=_adapt_handler(_tool_add_alert))
+    ctx.register_tool(name="manage_role", toolset="andorina", schema=_MANAGE_ROLE_SCHEMA, handler=_adapt_handler(_tool_manage_role))
+    ctx.register_tool(name="manage_soul", toolset="andorina", schema=_MANAGE_SOUL_SCHEMA, handler=_adapt_handler(_tool_manage_soul))

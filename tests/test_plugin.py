@@ -35,7 +35,7 @@ class TestRegister:
             os.chdir(os.environ.get("HOME", "/tmp"))
         
         tool_calls = mock_plugin_context.register_tool.call_args_list
-        registered_names = {c[0][0] for c in tool_calls}
+        registered_names = {c[1].get("name") for c in tool_calls}
         expected = {
             "send_text", "send_file", "broadcast", "read_inbox",
             "search_contacts", "list_groups", "schedule_msg", "add_note",
@@ -72,7 +72,7 @@ class TestRegister:
         finally:
             os.chdir(os.environ.get("HOME", "/tmp"))
         
-        tool_names = [c[0][0] for c in mock_plugin_context.register_tool.call_args_list]
+        tool_names = [c[1].get("name") for c in mock_plugin_context.register_tool.call_args_list]
         hook_names = [c[0][0] for c in mock_plugin_context.register_hook.call_args_list]
         assert len(tool_names) == len(set(tool_names)), f"Duplicate tools: {tool_names}"
         assert len(hook_names) == len(set(hook_names)), f"Duplicate hooks: {hook_names}"
@@ -114,9 +114,10 @@ class TestRegister:
         finally:
             os.chdir(os.environ.get("HOME", "/tmp"))
         
-        for call_args in mock_plugin_context.register_tool.call_args_list:
-            _, callback = call_args[0]
-            assert callable(callback), f"Tool {call_args[0][0]} callback is not callable"
+        for call in mock_plugin_context.register_tool.call_args_list:
+            name = call[1].get("name")
+            handler = call[1].get("handler")
+            assert callable(handler), f"Tool {name} callback is not callable"
 
     def test_all_hooks_are_callable(self, mock_plugin_context):
         """Each registered hook callback must be callable."""
@@ -154,7 +155,7 @@ class TestPluginYamlCompatibility:
             os.chdir(os.environ.get("HOME", "/tmp"))
         
         declared = set(self.manifest.get("provides_tools", []))
-        registered = {c[0][0] for c in mock_plugin_context.register_tool.call_args_list}
+        registered = {c[1].get("name") for c in mock_plugin_context.register_tool.call_args_list}
         
         missing_decl = registered - declared
         missing_reg = declared - registered

@@ -309,9 +309,11 @@ def resolve_hook_jid(data: dict) -> str:
         except Exception:
             pass
 
-    # 5. sender_id (primary path for real WhatsApp messages via LID)
+    # 5. sender_id (primary path for real WhatsApp messages via LID/V2 hooks)
     if not jid and extra.get("sender_id"):
         jid = extra["sender_id"]
+    if not jid and data.get("sender_id"):
+        jid = data["sender_id"]
 
     # 6. Resolve LID → canonical JID
     if jid and "@lid" in jid:
@@ -339,9 +341,9 @@ def is_whatsapp_session(data: dict) -> bool:
         return True
     if "whatsapp:" in data.get("session_id", ""):
         return True
-    if extra.get("platform") == "whatsapp":
+    if extra.get("platform") == "whatsapp" or data.get("platform") == "whatsapp":
         return True
-    sid = extra.get("sender_id", "")
+    sid = extra.get("sender_id", "") or data.get("sender_id", "")
     if sid and ("@s.whatsapp.net" in sid or "@lid" in sid or "@g.us" in sid):
         return True
     return False
