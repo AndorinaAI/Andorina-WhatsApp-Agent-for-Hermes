@@ -24,8 +24,9 @@ import common
 from common import ENV_PATH, load_env as _base_load_env
 
 SCRIPTS_DIR = Path(__file__).parent.parent.absolute()
-CACHE_FILE = SCRIPTS_DIR.parent / "state" / "contacts_cache.json"
-NOTES_DIR = SCRIPTS_DIR.parent / "state" / "notes"
+from common import STATE_DIR
+NOTES_DIR = STATE_DIR / "notes"
+CACHE_FILE = STATE_DIR / "contacts_cache.json"
 CACHE_TTL = 3600 * 24 # 24 hours
 
 # V1.6-Beta1: Helper para separar notas por contexto (grupo vs DM)
@@ -183,7 +184,7 @@ def load_cache():
 
 def save_cache(contacts):
     try:
-        state_dir = SCRIPTS_DIR.parent / "state"
+        state_dir = STATE_DIR
         state_dir.mkdir(parents=True, exist_ok=True)
         tmp = CACHE_FILE.with_suffix('.tmp')
         tmp.write_text(json.dumps({"ts": time.time(), "contacts": contacts}, ensure_ascii=False), encoding="utf-8")
@@ -225,7 +226,7 @@ def cmd_buscar(contacts, query, retry=True, filter_tags=None):
     if filter_tags:
         filtered = []
         try:
-            tags_file = SCRIPTS_DIR.parent / "state" / "tags.json"
+            tags_file = STATE_DIR / "tags.json"
             if tags_file.exists():
                 all_tags = json.loads(tags_file.read_text(encoding="utf-8"))
             else:
@@ -274,7 +275,7 @@ def obtener_grupos():
     
     # 3. Last Resort: Check state/inbox.json for active groups
     try:
-        inbox_file = SCRIPTS_DIR.parent / "state" / "inbox.json"
+        inbox_file = STATE_DIR / "inbox.json"
         if inbox_file.exists():
             inbox = json.loads(inbox_file.read_text(encoding="utf-8"))
             active_groups = {}

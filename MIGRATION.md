@@ -1,59 +1,55 @@
-# 📋 Guía de Migración — Andoriña V1.6 → V2.0
+# Migration Guide — Andoriña V1.6 → V2.0
 
-## Para usuarios de V1.6
+## For V1.6 users
 
-### Instalación limpia (recomendado)
+V2.0 migrates Andoriña from a Skill-based architecture to a native Hermes backend plugin.
+
+### Key Changes
+
+| V1 | V2 |
+|---|---|
+| Skill in `~/.hermes/skills/` | Plugin in `~/.hermes/plugins/` |
+| Shell hooks in config.yaml | `ctx.register_hook()` in plugin |
+| Tools via terminal + shell scripts | Native `ctx.register_tool()` |
+| `SKILL.md` instruction file | Plugin hooks provide context |
+| `kind: tool` | `kind: backend` |
+| State in plugin directory | State in `~/.hermes/plugin-data/andorina/` |
+
+### Clean install (recommended)
+
 ```bash
-# 1. Respaldar datos
+# 1. Backup data
 cp -r ~/.hermes/skills/andorina/state ~/andorina-backup/
-cp ~/.hermes/skills/andorina/.env ~/andorina-backup/
 
-# 2. Instalar V2.0 como plugin
-hermes plugin install andorina
+# 2. Remove old Skill
+rm -rf ~/.hermes/skills/andorina/
 
-# 3. Restaurar datos
-cp -r ~/andorina-backup/state ~/.hermes/plugins/platforms/andorina/
-cp ~/andorina-backup/.env ~/.hermes/plugins/platforms/andorina/
+# 3. Clone V2 as plugin
+git clone https://github.com/AndorinaAI/Andorina-WhatsApp-Agent-for-Hermes.git \
+  ~/.hermes/plugins/andorina/
 
-# 4. Configurar
-hermes plugin configure andorina
+# 4. Restore state (if needed)
+cp -r ~/andorina-backup/state/* ~/.hermes/plugins/andorina/state/
+
+# 5. Enable plugin in config.yaml
+# Add 'andorina' to plugins.enabled list
 ```
 
-### Migración in-place
-```bash
-cd ~/.hermes/skills/andorina
-git pull origin v2.0
-python3 setup.py --migrate-to-plugin
-```
+### Architectural Migration
 
-## Cambios importantes
+1. **Hooks**: Shell hooks removed. Plugin hooks registered via `ctx.register_hook()`.
+2. **Tools**: Terminal-based calls replaced with `ctx.register_tool()`. `_adapt_handler()` wraps handlers for Hermes v0.21.2 `handler(args_dict)` contract.
+3. **Inbox**: Webhook-based processing replaced by `pre_llm_call` hook → `orchestrator_hook.py` → `process_incoming_message()`.
+4. **JID Resolution**: Updated for Hermes v0.21.2 payload format (fields at top level vs `extra` dict).
+5. **State**: Moved to `~/.hermes/plugin-data/andorina/` per Hermes plugin guidelines.
 
-### ✅ Lo que sigue igual
-- Sub-Souls y personalidades
-- RBAC y permisos
-- Notas de contactos
-- Alertas semánticas
-- Agenda y scheduling
-- Panel GUI
+### Compatibility Notes
 
-### 🔄 Lo que cambia
-| V1.6 | V2.0 |
-|------|------|
-| (deprecated patches — removed in V2.0) | Plugin platform nativo |
-| `crontab` para scheduling | `hermes cron` (crontab como fallback) |
-| Memoria solo Hindsight | Cualquier backend (Hindsight, Mnemosyne, Honcho) |
-| Linux (principal) | Linux-first, con componentes multi-OS preparados |
-| `python3 setup.py` | `hermes plugin install andorina` |
+- Hermes >= v0.21.2 required
+- V1 Skill must be fully removed (not just disabled)
+- No duplicate plugins allowed (check `~/.hermes/plugins/`)
+- `plugins.enabled` must include `andorina`
 
-### 🗑️ Lo que desaparece
-- `patch_bridge.py` → removed in V2.0 (plugin platform)
-- `patch_whatsapp.py` → removed in V2.0 (plugin platform)
-- (deprecated — removed in V2.0) → removed in V2.0 (plugin platform)
-- `andorina_updater.py` → reemplazado por `hermes plugin update`
+### Rollback
 
-## Soporte
-
-Si encuentras problemas durante la migración:
-1. Revisa los logs: `~/.hermes/logs/andorina/`
-2. Ejecuta diagnóstico: `python3 scripts/utils/diag.py`
-3. Abre un issue en GitHub
+To revert to V1, remove the V2 plugin and restore the V1 Skill from backup.

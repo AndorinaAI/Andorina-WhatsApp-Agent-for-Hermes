@@ -12,8 +12,8 @@ import subprocess
 from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).parent.parent.absolute()
-ALERTS_FILE = SCRIPTS_DIR.parent / "state" / "alerts.json"
-STATE_DIR   = SCRIPTS_DIR.parent / "state"
+from common import STATE_DIR
+ALERTS_FILE = STATE_DIR / "alerts.json"
 
 sys.path.append(str(SCRIPTS_DIR))
 from utils.jids import normalize_jid, resolve_sender_label, jid_match

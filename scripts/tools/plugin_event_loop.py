@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from security.plugin_router import load_plugin
 
-STATE_DIR = Path(__file__).parent.parent.parent / "state"
+from common import STATE_DIR
 SOULS_DIR = STATE_DIR / "souls"
 
 def process_plugin_events(plugin_name: str):

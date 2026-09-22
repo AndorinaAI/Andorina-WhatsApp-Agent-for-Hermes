@@ -13,7 +13,8 @@ sys.path.append(str(SCRIPTS_DIR))
 from utils.safe_json import read_json_safe, write_json_safe
 from utils.jids import normalize_jid, jid_match, resolve_lid_to_phone
 
-INBOX_FILE = SCRIPTS_DIR.parent / 'state' / 'inbox.json'
+from common import STATE_DIR
+INBOX_FILE = STATE_DIR / "inbox.json"
 
 def load_canonical_map():
     """Builds {numeric_part -> canonical_JID} map from lid-mapping-*_reverse.json files.

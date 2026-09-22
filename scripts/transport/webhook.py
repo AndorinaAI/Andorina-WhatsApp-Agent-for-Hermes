@@ -15,7 +15,7 @@ def get_input():
         return ""
 
 SCRIPTS_DIR = Path(__file__).parent.parent.absolute()
-STATE_DIR   = SCRIPTS_DIR.parent / "state"
+from common import STATE_DIR, post_json, load_env, log_outgoing
 
 # Import centralized env loading from common module
 sys.path.append(str(Path(__file__).parent.parent))

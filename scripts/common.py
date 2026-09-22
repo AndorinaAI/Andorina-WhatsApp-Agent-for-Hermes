@@ -14,8 +14,9 @@ from pathlib import Path
 SCRIPTS_DIR = Path(__file__).parent.absolute()
 
 def _get_state_dir():
-    """Resolve state directory — plugin path takes priority over skill path."""
-    state = SCRIPTS_DIR.parent / "state"
+    """Resolve state directory — uses plugin-data to separate user data from plugin install tree."""
+    data_home = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
+    state = data_home / "plugin-data" / "andorina"
     return state
 
 STATE_DIR = _get_state_dir()

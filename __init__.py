@@ -17,7 +17,7 @@ from pathlib import Path
 
 _PLUGIN_DIR = Path(__file__).parent.absolute()
 _SCRIPTS_DIR = _PLUGIN_DIR / "scripts"
-_STATE_DIR = _PLUGIN_DIR / "state"
+_STATE_DIR = _PLUGIN_DIR.parent / "plugin-data" / "andorina"
 
 
 def _ensure_state():

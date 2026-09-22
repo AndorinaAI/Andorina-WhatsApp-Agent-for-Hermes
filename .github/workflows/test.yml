@@ -47,4 +47,4 @@ jobs:
 
       - name: Legacy test suite
         run: |
-          python tests/test_sandbox.py --quick
+          python -m pytest tests/test_sandbox.py -v --tb=short

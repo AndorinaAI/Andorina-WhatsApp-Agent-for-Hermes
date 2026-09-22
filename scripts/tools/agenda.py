@@ -37,7 +37,8 @@ except ImportError:
 # ─────────────── Paths ────────────────────────────────────────────────────────
 SCRIPTS_DIR = Path(__file__).parent.parent.absolute()
 HERMES_BASE = SCRIPTS_DIR.parent
-AGENDA_FILE = HERMES_BASE / "state" / "agenda.json"
+from common import STATE_DIR
+AGENDA_FILE = STATE_DIR / "agenda.json"
 import os
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
 
@@ -428,7 +429,7 @@ def cmd_auto_schedule(chat_id: str, time_str: str, message: str,
 
 # ─────────────── Recurring Tasks ────────────────────────────────────────────────
 def get_recurring_dir():
-    rdir = HERMES_BASE / "state" / "recurring"
+    rdir = STATE_DIR / "recurring"
     rdir.mkdir(parents=True, exist_ok=True)
     return rdir
 
