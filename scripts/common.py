@@ -102,6 +102,50 @@ def log_outgoing(chat_id, text, msg_type="text"):
                 tmp_file.replace(INBOX_FILE)
     except Exception: pass
 
+
+
+# ── Per-chat send cooldown (anti-spam) ────────────────────────────────────
+import json as _json
+from pathlib import Path as _Path
+
+SEND_COOLDOWN_FILE = STATE_DIR / "send_cooldown.json"
+SEND_COOLDOWN_SECS = int(os.environ.get("ANDORINA_SEND_COOLDOWN_SECS", 15))
+
+def check_send_cooldown(chat_id: str) -> bool:
+    """Check if enough time has passed since the last send to this chat.
+    Returns True if allowed, False if cooldown still active."""
+    try:
+        SEND_COOLDOWN_FILE.parent.mkdir(parents=True, exist_ok=True)
+        data = {}
+        if SEND_COOLDOWN_FILE.exists():
+            data = _json.loads(SEND_COOLDOWN_FILE.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            data = {}
+        now = time.time()
+        last = data.get(chat_id, 0)
+        if now - last < SEND_COOLDOWN_SECS:
+            remaining = int(SEND_COOLDOWN_SECS - (now - last))
+            return False
+        return True
+    except Exception:
+        return True  # fail open — don't block sends on cooldown errors
+
+def record_send_cooldown(chat_id: str) -> None:
+    """Record a send to this chat for cooldown tracking."""
+    try:
+        SEND_COOLDOWN_FILE.parent.mkdir(parents=True, exist_ok=True)
+        data = {}
+        if SEND_COOLDOWN_FILE.exists():
+            data = _json.loads(SEND_COOLDOWN_FILE.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            data = {}
+        data[chat_id] = time.time()
+        tmp = SEND_COOLDOWN_FILE.with_suffix(".tmp")
+        tmp.write_text(_json.dumps(data), encoding="utf-8")
+        tmp.replace(SEND_COOLDOWN_FILE)
+    except Exception:
+        pass  # fail open
+
 def post_json(endpoint, data, attempt=0, silent_pacing=False):
     """Standardized POST with pacing"""
     url = f"{BRIDGE_URL}{endpoint}"

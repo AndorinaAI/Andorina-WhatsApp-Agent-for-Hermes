@@ -18,7 +18,7 @@ try:
     bridge_health.ensure_patched()
 except Exception: pass
 
-from common import log_outgoing, post_json, out
+from common import log_outgoing, post_json, out, check_send_cooldown, record_send_cooldown
 from utils.jids import normalize_jid
 
 def simulate_presence(chat_id, presence_type="composing"):
@@ -70,6 +70,10 @@ def cmd_enviar(path, chat_id_raw, is_voice=False, caption=""):
 
     # ✍️ Human Simulation: Show status before uploading
     presence = "recording" if is_voice else "composing"
+    # Per-chat send cooldown (anti-spam / anti-ban)
+    if not check_send_cooldown(chat_id):
+        out({"status": "DENY", "error_code": "COOLDOWN_ACTIVE", "payload": {"error": "Please wait before sending another file to this chat."}})
+        sys.exit(1)
     simulate_presence(chat_id, presence)
 
     import mimetypes
@@ -100,6 +104,7 @@ def cmd_enviar(path, chat_id_raw, is_voice=False, caption=""):
     elif res and res.get("success"):
         desc = "[Voice Note]" if is_voice else f"[File: {os.path.basename(path)}]"
         log_outgoing(chat_id, desc, msg_type="voice" if is_voice else "document")
+        record_send_cooldown(chat_id)
         out({"status": "OK", "error_code": "NONE", "payload": {"chatId": chat_id, "file": os.path.basename(path)}})
     else:
         out({"status": "ERROR", "error_code": "FATAL", "payload": {"error": "SEND_FAILED", "detail": res.get("error", "Unknown") if res else "No response"}})
